@@ -7,12 +7,17 @@ import dev.ryanhcode.sable.api.physics.force.ForceGroups;
 import dev.ryanhcode.sable.api.physics.force.QueuedForceGroup;
 import dev.ryanhcode.sable.companion.math.BoundingBox3d;
 import dev.simulated_team.simulated.Simulated;
+import dev.simulated_team.simulated.content.blocks.altitude_sensor.AltitudeSensorBlockEntity;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterEntries.KeyboardEntry;
+import dev.simulated_team.simulated.content.blocks.redstone.modulating_receiver.ModulatingLinkedReceiverBlockEntity;
+import dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity;
 import dev.simulated_team.simulated.content.end_sea.EndSeaPhysics;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.content.physics_staff.PhysicsStaffAction;
+import dev.simulated_team.simulated.index.SimBlocks;
 import dev.simulated_team.simulated.network.SimNetwork;
 import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import dev.simulated_team.simulated.network.packet.SimPacket;
 import dev.simulated_team.simulated.network.packets.*;
 import dev.simulated_team.simulated.network.packets.contraption_diagram.*;
@@ -35,18 +40,21 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
-import java.util.*;
 import java.lang.reflect.Field;
+import java.util.*;
 
 @GameTestHolder(Simulated.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -119,6 +127,87 @@ public final class NetworkCodecGameTest {
         }
         assertRuntimeRegistrationSet(packetIds);
         helper.succeed();
+    }
+
+    @GameTest(template = "extrakineticstest.analogtransmission")
+    public static void serverboundConfigurationHandlersPersist(final GameTestHelper helper) {
+        final BlockPos altitudePos = helper.absolutePos(new BlockPos(1, 20, 1));
+        final BlockPos receiverPos = helper.absolutePos(new BlockPos(1, 21, 1));
+        final BlockPos throttlePos = helper.absolutePos(new BlockPos(1, 22, 1));
+        final ServerLevel level = helper.getLevel();
+        final boolean restored = level.getBlockState(altitudePos).is(SimBlocks.ALTITUDE_SENSOR.get());
+
+        if (!restored) {
+            level.setBlockAndUpdate(altitudePos, SimBlocks.ALTITUDE_SENSOR.getDefaultState());
+            level.setBlockAndUpdate(receiverPos, SimBlocks.MODULATING_LINKED_RECEIVER.getDefaultState());
+            level.setBlockAndUpdate(throttlePos, SimBlocks.THROTTLE_LEVER.getDefaultState());
+        }
+
+        final AltitudeSensorBlockEntity altitude = requireBlockEntity(level, altitudePos, AltitudeSensorBlockEntity.class);
+        final ModulatingLinkedReceiverBlockEntity receiver = requireBlockEntity(level, receiverPos, ModulatingLinkedReceiverBlockEntity.class);
+        final ThrottleLeverBlockEntity throttle = requireBlockEntity(level, throttlePos, ThrottleLeverBlockEntity.class);
+
+        if (restored) {
+            assertClose("saved altitude high signal", 0.85f, altitude.highSignal);
+            assertClose("saved altitude low signal", 0.15f, altitude.lowSignal);
+            if (receiver.minRange != 12 || receiver.maxRange != 96) {
+                throw new GameTestAssertException("Saved receiver range changed: " + receiver.minRange + ".." + receiver.maxRange);
+            }
+            if (throttle.getState() != 11) {
+                throw new GameTestAssertException("Saved throttle signal changed: " + throttle.getState());
+            }
+        }
+
+        final ServerPlayer player = FakePlayerFactory.getMinecraft(level);
+        player.setPos(altitudePos.getX() + 0.5, altitudePos.getY() + 0.5, altitudePos.getZ() + 0.5);
+        transfer(ConfigureAltitudeSensorPacket.CODEC,
+                new ConfigureAltitudeSensorPacket(altitudePos, 0.85f, 0.15f)).handle(new ServerPacketContext(player));
+        assertClose("packet-applied altitude high signal", 0.85f, altitude.highSignal);
+        assertClose("packet-applied altitude low signal", 0.15f, altitude.lowSignal);
+
+        player.setPos(receiverPos.getX() + 0.5, receiverPos.getY() + 0.5, receiverPos.getZ() + 0.5);
+        transfer(ConfigureModulatingLinkedRecieverPacket.CODEC,
+                new ConfigureModulatingLinkedRecieverPacket(receiverPos, 12, 96)).handle(new ServerPacketContext(player));
+        if (receiver.minRange != 12 || receiver.maxRange != 96) {
+            throw new GameTestAssertException("Packet did not apply receiver range: " + receiver.minRange + ".." + receiver.maxRange);
+        }
+
+        player.setPos(throttlePos.getX() + 0.5, throttlePos.getY() + 0.5, throttlePos.getZ() + 0.5);
+        transfer(ThrottleLeverSignalPacket.CODEC,
+                new ThrottleLeverSignalPacket(throttlePos, 11)).handle(new ServerPacketContext(player));
+        if (throttle.getState() != 11) {
+            throw new GameTestAssertException("Packet did not apply throttle signal: " + throttle.getState());
+        }
+
+        helper.succeed();
+    }
+
+    private static <T> T requireBlockEntity(final ServerLevel level, final BlockPos pos, final Class<T> type) {
+        final Object blockEntity = level.getBlockEntity(pos);
+        if (!type.isInstance(blockEntity)) {
+            throw new GameTestAssertException("Expected " + type.getSimpleName() + " at " + pos + ", got " + blockEntity);
+        }
+        return type.cast(blockEntity);
+    }
+
+    private static void assertClose(final String label, final float expected, final float actual) {
+        if (Math.abs(expected - actual) > 1.0e-6f) {
+            throw new GameTestAssertException(label + ": expected " + expected + ", got " + actual);
+        }
+    }
+
+    private static <P> P transfer(final StreamCodec<? super FriendlyByteBuf, P> codec, final P outbound) {
+        final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            codec.encode(buffer, outbound);
+            final P inbound = codec.decode(buffer);
+            if (buffer.isReadable()) {
+                throw new GameTestAssertException("Transferred packet left " + buffer.readableBytes() + " unread bytes");
+            }
+            return inbound;
+        } finally {
+            buffer.release();
+        }
     }
 
     private static void assertRuntimeRegistrationSet(final Set<ResourceLocation> expectedIds) {
