@@ -3,7 +3,8 @@ package dev.simulated_team.simulated.data.advancements;
 import com.google.common.collect.Maps;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,7 +58,7 @@ public abstract class SimulatedCriterionTriggerBase<T extends SimulatedCriterion
             final List<Listener<T>> list = new LinkedList<>();
 
             for (final Listener<T> listener : playerListeners) {
-                if(listener.trigger().test(suppliers)) {
+                if(listener.getTriggerInstance().test(suppliers)) {
                     list.add(listener);
                 }
             }
@@ -66,13 +67,9 @@ public abstract class SimulatedCriterionTriggerBase<T extends SimulatedCriterion
         }
     }
 
-    public abstract static class Instance implements CriterionTriggerInstance {
-        private final ResourceLocation id;
+    public abstract static class Instance extends AbstractCriterionTriggerInstance {
         public Instance(final ResourceLocation id) {
-            this.id = id;
-        }
-        public ResourceLocation getId() {
-            return this.id;
+            super(id, ContextAwarePredicate.ANY);
         }
         protected abstract boolean test (@Nullable List<Supplier<Object>> suppliers);
     }
