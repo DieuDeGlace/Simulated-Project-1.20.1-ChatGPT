@@ -178,10 +178,11 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
                     final PlayerRenderer playerrenderer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher()
                             .getRenderer(player);
                     float headYDirection = Mth.lerp(pt, player.yHeadRotO, player.yHeadRot);
-                    final float bodyDifference = Math.abs(headYDirection - player.getPreciseBodyRotation(pt)) / 50f;
+                    final float bodyRotation = Mth.lerp(pt, player.yBodyRotO, player.yBodyRot);
+                    final float bodyDifference = Math.abs(headYDirection - bodyRotation) / 50f;
                     final float headXDirection = Mth.lerp(pt, player.xRotO, player.getXRot());
                     final float lookDelta = Math.abs(Mth.map(headXDirection, 90, 0, 1f, 0f));
-                    headYDirection = Mth.lerp(lookDelta, headYDirection, player.getPreciseBodyRotation(pt));
+                    headYDirection = Mth.lerp(lookDelta, headYDirection, bodyRotation);
                     final Vec3 viewDirection = player.calculateViewVector(headXDirection, headYDirection);
                     final Vec3 handDirection = player.calculateViewVector(0, headYDirection + 90.0f);
                     target = player.getPosition(pt).add(0.0, 1.28, 0.0).add(viewDirection.scale(0.875)).add(handDirection.scale(Math.abs(Mth.map(headXDirection, 90, 0, 0.325f, 0f)) * (1)));
@@ -330,68 +331,79 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             NEXT_ORIENTATION.transform(NEXT_NORMAL.set(0, -1, 0));
 
             NEXT_ORIENTATION.transform(POS.set(-nextCableRadius, -nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(0, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, 0, nextV, lightEnd, NEXT_NORMAL);
 
             ORIENTATION.transform(POS.set(-cableRadius, -cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(0, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, 0, v, lightStart, NORMAL);
 
             ORIENTATION.transform(POS.set(cableRadius, -cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(u, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, u, v, lightStart, NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(nextCableRadius, -nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(u, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, u, nextV, lightEnd, NEXT_NORMAL);
 
             // Up
             ORIENTATION.transform(NORMAL.set(0, 1, 0));
             NEXT_ORIENTATION.transform(NEXT_NORMAL.set(0, 1, 0));
 
             ORIENTATION.transform(POS.set(-cableRadius, cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(0, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, 0, v, lightStart, NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(-nextCableRadius, nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(0, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, 0, nextV, lightEnd, NEXT_NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(nextCableRadius, nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(u, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, u, nextV, lightEnd, NEXT_NORMAL);
 
             ORIENTATION.transform(POS.set(cableRadius, cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(u, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, u, v, lightStart, NORMAL);
 
             // West
             ORIENTATION.transform(NORMAL.set(-1, 0, 0));
             NEXT_ORIENTATION.transform(NEXT_NORMAL.set(-1, 0, 0));
 
             NEXT_ORIENTATION.transform(POS.set(-nextCableRadius, -nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(u, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, u, nextV, lightEnd, NEXT_NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(-nextCableRadius, nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(0, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, 0, nextV, lightEnd, NEXT_NORMAL);
 
             ORIENTATION.transform(POS.set(-cableRadius, cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(0, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, 0, v, lightStart, NORMAL);
 
             ORIENTATION.transform(POS.set(-cableRadius, -cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(u, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, u, v, lightStart, NORMAL);
 
             // East
             ORIENTATION.transform(NORMAL.set(1, 0, 0));
             NEXT_ORIENTATION.transform(NEXT_NORMAL.set(1, 0, 0));
 
             ORIENTATION.transform(POS.set(cableRadius, -cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(u, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, u, v, lightStart, NORMAL);
 
             ORIENTATION.transform(POS.set(cableRadius, cableRadius, 0));
-            builder.addVertex((float) (x - origin.x() + POS.x), (float) (y - origin.y() + POS.y), (float) (z - origin.z() + POS.z)).setColor(color).setUv(0, v).setLight(lightStart).setNormal(NORMAL.x, NORMAL.y, NORMAL.z);
+            addRopeVertex(builder, x - origin.x() + POS.x, y - origin.y() + POS.y, z - origin.z() + POS.z, color, 0, v, lightStart, NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(nextCableRadius, nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(0, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, 0, nextV, lightEnd, NEXT_NORMAL);
 
             NEXT_ORIENTATION.transform(POS.set(nextCableRadius, -nextCableRadius, 0));
-            builder.addVertex((float) (nextX - origin.x() + POS.x), (float) (nextY - origin.y() + POS.y), (float) (nextZ - origin.z() + POS.z)).setColor(color).setUv(u, nextV).setLight(lightEnd).setNormal(NEXT_NORMAL.x, NEXT_NORMAL.y, NEXT_NORMAL.z);
+            addRopeVertex(builder, nextX - origin.x() + POS.x, nextY - origin.y() + POS.y, nextZ - origin.z() + POS.z, color, u, nextV, lightEnd, NEXT_NORMAL);
 
             ORIENTATION.set(NEXT_ORIENTATION);
             v = nextV;
         }
+    }
+
+    private static void addRopeVertex(final VertexConsumer builder, final double x, final double y, final double z,
+                                      final int color, final float u, final float v, final int light,
+                                      final Vector3f normal) {
+        builder.vertex((float) x, (float) y, (float) z)
+                .color(color)
+                .uv(u, v)
+                .uv2(light)
+                .normal(normal.x, normal.y, normal.z)
+                .endVertex();
     }
 
     private static void calculateOrientation(final Quaternionf store, final double x, final double y, final double z, final Vec3 nextPoint) {

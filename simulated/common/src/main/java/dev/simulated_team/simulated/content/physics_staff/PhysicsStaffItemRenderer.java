@@ -91,7 +91,8 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
         final float tiltAmount = Mth.lerp(partialTicks, clientHandler.previousTilt, clientHandler.tilt);
         final Quaternionf utilQuat = new Quaternionf();
 
-        boolean shadersActive = Veil.IRIS && Iris.isPackInUseQuick();
+        final boolean irisCompatibleModLoaded = Veil.platform().isModLoaded("iris") || Veil.platform().isModLoaded("oculus");
+        final boolean shadersActive = irisCompatibleModLoaded && Iris.isPackInUseQuick();
 
         if (context.firstPerson()) {
             if (clientHandler.getDragSession() != null) {
@@ -144,7 +145,7 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
             m.m30(0).m31(0).m32(0);
             m.invert();
             m.rotate(clientHandler.lastCubeOrientation);
-            ms.mulPose(m);
+            ms.mulPoseMatrix(m);
         }
 
         cubeScale = Mth.lerp(cubeScale, -0.05f, 1f);
@@ -165,7 +166,7 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
         renderer.render(SimPartialModels.PHYSICS_STAFF_OUTER_CUBE.get(), SimRenderTypes.itemGlowingTranslucent(shadersActive), LightTexture.FULL_BRIGHT);
 
         // Iris doesn't allow individual render types to be ended, so all batches must be ended for the translucent parts to draw correctly
-        if (Veil.IRIS && !shadersActive) {
+        if (irisCompatibleModLoaded && !shadersActive) {
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
         }
     }
