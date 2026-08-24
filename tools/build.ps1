@@ -180,7 +180,7 @@ $env:JAVA_HOME = $javaHome
 $env:Path = (Join-Path $javaHome 'bin') + [IO.Path]::PathSeparator + $env:Path
 
 $gradle = Join-Path $repositoryPath 'gradlew.bat'
-$arguments = @('--no-daemon', '--stacktrace', "-Psable_jar=$SableJar", 'clean', ':aeronautics-bundled:build')
+$arguments = @('--no-daemon', '--stacktrace', '-p', $repositoryPath, "-Psable_jar=$SableJar", 'clean', ':aeronautics-bundled:build')
 if ($Offline) { $arguments += '--offline' }
 if ($Mode -eq 'quick') { $arguments += @('-x', 'test') }
 
@@ -188,7 +188,7 @@ if ($Mode -eq 'quick') { $arguments += @('-x', 'test') }
 if ($LASTEXITCODE -ne 0) { throw "Simulated build failed with exit code $LASTEXITCODE" }
 
 if ($Mode -eq 'test') {
-    $testArguments = @('--no-daemon', '--stacktrace', "-Psable_jar=$SableJar", ':all-forge:runGameTest')
+    $testArguments = @('--no-daemon', '--stacktrace', '-p', $repositoryPath, "-Psable_jar=$SableJar", ':all-forge:runGameTest')
     if ($Offline) { $testArguments += '--offline' }
     & $gradle @testArguments
     if ($LASTEXITCODE -ne 0) { throw "Simulated GameTest failed with exit code $LASTEXITCODE" }
