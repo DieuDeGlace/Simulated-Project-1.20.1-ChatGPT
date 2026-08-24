@@ -81,7 +81,7 @@ public class LevititeShaderManager {
         shader.safeGetUniform("linearVelocity").set(0f, 0f, 0f);
         shader.safeGetUniform("angularVelocity").set(0f, 0f, 0f);
         shader.safeGetUniform("onSublevel").set(0);
-        shader.safeGetUniform("gravityStrength").set(0);
+        shader.safeGetUniform("gravityStrength").set(0f);
         enabled = true;
     }
 

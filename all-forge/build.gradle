@@ -40,6 +40,12 @@ legacyForge {
         client {
             client()
             gameDirectory = project.file('runs/client')
+
+            def quickPlayWorld = providers.gradleProperty('quickPlayWorld').orNull
+            if (quickPlayWorld != null && !quickPlayWorld.isBlank()) {
+                programArgument '--quickPlaySingleplayer'
+                programArgument quickPlayWorld
+            }
         }
 
         server {
