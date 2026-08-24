@@ -46,6 +46,10 @@ legacyForge {
                 programArgument '--quickPlaySingleplayer'
                 programArgument quickPlayWorld
             }
+
+            if (providers.gradleProperty('liveNetworkValidation').map(Boolean::parseBoolean).getOrElse(false)) {
+                systemProperty 'simulated.validation.liveNetwork', 'true'
+            }
         }
 
         server {
