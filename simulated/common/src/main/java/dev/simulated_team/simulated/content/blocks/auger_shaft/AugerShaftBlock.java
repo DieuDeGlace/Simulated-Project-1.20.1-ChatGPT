@@ -29,7 +29,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -110,7 +110,11 @@ public class AugerShaftBlock extends RotatedPillarKineticBlock implements IBE<Au
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack heldItem, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        return useItemOn(player.getItemInHand(interactionHand), blockState, level, blockPos, player, interactionHand, blockHitResult);
+    }
+
+    private InteractionResult useItemOn(final ItemStack heldItem, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
         final IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
         if (helper.matchesItem(heldItem))
             return helper.getOffset(player, level, blockState, blockPos, blockHitResult)
@@ -120,22 +124,22 @@ public class AugerShaftBlock extends RotatedPillarKineticBlock implements IBE<Au
             final Boolean encased = blockState.getValue(ENCASED);
             if (encased && AllItems.WRENCH.isIn(player.getItemInHand(interactionHand))) {
                 if (level.isClientSide)
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
 
                 level.setBlockAndUpdate(blockPos, blockState.cycle(ENCASED));
                 level.levelEvent(2001, blockPos, Block.getId(AllBlocks.INDUSTRIAL_IRON_BLOCK.getDefaultState()));
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else if (!encased && player.getItemInHand(interactionHand).is(AllBlocks.INDUSTRIAL_IRON_BLOCK.get().asItem())) {
                 if (level.isClientSide)
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
 
                 level.setBlockAndUpdate(blockPos, blockState.cycle(ENCASED));
                 level.playSound(null, blockPos, SimSoundEvents.AUGER_SHAFT_ENCASING.event(), SoundSource.BLOCKS, 0.5F, 1.05F);
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
-        return super.useItemOn(heldItem, blockState, level, blockPos, player, interactionHand, blockHitResult);
+        return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
     }
 
     @Override

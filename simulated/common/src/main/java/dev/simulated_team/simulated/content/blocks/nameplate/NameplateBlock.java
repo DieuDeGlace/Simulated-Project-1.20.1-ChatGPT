@@ -22,7 +22,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
@@ -149,20 +149,25 @@ public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<Na
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        final InteractionResult result = useItemOn(player.getItemInHand(interactionHand), blockState, level, blockPos, player, interactionHand, blockHitResult);
+        return result == InteractionResult.PASS ? super.use(blockState, level, blockPos, player, interactionHand, blockHitResult) : result;
+    }
+
+    private InteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
         if (!player.isShiftKeyDown() && player.mayBuild()) {
             final IPlacementHelper placementHelper = PlacementHelpers.get(placementHelperId);
             if (itemStack.getItem() instanceof final BlockItem bi && blockState.is(bi.getBlock()) && placementHelper.matchesItem(itemStack)) {
-                final ItemInteractionResult result = placementHelper.getOffset(player, level, blockState, blockPos, blockHitResult)
+                final InteractionResult result = placementHelper.getOffset(player, level, blockState, blockPos, blockHitResult)
                         .placeInWorld(level, (BlockItem) itemStack.getItem(), player, interactionHand, blockHitResult);
-                if (result == ItemInteractionResult.SUCCESS) {
-                    return ItemInteractionResult.SUCCESS;
+                if (result == InteractionResult.SUCCESS) {
+                    return InteractionResult.SUCCESS;
                 }
             }
         }
 
         if (player.isShiftKeyDown()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
 
         final ItemStack heldItem = player.getItemInHand(interactionHand);
@@ -193,7 +198,7 @@ public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<Na
                     nbe.sendData();
                 }
             });
-            return success.booleanValue() ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return success.booleanValue() ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
 
         if (level.isClientSide) {
@@ -207,7 +212,7 @@ public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<Na
             });
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override

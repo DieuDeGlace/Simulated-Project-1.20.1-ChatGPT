@@ -94,7 +94,7 @@ public class ThrottleLeverClientGripHandler {
         final VoxelShape leverShape = SimBlocks.THROTTLE_LEVER.get().getHandleShape(SimBlocks.THROTTLE_LEVER.getDefaultState());
 
         eyePos.set(localViewPosition);
-        viewVector.set(localViewDirection).mul(player.blockInteractionRange()).add(eyePos);
+        viewVector.set(localViewDirection).mul(player.getBlockReach()).add(eyePos);
 
         final BlockHitResult hitResult = leverShape.clip(JOMLConversion.toMojang(eyePos), JOMLConversion.toMojang(viewVector), BlockPos.ZERO);
 

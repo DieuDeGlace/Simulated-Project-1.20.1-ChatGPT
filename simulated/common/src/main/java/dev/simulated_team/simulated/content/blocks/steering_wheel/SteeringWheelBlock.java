@@ -20,7 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -94,7 +94,7 @@ public class SteeringWheelBlock extends HorizontalDirectionalBlock
 
     public static boolean lookingAtWheel(final Player player, final BlockPos pos, final float pt, final VoxelShape wheel, final VoxelShape mount) {
         Vec3 from = player.getEyePosition(pt);
-        Vec3 to = from.add(player.getViewVector(pt).scale(player.blockInteractionRange()));
+        Vec3 to = from.add(player.getViewVector(pt).scale(player.getBlockReach()));
         final SubLevel subLevel = Sable.HELPER.getContaining(player.level(), pos);
         if (subLevel != null) {
             final Pose3dc pose;
@@ -162,11 +162,16 @@ public class SteeringWheelBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+        final InteractionResult result = useItemOn(player.getItemInHand(hand), state, level, pos, player, hand, hitResult);
+        return result == InteractionResult.PASS ? super.use(state, level, pos, player, hand, hitResult) : result;
+    }
+
+    private InteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
         if (player.isShiftKeyDown()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
-        return this.onBlockEntityUseItemOn(level, pos, be -> be.applyMaterialIfValid(stack));
+        return this.onBlockEntityUse(level, pos, be -> be.applyMaterialIfValid(stack));
     }
 
     @Override

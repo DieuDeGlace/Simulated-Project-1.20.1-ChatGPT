@@ -63,7 +63,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
     }
 
     public static boolean canPlayerReach(final NameplateBlockEntity be, final Player player) {
-        return getClosestDistance(be, player.getEyePosition()) < player.blockInteractionRange() + 4;
+        return getClosestDistance(be, player.getEyePosition()) < player.getBlockReach() + 4;
     }
 
     @Override

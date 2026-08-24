@@ -15,7 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -114,7 +114,12 @@ public class LaserPointerBlock extends DirectionalBlock implements IBE<LaserPoin
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final @NotNull ItemStack itemStack,
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        final InteractionResult result = useItemOn(player.getItemInHand(interactionHand), blockState, level, blockPos, player, interactionHand, blockHitResult);
+        return result == InteractionResult.PASS ? super.use(blockState, level, blockPos, player, interactionHand, blockHitResult) : result;
+    }
+
+    private InteractionResult useItemOn(final @NotNull ItemStack itemStack,
                                               final @NotNull BlockState blockState,
                                               final @NotNull Level level,
                                               final @NotNull BlockPos blockPos,
@@ -144,10 +149,10 @@ public class LaserPointerBlock extends DirectionalBlock implements IBE<LaserPoin
             }
             be.setRainbow(newRainbow);
             level.playLocalSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.DYE_USE, SoundSource.PLAYERS, 0.3f, 1.0f, false);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override

@@ -12,7 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -153,20 +153,25 @@ public class AltitudeSensorBlock extends FaceAttachedHorizontalDirectionalBlock 
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(final @NotNull ItemStack stack,
+    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+        final InteractionResult result = useItemOn(player.getItemInHand(hand), state, level, pos, player, hand, hitResult);
+        return result == InteractionResult.PASS ? super.use(state, level, pos, player, hand, hitResult) : result;
+    }
+
+    private @NotNull InteractionResult useItemOn(final @NotNull ItemStack stack,
                                                        final @NotNull BlockState state,
                                                        final @NotNull Level level,
                                                        final @NotNull BlockPos pos,
                                                        final @NotNull Player player,
                                                        final @NotNull InteractionHand hand,
                                                        final @NotNull BlockHitResult hitResult) {
-        return AllItems.WRENCH.isIn(stack) ? ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION : this.onBlockEntityUseItemOn(level, pos, (be) -> {
+        return AllItems.WRENCH.isIn(stack) ? InteractionResult.PASS : this.onBlockEntityUse(level, pos, (be) -> {
 
             if (level.isClientSide) {
                 this.withBlockEntityDo(level, pos, AltitudeSensorScreen::open);
             }
 
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         });
     }
 

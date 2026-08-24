@@ -11,6 +11,7 @@ import dev.simulated_team.simulated.index.SimClickInteractions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -83,7 +84,7 @@ public class PhysicsAssemblerBlock extends FaceAttachedHorizontalDirectionalBloc
     }
 
     @Override
-    protected InteractionResult useWithoutItem(final BlockState state, final Level level, final BlockPos pos, final Player player, final BlockHitResult hitResult) {
+    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
         // Deployer interaction
         if (player instanceof DeployerFakePlayer) {
             if (!level.isClientSide) {

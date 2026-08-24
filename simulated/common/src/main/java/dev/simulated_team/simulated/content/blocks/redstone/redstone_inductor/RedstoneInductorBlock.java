@@ -14,7 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -50,27 +50,32 @@ public class RedstoneInductorBlock extends AbstractDiodeBlock implements IBE<Red
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        final InteractionResult result = useItemOn(player.getItemInHand(interactionHand), blockState, level, blockPos, player, interactionHand, blockHitResult);
+        return result == InteractionResult.PASS ? super.use(blockState, level, blockPos, player, interactionHand, blockHitResult) : result;
+    }
+
+    private InteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
         return this.toggle(level,blockPos, blockState, player, interactionHand);
     }
 
-    public ItemInteractionResult toggle(final Level pLevel, final BlockPos pPos, final BlockState pState, final Player player,
+    public InteractionResult toggle(final Level pLevel, final BlockPos pPos, final BlockState pState, final Player player,
                                     final InteractionHand pHand) {
         if (!player.mayBuild())
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         if (player.isShiftKeyDown())
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         if (AllItems.WRENCH.isIn(player.getItemInHand(pHand)))
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
 
         if (pLevel.isClientSide) {
             addParticles(pState, pLevel, pPos, 1f);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         pLevel.setBlock(pPos, pState.cycle(INVERTED), 3);
 
-        return this.onBlockEntityUseItemOn(pLevel, pPos, be -> {
+        return this.onBlockEntityUse(pLevel, pPos, be -> {
             final int backSignal = this.getBackSignal(pLevel, pPos, pState);
 
             be.updateSignal();
@@ -78,7 +83,7 @@ public class RedstoneInductorBlock extends AbstractDiodeBlock implements IBE<Red
             final float f = !pState.getValue(INVERTED) ? 0.6F : 0.5F;
             pLevel.playSound(null, pPos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, f);
 
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         });
     }
 
