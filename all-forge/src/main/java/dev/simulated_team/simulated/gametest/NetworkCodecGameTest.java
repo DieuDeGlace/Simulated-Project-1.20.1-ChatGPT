@@ -1,12 +1,18 @@
 package dev.simulated_team.simulated.gametest;
 
 import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationPacket;
+import dev.eriksonn.aeronautics.content.blocks.propeller.small.andesite.AndesitePropellerBlockEntity;
+import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.physics.force.ForceGroups;
 import dev.ryanhcode.sable.api.physics.force.QueuedForceGroup;
+import dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle;
+import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
+import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.companion.math.BoundingBox3d;
+import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.altitude_sensor.AltitudeSensorBlockEntity;
@@ -207,6 +213,57 @@ public final class NetworkCodecGameTest {
                             new ConfigureAltitudeSensorPacket(storagePos, 0.65f, 0.35f)).handle(new ServerPacketContext(player));
                     assertClose("sub-level packet-applied altitude high signal", 0.65f, altitude.highSignal);
                     assertClose("sub-level packet-applied altitude low signal", 0.35f, altitude.lowSignal);
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = "extrakineticstest.swivelbearing", timeoutTicks = 100)
+    public static void aeronauticsPropellerQueuesSubLevelForce(final GameTestHelper helper) {
+        helper.startSequence()
+                .thenIdle(20)
+                .thenExecute(() -> {
+                    final SubLevel subLevel = requireSingleSubLevel(helper);
+                    if (!(subLevel instanceof final ServerSubLevel serverSubLevel)) {
+                        throw new GameTestAssertException("Expected server sub-level, got " + subLevel.getClass().getName());
+                    }
+
+                    final ServerLevel level = helper.getLevel();
+                    final BlockPos storagePos = subLevel.getPlot().getCenterBlock().offset(1, 0, 0);
+                    level.setBlockAndUpdate(storagePos, AeroBlocks.ANDESITE_PROPELLER.getDefaultState());
+                    final AndesitePropellerBlockEntity propeller = requireBlockEntity(
+                            level, storagePos, AndesitePropellerBlockEntity.class);
+
+                    boolean registeredActor = false;
+                    for (final Object actor : subLevel.getPlot().getBlockEntityActors()) {
+                        registeredActor |= actor == propeller;
+                    }
+                    if (!registeredActor) {
+                        throw new GameTestAssertException("Aeronautics propeller was not admitted to the Sable actor registry");
+                    }
+
+                    propeller.setSpeed(60.0f);
+                    propeller.tick();
+                    if (!propeller.isActive() || Math.abs(propeller.getThrust()) <= 1.0e-6) {
+                        throw new GameTestAssertException("Aeronautics propeller did not become an active thrust source");
+                    }
+
+                    final ServerSubLevelContainer container = Objects.requireNonNull(
+                            SubLevelContainer.getContainer(level), "Missing Sable server sub-level container");
+                    final RigidBodyHandle handle = Objects.requireNonNull(
+                            RigidBodyHandle.of(serverSubLevel), "Missing Sable rigid-body handle");
+                    serverSubLevel.enableIndividualQueuedForcesTracking(true);
+                    serverSubLevel.prePhysicsTickBegin();
+                    serverSubLevel.prePhysicsTick(container.physicsSystem(), handle, 1.0 / 20.0);
+
+                    final Map<?, QueuedForceGroup> groups = serverSubLevel.getQueuedForceGroups();
+                    if (groups == null) {
+                        throw new GameTestAssertException("Aeronautics propeller did not create a Sable force group");
+                    }
+                    final QueuedForceGroup propulsion = groups.get(ForceGroups.PROPULSION.get());
+                    if (propulsion == null || propulsion.getRecordedPointForces().isEmpty()
+                            || propulsion.getForceTotal().getLocalForce().lengthSquared() <= 1.0e-12) {
+                        throw new GameTestAssertException("Aeronautics propeller did not queue a non-zero propulsion force");
+                    }
                 })
                 .thenSucceed();
     }
