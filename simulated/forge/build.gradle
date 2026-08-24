@@ -41,12 +41,14 @@ legacyForge {
 
         data {
             data()
+            systemProperty('file.encoding', 'UTF-8')
             gameDirectory = project.file('runs/data')
             programArguments.addAll '--all',
                     '--mod', 'simulated',
                     '--output', generatedResources.absolutePath,
                     '--existing', commonResources.absolutePath,
-                    '--existing-mod', 'create'
+                    '--existing-mod', 'create',
+                    '--existing-mod', 'forge'
         }
 
         gameTest {
@@ -64,4 +66,10 @@ legacyForge {
 
 sourceSets.main.resources {
     srcDir generatedResources.absolutePath
+}
+
+tasks.named('runGameTest') {
+    doFirst {
+        delete project.file('build/gametest')
+    }
 }

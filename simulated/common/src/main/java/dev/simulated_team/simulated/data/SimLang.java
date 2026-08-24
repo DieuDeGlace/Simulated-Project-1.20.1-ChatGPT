@@ -3,7 +3,7 @@ package dev.simulated_team.simulated.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.simibubi.create.foundation.utility.FilesHelper;
+import com.google.gson.JsonParser;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
@@ -17,6 +17,10 @@ import net.createmod.ponder.foundation.PonderIndex;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +109,16 @@ public class SimLang {
 
     private static Map<String, String> getLangMap(final String lang) {
         final String filepath = "datagen/lang/%s.json".formatted(lang);
-        final JsonObject langObject = FilesHelper.loadJsonResource(filepath).getAsJsonObject();
+        final JsonObject langObject;
+        try (final InputStream input = SimLang.class.getClassLoader().getResourceAsStream(filepath)) {
+            if (input == null)
+                throw new IllegalStateException("Missing language data resource: " + filepath);
+            try (final InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+                langObject = JsonParser.parseReader(reader).getAsJsonObject();
+            }
+        } catch (final IOException exception) {
+            throw new IllegalStateException("Failed to read language data resource: " + filepath, exception);
+        }
 
         final Map<String, String> langMap = new HashMap<>();
         flattenJson(langMap, langObject, null);

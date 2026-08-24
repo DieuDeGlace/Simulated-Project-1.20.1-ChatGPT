@@ -15,6 +15,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraftforge.common.Tags;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -67,10 +68,10 @@ public class SimTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> STONE = AllTags.forgeItemTag("stones");
-        public static final TagKey<Item> REDSTONE_DUST = AllTags.forgeItemTag("dusts/redstone");
-        public static final TagKey<Item> SLIME_BALLS = AllTags.forgeItemTag("slime_balls");
-        public static final TagKey<Item> AMETHYST_SHARDS = AllTags.forgeItemTag("gems/amethyst");
+        public static final TagKey<Item> STONE = Tags.Items.STONE;
+        public static final TagKey<Item> REDSTONE_DUST = Tags.Items.DUSTS_REDSTONE;
+        public static final TagKey<Item> SLIME_BALLS = Tags.Items.SLIMEBALLS;
+        public static final TagKey<Item> AMETHYST_SHARDS = Tags.Items.GEMS_AMETHYST;
 
         public static final TagKey<Item> NAMEPLATE_ITEMS = create("nameplate_items");
         public static final TagKey<Item> ROTATE_WITH_NAV_ARROW = create("rotate_with_nav_arrow");
