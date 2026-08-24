@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -48,7 +48,7 @@ public class ThrottleLeverClientGripHandler {
             return true;
         }
 
-        final double reach = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue() + 2.0;
+        final double reach = player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) + 2.0;
 
         final BlockPos blockPos = blockEntity.getBlockPos();
 

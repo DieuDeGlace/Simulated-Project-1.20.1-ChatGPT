@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -80,7 +80,7 @@ public class LinkedTypewriterBlockEntity extends SmartBlockEntity implements Men
     }
 
     public static boolean playerInRange(final Player player, final Level world, final BlockPos pos) {
-        final double range = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue();
+        final double range = player.getAttributeValue(ForgeMod.BLOCK_REACH.get());
 
         // Make sure we take into account sub-levels! We are a sable addon after all!
         return Sable.HELPER.distanceSquaredWithSubLevels(world, player.getEyePosition(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < range * range;

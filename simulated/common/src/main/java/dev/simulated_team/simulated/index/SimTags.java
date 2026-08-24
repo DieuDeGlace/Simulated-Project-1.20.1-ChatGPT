@@ -66,10 +66,10 @@ public class SimTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> STONE = AllTags.commonItemTag("stones");
-        public static final TagKey<Item> REDSTONE_DUST = AllTags.commonItemTag("dusts/redstone");
-        public static final TagKey<Item> SLIME_BALLS = AllTags.commonItemTag("slime_balls");
-        public static final TagKey<Item> AMETHYST_SHARDS = AllTags.commonItemTag("gems/amethyst");
+        public static final TagKey<Item> STONE = AllTags.forgeItemTag("stones");
+        public static final TagKey<Item> REDSTONE_DUST = AllTags.forgeItemTag("dusts/redstone");
+        public static final TagKey<Item> SLIME_BALLS = AllTags.forgeItemTag("slime_balls");
+        public static final TagKey<Item> AMETHYST_SHARDS = AllTags.forgeItemTag("gems/amethyst");
 
         public static final TagKey<Item> NAMEPLATE_ITEMS = create("nameplate_items");
         public static final TagKey<Item> ROTATE_WITH_NAV_ARROW = create("rotate_with_nav_arrow");
@@ -127,7 +127,7 @@ public class SimTags {
     public static final Map<String, TagKey<Item>> DYE_MAP = new HashMap<>();
     static {
         for (final DyeColor color : DyeColor.values()) {
-            DYE_MAP.put(color.getName(), AllTags.commonItemTag("dyes/" + color.getName()));
+            DYE_MAP.put(color.getName(), AllTags.forgeItemTag("dyes/" + color.getName()));
         }
     }
 

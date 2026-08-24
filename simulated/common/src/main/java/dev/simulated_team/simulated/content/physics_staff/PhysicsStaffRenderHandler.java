@@ -60,8 +60,8 @@ public class PhysicsStaffRenderHandler {
         final Minecraft minecraft = Minecraft.getInstance();
         final LocalPlayer player = minecraft.player;
 
-        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.PHYSICS_STAFF) &&
-                !player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.PHYSICS_STAFF)) {
+        if (!player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.PHYSICS_STAFF.get()) &&
+                !player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.PHYSICS_STAFF.get())) {
             return;
         }
 
@@ -88,7 +88,7 @@ public class PhysicsStaffRenderHandler {
      */
     private static void updateHoverPos(final Minecraft minecraft, final LocalPlayer player) {
         final ClientLevel level = minecraft.level;
-        final float partialTicks = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
+        final float partialTicks = minecraft.getFrameTime();
 
         hoverBlockPos = null;
 

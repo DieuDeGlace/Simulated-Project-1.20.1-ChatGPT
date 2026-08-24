@@ -386,14 +386,14 @@ public class SensorScenes {
         world.toggleRedstonePower(util.select().position(3, 1, 3));
 
         world.modifyBlockEntityNBT(util.select().position(3, 1, 3), OpticalSensorBlockEntity.class,
-                nbt -> nbt.put("Filter", gold.saveOptional(world.getHolderLookupProvider())));
+                nbt -> nbt.put("Filter", gold.save(new CompoundTag())));
 
         scene.idle(20);
 
         scene.overlay().showControls(rightSlot, Pointing.DOWN, 40).withItem(iron);
 
         world.modifyBlockEntityNBT(util.select().position(1, 1, 3), OpticalSensorBlockEntity.class,
-                nbt -> nbt.put("Filter", iron.saveOptional(world.getHolderLookupProvider())));
+                nbt -> nbt.put("Filter", iron.save(new CompoundTag())));
 
         scene.idle(60);
 
@@ -531,7 +531,7 @@ public class SensorScenes {
 
         scene.overlay().showControls(sensorFilterPos, Pointing.DOWN, 40).withItem(dye);
 
-        world.modifyBlockEntityNBT(laserSensor, LaserSensorBlockEntity.class, nbt -> nbt.put("Filter", dye.saveOptional(world.getHolderLookupProvider())));
+        world.modifyBlockEntityNBT(laserSensor, LaserSensorBlockEntity.class, nbt -> nbt.put("Filter", dye.save(new CompoundTag())));
         world.toggleRedstonePower(laserSensor);
         laserSetRedstone(0, world, laserNixiePos, laserRedstonePos);
 
@@ -1131,7 +1131,7 @@ public class SensorScenes {
         scene.overlay().showControls(util.vector().blockSurface(navigationTable2, Direction.UP), Pointing.DOWN, 50).withItem(lodestoneCompass);
         scene.idle(5);
         world.modifyBlockEntityNBT(util.select().position(navigationTable2), NavTableBlockEntity.class,
-                tag -> tag.put("CurrentStack", lodestoneCompass.saveOptional(world.getHolderLookupProvider())), true);
+                tag -> tag.put("CurrentStack", lodestoneCompass.save(new CompoundTag())), true);
         world.showSection(lodestone, Direction.SOUTH);
 
         world.toggleRedstonePower(navTable2Left);

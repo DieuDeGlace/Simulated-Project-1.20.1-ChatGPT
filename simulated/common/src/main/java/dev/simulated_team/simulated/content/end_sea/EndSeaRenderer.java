@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.simulated_team.simulated.Simulated;
+import dev.simulated_team.simulated.util.BufferBuilderCompat;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.ext.VeilMultiBind;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
@@ -112,7 +113,7 @@ public class EndSeaRenderer {
         }
 
         final LocalPlayer player = minecraft.player;
-        final float renderTime = player.tickCount + minecraft.getTimer().getGameTimeDeltaPartialTick(false);
+        final float renderTime = player.tickCount + minecraft.getFrameTime();
 
         for (int i = 0; i < LAYER_COUNT; i++) {
             final Vec3 layer = LAYER_COLORS[i % LAYER_COLORS.length];
@@ -153,7 +154,7 @@ public class EndSeaRenderer {
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        BufferUploader.drawWithShader(BufferBuilderCompat.buildOrThrow(builder));
         ShaderProgram.unbind();
 
         RenderSystem.disableBlend();

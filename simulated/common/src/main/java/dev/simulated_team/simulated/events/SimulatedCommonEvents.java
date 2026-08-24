@@ -116,7 +116,7 @@ public class SimulatedCommonEvents {
     }
 
     public static @Nullable InteractionResult rightClickBlock(final Level level, final BlockPos pos, final Player player, final ItemStack useStack) {
-        if (level.getBlockState(pos).is(SimBlocks.SPRING) && useStack.is(SimTags.Items.SPRING_ADJUSTER)) {
+        if (level.getBlockState(pos).is(SimBlocks.SPRING.get()) && useStack.is(SimTags.Items.SPRING_ADJUSTER)) {
             if (SpringBlock.tryAdjustSpring(level, pos, player)) {
                 return InteractionResult.SUCCESS;
             } else {

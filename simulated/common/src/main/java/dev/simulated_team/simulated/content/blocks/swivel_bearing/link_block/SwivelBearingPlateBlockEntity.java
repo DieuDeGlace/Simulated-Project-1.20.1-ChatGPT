@@ -50,7 +50,7 @@ public class SwivelBearingPlateBlockEntity extends KineticBlockEntity implements
     }
 
     private void destroyBearing() {
-        if (this.parent != null && this.getLevel().getBlockState(this.parent).is(SimBlocks.SWIVEL_BEARING)) {
+        if (this.parent != null && this.getLevel().getBlockState(this.parent).is(SimBlocks.SWIVEL_BEARING.get())) {
             this.getLevel().destroyBlock(this.parent, false);
         }
     }

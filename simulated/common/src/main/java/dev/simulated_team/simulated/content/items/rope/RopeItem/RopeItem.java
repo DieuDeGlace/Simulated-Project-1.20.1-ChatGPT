@@ -71,7 +71,7 @@ public class RopeItem extends Item {
             if (ItemComponentCompat.has(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION)) {
 
                 if (!level.isClientSide) {
-                    if (!this.attachRope(level, ItemComponentCompat.get(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION), clickedPos, !player.hasInfiniteMaterials())) {
+                    if (!this.attachRope(level, ItemComponentCompat.get(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION), clickedPos, !player.getAbilities().instabuild)) {
                         // failure to connect
                         ItemComponentCompat.remove(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION);
                         return InteractionResult.SUCCESS;
@@ -83,7 +83,7 @@ public class RopeItem extends Item {
 
                 ItemComponentCompat.remove(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION);
 
-                if (!player.hasInfiniteMaterials())
+                if (!player.getAbilities().instabuild)
                     context.getItemInHand()
                             .shrink(1);
 

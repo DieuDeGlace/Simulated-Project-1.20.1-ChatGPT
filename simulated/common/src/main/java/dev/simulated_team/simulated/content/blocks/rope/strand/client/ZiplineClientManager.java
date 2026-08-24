@@ -23,7 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -59,7 +59,7 @@ public class ZiplineClientManager implements InteractCallback {
             return;
         }
 
-        final double maxRange = mc.player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
+        final double maxRange = mc.player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) + 1;
         final HitResult hitResult = mc.hitResult;
 
         final ClientLevelRopeManager ropeManager = ClientLevelRopeManager.getOrCreate(mc.level);
@@ -210,7 +210,7 @@ public class ZiplineClientManager implements InteractCallback {
         final Vec3 diff = target.subtract(playerPosition);
         final Vec3 normal = JOMLConversion.toMojang(query.normal());
         final Vec3 assistanceForce = normal.scale(mc.player.getDeltaMovement().dot(normal)).scale(0.04);
-        final double reach = mc.player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
+        final double reach = mc.player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) + 1;
 
         if (diff.lengthSqr() > reach * reach) {
             disembark();
@@ -232,7 +232,7 @@ public class ZiplineClientManager implements InteractCallback {
     }
 
     public static boolean canStartRidingDistance(final ClosestQuery query, final Player player) {
-        final double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
+        final double reach = player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) + 1;
         return query.position.distanceSquared(JOMLConversion.toJOML(player.position())) <= reach * reach;
     }
 

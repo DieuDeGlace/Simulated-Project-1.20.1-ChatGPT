@@ -364,7 +364,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
         final Direction facing = this.getBlockState().getValue(NameplateBlock.FACING);
         final Vec3i off = facing.getCounterClockWise(Direction.Axis.Y).getNormal();
 
-        final AABB bounds = AABB.encapsulatingFullBlocks(this.getBlockPos(), this.getBlockPos().offset(off.multiply(this.controllerWidth - 1)));
+        final AABB bounds = new AABB(this.getBlockPos()).minmax(new AABB(this.getBlockPos().offset(off.multiply(this.controllerWidth - 1))));
         return bounds;
     }
 

@@ -16,7 +16,6 @@ import dev.simulated_team.simulated.mixin_interface.PlayerLaunchedPlungerExtensi
 import net.createmod.catnip.math.VecHelper;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -45,8 +44,7 @@ public class PlungerLauncherItemRenderer extends CustomRenderedItemModelRenderer
         renderer.render(model.getOriginalModel(), light);
 
         final LocalPlayer player = Minecraft.getInstance().player;
-        final DeltaTracker timer = Minecraft.getInstance().getTimer();
-        final float partialTicks = timer.getGameTimeDeltaPartialTick(false);
+        final float partialTicks = Minecraft.getInstance().getFrameTime();
 
         final PlayerLaunchedPlungerExtension duck = (PlayerLaunchedPlungerExtension) player;
 
@@ -79,8 +77,7 @@ public class PlungerLauncherItemRenderer extends CustomRenderedItemModelRenderer
 
         ms.translate(2 / 16f * (first ? -1 : 1), -1 / 16f, -5 / 16f);
 
-        final DeltaTracker timer = Minecraft.getInstance().getTimer();
-        final float partialTicks = timer.getGameTimeDeltaPartialTick(false);
+        final float partialTicks = Minecraft.getInstance().getFrameTime();
 
         final ItemCooldowns cooldowns = Minecraft.getInstance().player.getCooldowns();
         final float cooldown = cooldowns.getCooldownPercent(SimItems.PLUNGER_LAUNCHER.asItem(), partialTicks);

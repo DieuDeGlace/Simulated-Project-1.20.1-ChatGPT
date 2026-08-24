@@ -12,6 +12,7 @@ import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimPartialModels;
 import dev.simulated_team.simulated.network.packets.ConfigureModulatingLinkedRecieverPacket;
 import dev.simulated_team.simulated.util.SimColors;
+import dev.simulated_team.simulated.util.BufferBuilderCompat;
 import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.gui.AbstractSimiScreen;
@@ -162,7 +163,7 @@ public class ModulatingLinkedReceiverScreen extends AbstractSimiScreen {
         bufferbuilder.addVertex(ms.last().pose(), px1, py1, 0).setUv(uvx1, uvy1).setColor(1f, 1f, 1f, 1f);
         bufferbuilder.addVertex(ms.last().pose(), px1, py2, 0).setUv(uvx1, uvy2).setColor(1f, 1f, 1f, 1f);
         bufferbuilder.addVertex(ms.last().pose(), px2, py2, 0).setUv(uvx2, uvy2).setColor(1f, 1f, 1f, 0f);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        BufferUploader.drawWithShader(BufferBuilderCompat.buildOrThrow(bufferbuilder));
         RenderSystem.disableBlend();
 
         SimGUITextures.MODULATINGLINK_MARKER.render(graphics, x + minPos, y + 23);

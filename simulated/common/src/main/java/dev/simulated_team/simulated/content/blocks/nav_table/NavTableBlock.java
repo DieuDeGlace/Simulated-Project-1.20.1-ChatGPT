@@ -101,7 +101,7 @@ public class NavTableBlock extends DirectionalBlock implements IBE<NavTableBlock
                 }
 
                 slot.setStack(insert);
-                if (!player.hasInfiniteMaterials()) {
+                if (!player.getAbilities().instabuild) {
                     heldItem.shrink(1);
                 }
                 if (!extract.isEmpty()) {

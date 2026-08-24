@@ -22,6 +22,8 @@ import dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramD
 import dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramSaveConfigPacket;
 import dev.simulated_team.simulated.network.packets.contraption_diagram.RequestDiagramDataPacket;
 import dev.simulated_team.simulated.util.SimpleSubLevelGroupRenderer;
+import dev.simulated_team.simulated.util.SimDistUtil;
+import dev.simulated_team.simulated.util.BufferBuilderCompat;
 import foundry.veil.api.client.render.VeilLevelPerspectiveRenderer;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
@@ -399,7 +401,7 @@ public class DiagramScreen extends AbstractSimiScreen {
         if (this.renderTime >= 20.0f / FPS) {
             this.renderTime = 0.0f;
         } else {
-            this.renderTime += minecraft.getTimer().getRealtimeDeltaTicks();
+            this.renderTime += SimDistUtil.getRealtimeDeltaTicks();
             return;
         }
 
@@ -754,7 +756,7 @@ public class DiagramScreen extends AbstractSimiScreen {
         bufferbuilder.addVertex(matrix4f, x1, height, 0.0f).setUv(0.0f, 0.0f).setColor(0xFFFFFFFF);
         bufferbuilder.addVertex(matrix4f, width, height, 0.0f).setUv(1.0f, 0.0f).setColor(0xFFFFFFFF);
         bufferbuilder.addVertex(matrix4f, width, y1, 0.0f).setUv(1.0f, 1.0f).setColor(0xFFFFFFFF);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        BufferUploader.drawWithShader(BufferBuilderCompat.buildOrThrow(bufferbuilder));
         RenderSystem.disableBlend();
     }
 

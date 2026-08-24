@@ -6,6 +6,7 @@ import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.network.packets.ConfigureAltitudeSensorPacket;
 import dev.simulated_team.simulated.util.SimColors;
+import dev.simulated_team.simulated.util.BufferBuilderCompat;
 import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.animation.LerpedFloat;
@@ -117,7 +118,7 @@ public class AltitudeSensorScreen extends AbstractSimiScreen {
         bufferbuilder.addVertex(ps.last().pose(), px1, py1, 0.0f).setUv(uvx1, uvy1).setColor(1.0f, 1.0f, 1.0f, 1.0f);
         bufferbuilder.addVertex(ps.last().pose(), px1, py2, 0.0f).setUv(uvx1, uvy2).setColor(1.0f, 1.0f, 1.0f, 0.0f);
         bufferbuilder.addVertex(ps.last().pose(), px2, py2, 0.0f).setUv(uvx2, uvy2).setColor(1.0f, 1.0f, 1.0f, 0.0f);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        BufferUploader.drawWithShader(BufferBuilderCompat.buildOrThrow(bufferbuilder));
 
         RenderSystem.enableCull();
         RenderSystem.disableBlend();

@@ -66,7 +66,7 @@ public class HandleBlock extends AbstractDirectionalAxisBlock implements IBE<Han
 
     public static boolean canInteractWithHandle(final Player player) {
         final ItemStack mainHandItem = player.getMainHandItem();
-        return mainHandItem.isEmpty() || mainHandItem.is(AllItems.EXTENDO_GRIP);
+        return mainHandItem.isEmpty() || mainHandItem.is(AllItems.EXTENDO_GRIP.get());
     }
 
     @Override
@@ -156,7 +156,7 @@ public class HandleBlock extends AbstractDirectionalAxisBlock implements IBE<Han
 
     public enum Variant implements StringRepresentable {
         IRON(Ingredient.of(Tags.Items.NUGGETS_IRON)),
-        COPPER(Ingredient.of(AllTags.commonItemTag("nuggets/copper"))),
+        COPPER(Ingredient.of(AllTags.forgeItemTag("nuggets/copper"))),
         DYED(null);
 
         @Nullable final Ingredient ingredient;

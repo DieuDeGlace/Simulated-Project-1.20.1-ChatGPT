@@ -42,7 +42,7 @@ public interface RopeHolderBlock <T extends SmartBlockEntity> extends BlockSubLe
             final RopeStrandHolderBehavior otherHolder = smartBlockEntity.getBehaviour(RopeStrandHolderBehavior.TYPE);
             if (otherHolder == null) return InteractionResult.FAIL;
 
-            otherHolder.destroyRope(player, pos.getCenter(), !player.hasInfiniteMaterials());
+            otherHolder.destroyRope(player, pos.getCenter(), !player.getAbilities().instabuild);
             return InteractionResult.SUCCESS;
         });
     }

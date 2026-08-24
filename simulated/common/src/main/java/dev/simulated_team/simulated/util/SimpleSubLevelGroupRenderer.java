@@ -207,7 +207,7 @@ public class SimpleSubLevelGroupRenderer {
                         continue;
                     }
 
-                    final float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(!level.tickRateManager().isEntityFrozen(entity));
+                    final float partialTick = minecraft.getFrameTime();
 
                     minecraft.levelRenderer.renderEntity(entity, cameraPosition.x, cameraPosition.y, cameraPosition.z, partialTick, entityPoseStack, bufferSource);
                 }

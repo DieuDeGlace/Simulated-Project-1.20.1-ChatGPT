@@ -9,6 +9,7 @@ import dev.ryanhcode.sable.sublevel.plot.LevelPlot;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimSoundEvents;
+import dev.simulated_team.simulated.util.SimDistUtil;
 import foundry.veil.api.client.render.VeilLevelPerspectiveRenderer;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
 import net.minecraft.client.Minecraft;
@@ -224,7 +225,7 @@ public class DiagramStickyNote extends DiagramButton {
         if (this.renderTime >= 20.0f / DiagramScreen.FPS) {
             this.renderTime = 0.0f;
         } else {
-            this.renderTime += Minecraft.getInstance().getTimer().getRealtimeDeltaTicks();
+            this.renderTime += SimDistUtil.getRealtimeDeltaTicks();
             return;
         }
 

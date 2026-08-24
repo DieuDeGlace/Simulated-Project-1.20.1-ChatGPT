@@ -11,6 +11,7 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.void_anchor.VoidAnchorBlockEntity;
 import dev.simulated_team.simulated.util.SimpleSubLevelGroupRenderer;
+import dev.simulated_team.simulated.util.BufferBuilderCompat;
 import foundry.veil.api.client.render.MatrixStack;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
@@ -138,7 +139,7 @@ public class EndSeaShadowRenderer {
             builder.addVertex(pose, size, 0, size).setUv(1.0f, 1.0f).setColor(0.5f, 0, 0, 1);
             builder.addVertex(pose, -size, 0, size).setUv(0.0f, 1.0f).setColor(0.5f, 0, 0, 1);
         }
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        BufferUploader.drawWithShader(BufferBuilderCompat.buildOrThrow(builder));
         RenderSystem.disableDepthTest();
         shader.clear();
 

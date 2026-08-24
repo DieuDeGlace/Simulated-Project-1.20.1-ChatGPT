@@ -28,7 +28,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -194,7 +194,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
                 return;
             }
 
-            Outliner.getInstance().showAABB("HoneyGlue", AABB.encapsulatingFullBlocks(bhr.getBlockPos(), this.selectedPos))
+            Outliner.getInstance().showAABB("HoneyGlue", new AABB(bhr.getBlockPos()).minmax(new AABB(this.selectedPos)))
                     .colored(color)
                     .withFaceTexture(SimSpecialTextures.HONEY_GLUE)
                     .disableLineNormals()
@@ -205,7 +205,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
     public void updateHovered() {
         final Player player = SimDistUtil.getClientPlayer();
         final Vec3 baseOrigin = player.getEyePosition();
-        final Vec3 baseTarget = RaycastHelper.getTraceTarget(player, player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) * 5, baseOrigin);
+        final Vec3 baseTarget = RaycastHelper.getTraceTarget(player, player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) * 5, baseOrigin);
 
         HoneyGlueEntity closestGlue = null;
         double distance = Double.MAX_VALUE;
@@ -273,7 +273,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
         if (this.currentState == State.BINDING) {
             String key = "super_glue.click_to_confirm";
 
-            final AABB bb = AABB.encapsulatingFullBlocks(this.selectedPos, hoveredPos);
+        final AABB bb = new AABB(this.selectedPos).minmax(new AABB(hoveredPos));
             boolean showDimensions = true;
 
             if (HoneyGlueMaxSizing.checkBBMax(bb)) {
@@ -309,7 +309,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
 
         final ClipContext clipContext = new ClipContext(
                 player.getEyePosition(),
-                player.getEyePosition().add(player.getViewVector(SimDistUtil.getPartialTick()).scale(player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE))),
+                player.getEyePosition().add(player.getViewVector(SimDistUtil.getPartialTick()).scale(player.getAttributeValue(ForgeMod.BLOCK_REACH.get()))),
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
                 CollisionContext.empty()
@@ -361,8 +361,8 @@ public class HoneyGlueClientHandler implements InteractCallback {
 
     @Nullable
     public InteractionHand getHoneyGlueHand(final Player player) {
-        return player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.HONEY_GLUE) ? InteractionHand.MAIN_HAND :
-                player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.HONEY_GLUE) ? InteractionHand.OFF_HAND :
+        return player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.HONEY_GLUE.get()) ? InteractionHand.MAIN_HAND :
+                player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.HONEY_GLUE.get()) ? InteractionHand.OFF_HAND :
                         null;
     }
 

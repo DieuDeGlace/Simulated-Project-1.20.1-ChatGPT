@@ -368,7 +368,7 @@ public class RopeStrandHolderBehavior extends BlockEntityBehaviour {
                 final ItemStack stack = new ItemStack(SimItems.ROPE_COUPLING.get());
 
                 if (player != null) {
-                    if (!player.hasInfiniteMaterials() || !player.getInventory().contains(stack)) {
+                    if (!player.getAbilities().instabuild || !player.getInventory().contains(stack)) {
                         player.getInventory().placeItemBackInInventory(stack);
                     }
                 } else {
