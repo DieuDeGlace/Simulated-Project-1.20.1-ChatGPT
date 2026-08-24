@@ -13,7 +13,6 @@ import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.math.AngleHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -130,18 +129,18 @@ public class RedstoneInductorBlockEntity extends SmartBlockEntity implements IHa
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
         this.outputSignal = tag.getInt("OutputSignal");
         this.delayTicks = tag.getInt("DelayTicks");
         this.lerpedState.chase(this.outputSignal, 0.4, LerpedFloat.Chaser.EXP);
-        super.read(tag, registries, clientPacket);
+        super.read(tag, clientPacket);
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
         tag.putInt("OutputSignal", this.outputSignal);
         tag.putInt("DelayTicks", this.delayTicks);
-        super.write(tag, registries, clientPacket);
+        super.write(tag, clientPacket);
     }
 
     @Override
@@ -150,7 +149,7 @@ public class RedstoneInductorBlockEntity extends SmartBlockEntity implements IHa
     }
 
     @Override
-    public boolean readFromClipboard(final HolderLookup.@NotNull Provider provider, final CompoundTag tag, final Player player, final Direction direction, final boolean simulate) {
+    public boolean readFromClipboard(final CompoundTag tag, final Player player, final Direction direction, final boolean simulate) {
         if (!tag.contains("Inverted")) {
             return false;
         } else if (simulate) {
@@ -166,7 +165,7 @@ public class RedstoneInductorBlockEntity extends SmartBlockEntity implements IHa
     }
 
     @Override
-    public boolean writeToClipboard(final HolderLookup.@NotNull Provider provider, final CompoundTag tag, final Direction direction) {
+    public boolean writeToClipboard(final CompoundTag tag, final Direction direction) {
         tag.putBoolean("Inverted", this.getBlockState().getOptionalValue(RedstoneInductorBlock.INVERTED).orElse(false));
         return true;
     }

@@ -23,7 +23,6 @@ import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -201,14 +200,14 @@ public class OpticalSensorBlockEntity extends AbstractLaserBlockEntity implement
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
+        super.read(tag, clientPacket);
         this.opacity = Math.clamp(tag.contains("Opacity") ? tag.getFloat("Opacity") : 1, 0, 1);
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
+        super.write(tag, clientPacket);
         tag.putFloat("Opacity", this.opacity);
     }
 
@@ -223,13 +222,13 @@ public class OpticalSensorBlockEntity extends AbstractLaserBlockEntity implement
     }
 
     @Override
-    public boolean writeToClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Direction side) {
+    public boolean writeToClipboard(final CompoundTag tag, final Direction side) {
         tag.putFloat("Opacity", this.getOpacity());
         return true;
     }
 
     @Override
-    public boolean readFromClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
+    public boolean readFromClipboard(final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
         if(simulate) {
             return true;
         }

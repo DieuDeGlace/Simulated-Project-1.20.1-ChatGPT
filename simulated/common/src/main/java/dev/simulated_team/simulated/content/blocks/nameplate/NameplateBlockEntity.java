@@ -9,7 +9,6 @@ import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimStats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -313,8 +312,8 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
+        super.write(tag, clientPacket);
 
         tag.putInt("TextColor", this.textColor.getId());
         tag.putBoolean("Glow", this.glowing);
@@ -331,8 +330,8 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
+        super.read(tag, clientPacket);
 
         this.textColor = DyeColor.byId(tag.getInt("TextColor"));
         this.glowing = tag.getBoolean("Glow");
@@ -343,7 +342,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
 
         if (tag.contains("ControllerPos")) {
             this.controller = false;
-            this.controllerPos = NbtUtils.readBlockPos(tag, "ControllerPos").get();
+            this.controllerPos = NbtUtils.readBlockPos(tag.getCompound("ControllerPos"));
         } else {
             this.controller = true;
             this.controllerPos = this.getBlockPos();
@@ -374,7 +373,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
     }
 
     @Override
-    public boolean writeToClipboard(final HolderLookup.@NotNull Provider var1, final CompoundTag tag, final Direction var3) {
+    public boolean writeToClipboard(final CompoundTag tag, final Direction var3) {
         final NameplateBlockEntity controller = this.findController();
 
         tag.putString("StoredName", controller.getName());
@@ -384,7 +383,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
     }
 
     @Override
-    public boolean readFromClipboard(final HolderLookup.@NotNull Provider var1, final CompoundTag tag, final Player player, final Direction var4, final boolean simulate) {
+    public boolean readFromClipboard(final CompoundTag tag, final Player player, final Direction var4, final boolean simulate) {
         final NameplateBlockEntity controller = this.findController();
         if (!controller.allowsEditing()) {
             return false;

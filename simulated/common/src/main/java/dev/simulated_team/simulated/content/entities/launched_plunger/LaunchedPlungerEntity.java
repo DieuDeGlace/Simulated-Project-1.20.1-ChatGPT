@@ -385,7 +385,7 @@ public class LaunchedPlungerEntity extends ThrowableProjectile {
         this.setData(IS_PLUNGED, compoundTag.getBoolean("IsPlunged"));
 
         this.setData(PLUNGED_DIRECTION, NBTHelper.readEnum(compoundTag, "PlungedDir", Direction.class));
-        this.setData(PLUNGED_BLOCK_POS, NbtUtils.readBlockPos(compoundTag, "PlungedBlockPos").get());
+        this.setData(PLUNGED_BLOCK_POS, NbtUtils.readBlockPos(compoundTag.getCompound("PlungedBlockPos")));
         this.setData(TARGET_POS, VecHelper.readNBT((ListTag) compoundTag.get("TargetPos")));
 
         this.setData(IS_FIRST, compoundTag.getBoolean("IsFirst"));

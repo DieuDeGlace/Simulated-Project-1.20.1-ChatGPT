@@ -13,7 +13,6 @@ import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.item.DyeItem;
@@ -100,16 +99,16 @@ public class LaserSensorBlockEntity extends SmartBlockEntity implements Clearabl
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
+        super.read(tag, clientPacket);
 
         this.currentPower = tag.getInt("CurrentPower");
         this.updateCooldown = Math.clamp(tag.getInt("UpdateCooldown"), 0, MAX_COOLDOWN);
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
+        super.write(tag, clientPacket);
 
         tag.putInt("CurrentPower", this.currentPower);
         tag.putInt("UpdateCooldown", this.updateCooldown);

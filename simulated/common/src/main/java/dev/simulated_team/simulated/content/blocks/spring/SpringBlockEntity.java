@@ -19,7 +19,6 @@ import dev.simulated_team.simulated.util.SimLevelUtil;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -379,8 +378,8 @@ public class SpringBlockEntity extends SmartBlockEntity implements BlockEntitySu
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(tag, registries, clientPacket);
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
+        super.write(tag, clientPacket);
 
         tag.putBoolean("Controller", this.isController);
         tag.putDouble("DesiredLength", this.desiredLength);
@@ -442,8 +441,8 @@ public class SpringBlockEntity extends SmartBlockEntity implements BlockEntitySu
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(tag, registries, clientPacket);
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
+        super.read(tag, clientPacket);
 
         this.isController = tag.getBoolean("Controller");
         this.desiredLength = tag.getDouble("DesiredLength");

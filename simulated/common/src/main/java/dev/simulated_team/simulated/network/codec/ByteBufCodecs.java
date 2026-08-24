@@ -8,6 +8,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public final class ByteBufCodecs {
     public static final StreamCodec<ByteBuf, ResourceLocation> RESOURCE_LOCATION =
             StreamCodec.of((buffer, value) -> friendly(buffer).writeResourceLocation(value),
                     buffer -> friendly(buffer).readResourceLocation());
+    public static final StreamCodec<ByteBuf, ItemStack> ITEM_STACK =
+            StreamCodec.of((buffer, value) -> friendly(buffer).writeItem(value),
+                    buffer -> friendly(buffer).readItem());
     public static final StreamCodec<ByteBuf, Quaternionf> QUATERNIONF = StreamCodec.of((buffer, value) -> {
         FriendlyByteBuf buf = friendly(buffer);
         buf.writeFloat(value.x());

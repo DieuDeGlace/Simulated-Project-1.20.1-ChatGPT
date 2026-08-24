@@ -48,7 +48,6 @@ import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -596,8 +595,8 @@ public class SwivelBearingBlockEntity extends KineticBlockEntity implements Extr
     }
 
     @Override
-    protected void write(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(final CompoundTag compound, final boolean clientPacket) {
+        super.write(compound, clientPacket);
         compound.putDouble("TargetAngle", this.targetAngleDegrees);
 
         BlockPos platePos = this.getPlatePos();
@@ -629,12 +628,12 @@ public class SwivelBearingBlockEntity extends KineticBlockEntity implements Extr
         if (this.sequencedAngleLimit >= 0)
             compound.putDouble("SequencedAngleLimit", this.sequencedAngleLimit);
 
-        AssemblyException.write(compound, registries, this.lastException);
+        AssemblyException.write(compound, this.lastException);
     }
 
     @Override
-    protected void read(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
+    protected void read(final CompoundTag compound, final boolean clientPacket) {
+        super.read(compound, clientPacket);
         this.targetAngleDegrees = compound.getDouble("TargetAngle");
 
         final SubLevelSchematicSerializationContext schematicContext = SubLevelSchematicSerializationContext.getCurrentContext();
@@ -656,12 +655,12 @@ public class SwivelBearingBlockEntity extends KineticBlockEntity implements Extr
         }
 
         if (compound.contains("SwivelPlate")) {
-            final BlockPos blockPos = NbtUtils.readBlockPos(compound, "SwivelPlate").orElseThrow();
+            final BlockPos blockPos = NbtUtils.readBlockPos(compound.getCompound("SwivelPlate"));
             this.setPlatePos(blockPos);
         }
 
         this.sequencedAngleLimit = compound.contains("SequencedAngleLimit") ? compound.getDouble("SequencedAngleLimit") : -1;
-        this.lastException = AssemblyException.read(compound, registries);
+        this.lastException = AssemblyException.read(compound);
     }
 
     @Override

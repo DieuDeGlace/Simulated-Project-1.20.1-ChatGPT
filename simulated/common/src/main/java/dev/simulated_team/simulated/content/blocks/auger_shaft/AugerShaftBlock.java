@@ -23,7 +23,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
@@ -153,18 +152,16 @@ public class AugerShaftBlock extends RotatedPillarKineticBlock implements IBE<Au
 
     @Nullable
     protected InteractionResult transformAuger(final BlockState state, final BlockState newState, final UseOnContext context, final Level level) {
-        final RegistryAccess reg = level.registryAccess();
-
         final AugerShaftBlockEntity abe = this.getBlockEntity(level, context.getClickedPos());
         if (abe != null) {
             final CompoundTag tag = new CompoundTag();
-            abe.write(tag, reg, false);
+            abe.write(tag, false);
             abe.beingWrenched = true;
 
             KineticBlockEntity.switchToBlockState(level, context.getClickedPos(), newState.setValue(AXIS, state.getValue(AXIS)));
             final AugerShaftBlockEntity newBE = this.getBlockEntity(level, context.getClickedPos());
             if (newBE != null) {
-                newBE.read(tag, reg, false);
+                newBE.read(tag, false);
                 newBE.notifyUpdate();
 
                 IWrenchable.playRotateSound(level, context.getClickedPos());

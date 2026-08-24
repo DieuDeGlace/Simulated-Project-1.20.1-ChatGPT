@@ -17,7 +17,6 @@ import net.createmod.catnip.math.AngleHelper;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
@@ -99,23 +98,23 @@ public class LaserPointerBlockEntity extends AbstractLaserBlockEntity implements
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
         this.laserColor = tag.contains("LaserColor", Tag.TAG_ANY_NUMERIC) ? tag.getInt("LaserColor") : SimColors.MEDIA_OURPLE;
         this.bestPower = tag.getInt("BestPower");
         this.rainbow = tag.getBoolean("Rainbow");
 
         this.currentHitPos = this.readHitPos(tag);
-        super.read(tag, registries, clientPacket);
+        super.read(tag, clientPacket);
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
         tag.putInt("LaserColor", this.laserColor);
         tag.putInt("BestPower", this.bestPower);
         tag.putBoolean("Rainbow", this.isRainbow());
 
         this.writeHitPos(tag);
-        super.write(tag, registries, clientPacket);
+        super.write(tag, clientPacket);
     }
 
     private void writeHitPos(final CompoundTag tag) {
@@ -167,14 +166,14 @@ public class LaserPointerBlockEntity extends AbstractLaserBlockEntity implements
     }
 
     @Override
-    public boolean writeToClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Direction side) {
+    public boolean writeToClipboard(final CompoundTag tag, final Direction side) {
         tag.putInt("Color", this.laserColor);
         tag.putBoolean("Rainbow", this.isRainbow());
         return true;
     }
 
     @Override
-    public boolean readFromClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
+    public boolean readFromClipboard(final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
         if(simulate) {
             return true;
         }

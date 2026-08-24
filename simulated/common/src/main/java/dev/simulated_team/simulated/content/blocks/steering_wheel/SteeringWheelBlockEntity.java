@@ -24,7 +24,6 @@ import net.createmod.catnip.math.VecHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
@@ -223,8 +222,8 @@ public class SteeringWheelBlockEntity extends GeneratingKineticBlockEntity {
     }
 
     @Override
-    protected void write(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(final CompoundTag compound, final boolean clientPacket) {
+        super.write(compound, clientPacket);
 
         compound.putFloat("Angle", this.angle);
         compound.putFloat("TargetAngle", this.targetAngle);
@@ -244,14 +243,14 @@ public class SteeringWheelBlockEntity extends GeneratingKineticBlockEntity {
     }
 
     @Override
-    public void writeSafe(final CompoundTag compound, final HolderLookup.Provider registries) {
-        super.writeSafe(compound, registries);
+    public void writeSafe(final CompoundTag compound) {
+        super.writeSafe(compound);
         compound.put("Material", NbtUtils.writeBlockState(this.material));
     }
 
     @Override
-    protected void read(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
+    protected void read(final CompoundTag compound, final boolean clientPacket) {
+        super.read(compound, clientPacket);
 
         this.angle = compound.getFloat("Angle");
         if (clientPacket) {

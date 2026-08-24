@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -47,12 +46,13 @@ public class LinkedTypewriterEntries {
         final LinkedTypewriterEntries keys = new LinkedTypewriterEntries();
 
         for (final Tag tag : tags) {
-            final RegistryOps<Tag> ops = registryAccess.createSerializationContext(NbtOps.INSTANCE);
+            final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, registryAccess);
             final DataResult<Pair<KeyboardEntry, Tag>> result = KeyboardEntry.CODEC.decode(ops, tag);
-            if (result.isError()) { //if there was an error saving the entry, we want to output to the console instead of crashing
-                Simulated.LOGGER.error(result.error().get().message());
+            final Optional<Pair<KeyboardEntry, Tag>> decoded = result.result();
+            if (decoded.isEmpty()) { //if there was an error saving the entry, we want to output to the console instead of crashing
+                result.error().ifPresent(error -> Simulated.LOGGER.error(error.message()));
             } else {
-                final KeyboardEntry entry = result.getOrThrow().getFirst();
+                final KeyboardEntry entry = decoded.get().getFirst();
                 entry.setLocation(pos);
                 keys.setKey(entry.glfwKeyCode, entry);
             }
@@ -145,12 +145,13 @@ public class LinkedTypewriterEntries {
         }
 
         for (final Map.Entry<Integer, KeyboardEntry> set : this.keyMap.entrySet()) {
-            final RegistryOps<Tag> ops = registryAccess.createSerializationContext(NbtOps.INSTANCE);
+            final RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, registryAccess);
             final DataResult<Tag> result = KeyboardEntry.CODEC.encodeStart(ops, set.getValue());
-            if (result.isError()) { //if there was an error saving the entry, we want to output to the console instead of crashing
-                Simulated.LOGGER.error(result.error().get().message());
+            final Optional<Tag> encoded = result.result();
+            if (encoded.isEmpty()) { //if there was an error saving the entry, we want to output to the console instead of crashing
+                result.error().ifPresent(error -> Simulated.LOGGER.error(error.message()));
             } else {
-                tags.add(result.getOrThrow());
+                tags.add(encoded.get());
             }
         }
 
@@ -161,7 +162,7 @@ public class LinkedTypewriterEntries {
      * @return An immutable copy of the entry list.
      */
     public List<KeyboardEntry> getEntries() {
-        return List.copyOf(this.keyMap.sequencedValues());
+        return List.copyOf(this.keyMap.values());
     }
 
     public int getSize() {
@@ -175,16 +176,16 @@ public class LinkedTypewriterEntries {
     public static class KeyboardEntry implements IRedstoneLinkable {
 
         public static final Codec<KeyboardEntry> CODEC = RecordCodecBuilder.create((instance) ->
-                instance.group(ItemStack.OPTIONAL_CODEC.fieldOf("FirstItem")
+                instance.group(ItemStack.CODEC.fieldOf("FirstItem")
                                         .forGetter(KeyboardEntry::getFirstAsItemStack),
-                                ItemStack.OPTIONAL_CODEC.fieldOf("SecondItem")
+                                ItemStack.CODEC.fieldOf("SecondItem")
                                         .forGetter(KeyboardEntry::getSecondAsItemStack),
                                 Codec.INT.fieldOf("GLFWKey").forGetter(KeyboardEntry::getGLFWKeyCode))
                         .apply(instance, KeyboardEntry::createFromCodec));
 
         public static final StreamCodec<FriendlyByteBuf, KeyboardEntry> STREAM_CODEC = StreamCodec.composite(
-                ItemStack.OPTIONAL_STREAM_CODEC, KeyboardEntry::getFirstAsItemStack,
-                ItemStack.OPTIONAL_STREAM_CODEC, KeyboardEntry::getSecondAsItemStack,
+                ByteBufCodecs.ITEM_STACK, KeyboardEntry::getFirstAsItemStack,
+                ByteBufCodecs.ITEM_STACK, KeyboardEntry::getSecondAsItemStack,
                 ByteBufCodecs.INT, KeyboardEntry::getGLFWKeyCode,
                 KeyboardEntry::createFromCodec);
 
