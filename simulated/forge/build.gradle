@@ -1,13 +1,13 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.moddev'
+    id 'net.neoforged.moddev.legacyforge'
 }
 
 def generatedResources = project(":simulated:common").file("src/generated/resources")
 def commonResources = project(":simulated:common").file("src/main/resources")
 
-neoForge {
-    version = neoforge_version
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
 
     def at = project(':simulated:common').file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -22,8 +22,10 @@ neoForge {
 
     runs {
         configureEach {
-            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
-            ideName = "Simulated NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
+            systemProperty('forge.enabledGameTestNamespaces', mod_id)
+            programArgument('-mixin.config=simulated.mixins.json')
+            programArgument('-mixin.config=simulated-forge.mixins.json')
+            ideName = "Simulated Forge ${it.name.capitalize()} (${project.path})"
         }
 
         data {
@@ -35,7 +37,7 @@ neoForge {
                     '--existing', commonResources.absolutePath,
                     '--existing-mod', 'create'
         }
-        
+
         gameTest {
             type = "gameTestServer"
             gameDirectory = project.file('build/gametest')

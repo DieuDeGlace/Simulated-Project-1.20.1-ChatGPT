@@ -1,6 +1,6 @@
 plugins {
     // https://projects.neoforged.net/neoforged/moddevgradle
-    id 'net.neoforged.moddev' version '2.0.140' apply false
+    id 'net.neoforged.moddev.legacyforge' version '2.0.107' apply false
 }
 
 allprojects {
@@ -34,6 +34,13 @@ subprojects {
         mavenCentral()
 
         maven {
+            url = "https://maven.minecraftforge.net"
+            content {
+                includeGroupAndSubgroups("net.minecraftforge")
+            }
+        }
+
+        maven {
             url = "https://maven.ryanhcode.dev/releases"
         }
 
@@ -41,21 +48,14 @@ subprojects {
             url = "https://maven.ryanhcode.dev/snapshots"
         }
 
+        maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
         maven {
-            url = "https://maven.ryanhcode.dev/private"
-
-            authentication {
-                basic(BasicAuthentication)
-            }
-
-            credentials {
-                username = System.getenv('local_maven_user') ?: project.findProperty('ryanhcodeMavenUser') ?: ''
-                password = System.getenv('local_maven_token') ?: project.findProperty('ryanhcodeMavenToken') ?: ''
+            name = "tterrag"
+            url = "https://maven.tterrag.com/"
+            content {
+                includeGroup("com.tterrag.registrate")
             }
         }
-
-        maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
-        maven { url = "https://mvn.devos.one/snapshots" } // Registrate
         maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
 
         maven { url = "https://maven.theillusivec4.top/" } // Curios API

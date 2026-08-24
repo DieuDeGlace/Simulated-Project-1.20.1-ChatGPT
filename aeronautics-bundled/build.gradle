@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev'
-    id "me.modmuss50.mod-publish-plugin" version "1.1.0" // https://github.com/modmuss50/mod-publish-plugin
+    id 'net.neoforged.moddev.legacyforge'
 }
 
 def modProps = new Properties()
@@ -20,11 +19,11 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-neoForge {
-    version = neoforge_version
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
 
     parchment {
         minecraftVersion = parchment_minecraft
@@ -48,92 +47,38 @@ jar {
     }
 }
 
-
 processResources {
     var expandProps = [
-            'version'                      : version,
-            'group'                        : project.group, //Else we target the task's group.
-            'minecraft_version'            : minecraft_version,
-            'minecraft_version_range'      : minecraft_version_range,
-            'fabric_version'               : fabric_version,
-            'fabric_loader_version'        : fabric_loader_version,
-            'mod_name'                     : mod_name,
-            'mod_author'                   : mod_author,
-            'mod_id'                       : mod_id,
-            'license'                      : license,
-            'description'                  : project.description,
-            'neoforge_version'             : neoforge_version,
-            'neoforge_loader_version_range': neoforge_loader_version_range,
-            'sable_mod_version_range'            : sable_mod_version_range,
-            'create_mod_version'           : create_mod_version,
-            'flywheel_mod_version'         : flywheel_mod_version,
-            'credits'                      : credits,
-            'java_version'                 : java_version
+            'version'                    : version,
+            'group'                      : project.group,
+            'minecraft_version'          : minecraft_version,
+            'minecraft_version_range'    : minecraft_version_range,
+            'mod_name'                   : mod_name,
+            'mod_author'                 : mod_author,
+            'mod_id'                     : mod_id,
+            'license'                    : license,
+            'description'                : project.description,
+            'forge_version'              : forge_version,
+            'forge_loader_version_range' : forge_loader_version_range,
+            'sable_mod_version_range'    : sable_mod_version_range,
+            'create_mod_version'         : create_mod_version,
+            'flywheel_mod_version'       : flywheel_mod_version,
+            'credits'                    : credits,
+            'java_version'               : java_version
     ]
 
-    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
+    filesMatching(['pack.mcmeta', 'META-INF/mods.toml']) {
         expand expandProps
     }
     inputs.properties(expandProps)
 }
 
 dependencies {
-    jarJar(project(path: ":simulated:neoforge", configuration: "runtimeElements"))
-    jarJar(project(path: ":aeronautics:neoforge", configuration: "runtimeElements"))
-    jarJar(project(path: ":offroad:neoforge", configuration: "runtimeElements"))
+    jarJar(project(path: ":simulated:forge", configuration: "runtimeElements"))
+    jarJar(project(path: ":aeronautics:forge", configuration: "runtimeElements"))
+    jarJar(project(path: ":offroad:forge", configuration: "runtimeElements"))
 }
 
 test {
     useJUnitPlatform()
-}
-
-publishMods {
-    def changelogFile = rootProject.file("changelog.md")
-
-    type = STABLE
-
-    file = jar.archiveFile
-    changelog = changelogFile.text
-
-    version = "$project.version+mc$minecraft_version"
-    displayName = "$mod_name $project.version for mc$minecraft_version"
-    modLoaders.add("neoforge")
-
-    curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-        projectId = "676721"
-        projectSlug = "create-aeronautics"
-        minecraftVersions.add(minecraft_version)
-
-        clientRequired = true
-        serverRequired = true
-
-        requires("create")
-        requires("sable")
-    }
-
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = "oWaK0Q19"
-        minecraftVersions.add(minecraft_version)
-
-        requires("create")
-        requires("sable")
-    }
-
-    discord {
-        webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK")
-
-        avatarUrl = "https://cdn.modrinth.com/data/oWaK0Q19/f66b5589924884ffd81acb27f3ccb775867a962e_96.webp"
-        username = "Create Aeronautics Updates"
-
-        def modrinthLink = "https://modrinth.com/mod/create-aeronautics"
-        def curseForgeLink = "<https://www.curseforge.com/minecraft/mc-mods/create-aeronautics>"
-
-        setPlatforms(publishMods.platforms.modrinth)
-
-        content = changelog.map {
-            "# Create Aeronautics release $project.version \n$it\nModrinth: $modrinthLink\nCurseForge: $curseForgeLink"
-        }
-    }
 }

@@ -1,0 +1,78 @@
+plugins {
+    id 'net.neoforged.moddev.legacyforge'
+}
+
+def forgeProjects = rootProject.subprojects.findAll { it.path.endsWith(":forge") }
+
+forgeProjects.each { forgeProject ->
+    evaluationDependsOn(forgeProject.path)
+}
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+
+    forgeProjects.forEach { forgeProject ->
+        def parentName = forgeProject.parent.name
+        def commonProject = project(":$parentName:common")
+        def at = commonProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+
+        if (at.exists()) {
+            accessTransformers.from(at.absolutePath)
+        }
+    }
+
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+
+    runs {
+        configureEach {
+            programArgument('-mixin.config=simulated.mixins.json')
+            programArgument('-mixin.config=simulated-forge.mixins.json')
+            programArgument('-mixin.config=aeronautics.mixins.json')
+            programArgument('-mixin.config=aeronautics-forge.mixins.json')
+            programArgument('-mixin.config=offroad.mixins.json')
+            programArgument('-mixin.config=offroad-forge.mixins.json')
+            ideName = "Forge ${it.name.capitalize()} (${project.path})"
+        }
+
+        client {
+            client()
+            gameDirectory = project.file('runs/client')
+        }
+
+        server {
+            server()
+            gameDirectory = project.file('runs/server')
+            programArgument 'nogui'
+        }
+    }
+
+    mods {
+        forgeProjects.forEach { forgeProject ->
+            def parentName = forgeProject.parent.name
+            "$parentName" {
+                sourceSet forgeProject.sourceSets.main
+            }
+        }
+    }
+}
+
+tasks.register("runDataAll") {
+    group = "mod development"
+    forgeProjects.forEach { forgeProject ->
+        dependsOn(forgeProject.tasks.runData)
+    }
+}
+
+dependencies {
+    forgeProjects.forEach {
+        def parentName = it.parent.name
+        implementation(it) {
+            capabilities {
+                requireCapability "$group:${parentName}"
+            }
+        }
+    }
+}

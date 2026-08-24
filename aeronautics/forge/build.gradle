@@ -1,15 +1,15 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.moddev'
+    id 'net.neoforged.moddev.legacyforge'
 }
 
-evaluationDependsOn(':simulated:neoforge')
+evaluationDependsOn(':simulated:forge')
 
 def generatedResources = project(":aeronautics:common").file("src/generated/resources")
 def commonResources = project(":aeronautics:common").file("src/main/resources")
 
-neoForge {
-    version = neoforge_version
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
 
     def at = project(':aeronautics:common').file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -24,8 +24,12 @@ neoForge {
 
     runs {
         configureEach {
-            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
-            ideName = "Aero NeoForge ${it.name.capitalize()} (${project.path})"
+            systemProperty('forge.enabledGameTestNamespaces', mod_id)
+            programArgument('-mixin.config=simulated.mixins.json')
+            programArgument('-mixin.config=simulated-forge.mixins.json')
+            programArgument('-mixin.config=aeronautics.mixins.json')
+            programArgument('-mixin.config=aeronautics-forge.mixins.json')
+            ideName = "Aero Forge ${it.name.capitalize()} (${project.path})"
         }
 
         data {
@@ -45,7 +49,7 @@ neoForge {
             sourceSet sourceSets.main
         }
         simulated {
-            sourceSet project(':simulated:neoforge').sourceSets.main
+            sourceSet project(':simulated:forge').sourceSets.main
         }
     }
 }

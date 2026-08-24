@@ -662,14 +662,20 @@ public class PhysicsAssemblerScenes {
             configValue = null;
         }
 
-        final String configText = switch (configValue) {
-            case ALWAYS -> "property_tooltip_always";
-            case SHIFT -> "property_tooltip_shift";
-            case GOGGLES -> "property_tooltip_goggles";
-            case SHIFT_GOGGLES -> "property_tooltip_shift_goggles";
-            case NEVER -> "property_tooltip_never";
-            case null, default -> "property_tooltip_how";
-        };
+        // Java 17 port: original used "case null, default" (Java 21).
+        final String configText;
+        if (configValue == null) {
+            configText = "property_tooltip_how";
+        } else {
+            configText = switch (configValue) {
+                case ALWAYS -> "property_tooltip_always";
+                case SHIFT -> "property_tooltip_shift";
+                case GOGGLES -> "property_tooltip_goggles";
+                case SHIFT_GOGGLES -> "property_tooltip_shift_goggles";
+                case NEVER -> "property_tooltip_never";
+                default -> "property_tooltip_how";
+            };
+        }
 
         if (configValue == BlockPropertiesTooltip.Condition.GOGGLES || configValue == BlockPropertiesTooltip.Condition.SHIFT_GOGGLES) {
             overlay.showControls(vector.centerOf(2, 2, 2), Pointing.DOWN, 160).withItem(AllItems.GOGGLES.asStack());

@@ -62,30 +62,34 @@ public class SimBlockMovementChecks {
         final BlockState relativeState = world.getBlockState(pos.relative(direction));
         final Block relativeBlock = relativeState.getBlock();
 
-        //cool new java switch statements
-        return switch (block) {
-            case final SymmetricSailBlock ignored when relativeBlock instanceof SailBlock ->
-                    BlockMovementChecks.CheckResult.FAIL;
+        // Java 17 port: original used Java 21 guarded type patterns in switch;
+        // rewritten as an ordered if/else chain preserving match order.
+        if (block instanceof SymmetricSailBlock && relativeBlock instanceof SailBlock) {
+            return BlockMovementChecks.CheckResult.FAIL;
+        }
 
-            case final SailBlock ignored when relativeBlock instanceof SymmetricSailBlock ->
-                    BlockMovementChecks.CheckResult.FAIL;
+        if (block instanceof SailBlock && relativeBlock instanceof SymmetricSailBlock) {
+            return BlockMovementChecks.CheckResult.FAIL;
+        }
 
-            case final SymmetricSailBlock ignored ->
-                    direction.getAxis() == state.getValue(SymmetricSailBlock.AXIS) ? BlockMovementChecks.CheckResult.FAIL : BlockMovementChecks.CheckResult.SUCCESS;
+        if (block instanceof SymmetricSailBlock) {
+            return direction.getAxis() == state.getValue(SymmetricSailBlock.AXIS) ? BlockMovementChecks.CheckResult.FAIL : BlockMovementChecks.CheckResult.SUCCESS;
+        }
 
-            case final SpringBlock ignored ->
-                    direction.getOpposite() == state.getValue(SpringBlock.FACING) ? BlockMovementChecks.CheckResult.SUCCESS : BlockMovementChecks.CheckResult.FAIL;
+        if (block instanceof SpringBlock) {
+            return direction.getOpposite() == state.getValue(SpringBlock.FACING) ? BlockMovementChecks.CheckResult.SUCCESS : BlockMovementChecks.CheckResult.FAIL;
+        }
 
-            default -> BlockMovementChecks.CheckResult.PASS;
-        };
+        return BlockMovementChecks.CheckResult.PASS;
     }
 
     private synchronized static Iterable<BlockPos> registerDefaultAdditionalBlocks(final BlockState state, final Level level, final BlockPos pos, final Set<BlockPos> visited) {
         TEMP_DEFAULT_POSITIONS.clear();
 
         final Block block = state.getBlock();
-        switch (block) {
-            case final BeltBlock ignored -> {
+        // Java 17 port: original used Java 21 type patterns in switch;
+        // rewritten as an ordered if/else chain preserving match order.
+        if (block instanceof BeltBlock) {
                 final BlockPos nextPos = BeltBlock.nextSegmentPosition(state, pos, true);
                 if (nextPos != null && !visited.contains(nextPos)) {
                     TEMP_DEFAULT_POSITIONS.add(nextPos);
@@ -95,9 +99,8 @@ public class SimBlockMovementChecks {
                 if (prevPos != null && !visited.contains(prevPos)) {
                     TEMP_DEFAULT_POSITIONS.add(prevPos);
                 }
-            }
+            } else if (block instanceof PulleyBlock) {
 
-            case final PulleyBlock ignored -> {
                 int limit = AllConfigs.server().kinetics.maxRopeLength.get();
                 BlockPos ropePos = pos;
                 while (limit-- >= 0) {
@@ -120,10 +123,9 @@ public class SimBlockMovementChecks {
                         TEMP_DEFAULT_POSITIONS.add(ropePos);
                     }
                 }
-            }
+            } else if (block instanceof WindmillBearingBlock) {
 
-            //make sure windmills specifically are disassembled before moving
-            case final WindmillBearingBlock ignored -> {
+                //make sure windmills specifically are disassembled before moving
                 if (level.getBlockEntity(pos) instanceof final WindmillBearingBlockEntity wwbe) {
                     wwbe.disassembleForMovement();
                 }
@@ -132,16 +134,14 @@ public class SimBlockMovementChecks {
                 if (!visited.contains(relative)) {
                     TEMP_DEFAULT_POSITIONS.add(relative);
                 }
-            }
+            } else if (block instanceof BearingBlock) {
 
-            case final BearingBlock ignored -> {
                 final BlockPos relative = pos.relative(state.getValue(BearingBlock.FACING));
                 if (!visited.contains(relative)) {
                     TEMP_DEFAULT_POSITIONS.add(relative);
                 }
-            }
+            } else if (block instanceof MechanicalPistonBlock) {
 
-            case final MechanicalPistonBlock ignored -> {
                 final MechanicalPistonBlock.PistonState s = state.getValue(MechanicalPistonBlock.STATE);
 
                 if (s != MechanicalPistonBlock.PistonState.MOVING) {
@@ -162,9 +162,8 @@ public class SimBlockMovementChecks {
                         }
                     }
                 }
-            }
+            } else if (block instanceof PistonExtensionPoleBlock) {
 
-            case final PistonExtensionPoleBlock ignored -> {
                 for (final Direction d : Iterate.directionsInAxis(state.getValue(PistonExtensionPoleBlock.FACING)
                         .getAxis())) {
                     final BlockPos offset = pos.relative(d);
@@ -189,9 +188,8 @@ public class SimBlockMovementChecks {
                         }
                     }
                 }
-            }
+            } else if (block instanceof MechanicalPistonHeadBlock) {
 
-            case final MechanicalPistonHeadBlock ignore -> {
                 final Direction direction = state.getValue(MechanicalPistonHeadBlock.FACING);
                 final BlockPos offset = pos.relative(direction.getOpposite());
                 if (!visited.contains(offset)) {
@@ -216,9 +214,8 @@ public class SimBlockMovementChecks {
                         TEMP_DEFAULT_POSITIONS.add(attached);
                     }
                 }
-            }
+            } else if (block instanceof GantryCarriageBlock) {
 
-            case final GantryCarriageBlock ignored -> {
                 BlockPos offset = pos.relative(state.getValue(GantryCarriageBlock.FACING));
                 if (!visited.contains(offset)) {
                     TEMP_DEFAULT_POSITIONS.add(offset);
@@ -234,9 +231,8 @@ public class SimBlockMovementChecks {
                         }
                     }
                 }
-            }
+            } else if (block instanceof GantryShaftBlock) {
 
-            case final GantryShaftBlock ignored -> {
                 for (final Direction d : Iterate.directions) {
                     final BlockPos offset = pos.relative(d);
                     if (!visited.contains(offset)) {
@@ -249,9 +245,8 @@ public class SimBlockMovementChecks {
                         }
                     }
                 }
-            }
+            } else if (block instanceof StickerBlock) {
 
-            case final StickerBlock ignored -> {
                 if (state.getValue(StickerBlock.EXTENDED)) {
                     final Direction offset = state.getValue(StickerBlock.FACING);
                     final BlockPos attached = pos.relative(offset);
@@ -261,9 +256,6 @@ public class SimBlockMovementChecks {
                 }
             }
 
-            default -> {
-            }
-        }
 
         return TEMP_DEFAULT_POSITIONS;
     }

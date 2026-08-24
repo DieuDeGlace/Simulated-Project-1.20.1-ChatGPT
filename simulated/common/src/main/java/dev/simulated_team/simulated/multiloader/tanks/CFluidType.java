@@ -57,7 +57,10 @@ public record CFluidType(Fluid fluid, DataComponentPatch data) {
             return true;
         }
 
-        if (obj instanceof CFluidType(Fluid fluid1, DataComponentPatch data1)) {
+        // Java 17 port: original used a record pattern.
+        if (obj instanceof CFluidType other) {
+            final Fluid fluid1 = other.fluid();
+            final DataComponentPatch data1 = other.data();
             // both haves tag, or both no haves tag
             return this.fluid.isSame(fluid1) && this.data.equals(data1);
         }
