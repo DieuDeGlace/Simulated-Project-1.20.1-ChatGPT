@@ -80,7 +80,9 @@ tasks.register("runDataAll") {
 
 tasks.named('runGameTest') {
     doFirst {
-        delete project.file('runs/gametest')
+        if (!providers.gradleProperty('reuseGameTestWorld').map(Boolean::parseBoolean).getOrElse(false)) {
+            delete project.file('runs/gametest')
+        }
     }
 }
 
