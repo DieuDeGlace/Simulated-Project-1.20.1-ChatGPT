@@ -8,7 +8,7 @@ import dev.simulated_team.simulated.mixin.accessor.KeyMappingsAccessor;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterDisconnectUser;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterKeyInteractionPacket;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterKeySavePacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -83,12 +83,12 @@ public class LinkedTypewriterInteractionHandler {
 
         if (getMode() == Mode.ACTIVE &&
                 !LinkedTypewriterBlockEntity.playerInRange(Minecraft.getInstance().player, be.getLevel(), be.getBlockPos())) {
-            VeilPacketManager.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
+            SimNetwork.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
             associateTypewriter(null);
         }
 
         if (getMode() != Mode.SCREEN_BINDING && Minecraft.getInstance().screen != null && !be.isRemoved()) {
-            VeilPacketManager.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
+            SimNetwork.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
             associateTypewriter(null);
         }
     }
@@ -118,7 +118,7 @@ public class LinkedTypewriterInteractionHandler {
 
                 if (key == GLFW.GLFW_KEY_ESCAPE) {
                     be.disconnectUser();
-                    VeilPacketManager.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
+                    SimNetwork.server().sendPacket(new TypewriterDisconnectUser(be.getBlockPos()));
 
                     minecraft.setScreen(null);
                 }
@@ -128,7 +128,7 @@ public class LinkedTypewriterInteractionHandler {
                     preventPress(key, scanCode);
 
                     if (action != GLFW.GLFW_REPEAT) {
-                        VeilPacketManager.server().sendPacket(new TypewriterKeyInteractionPacket(be.getBlockPos(), key, scanCode, action));
+                        SimNetwork.server().sendPacket(new TypewriterKeyInteractionPacket(be.getBlockPos(), key, scanCode, action));
                     }
 
                     final LocalPlayer player = minecraft.player;
@@ -246,7 +246,7 @@ public class LinkedTypewriterInteractionHandler {
             controlIndex++;
         }
 
-        VeilPacketManager.server().sendPacket(new TypewriterKeySavePacket(newKeyBindings, blockPos, false));
+        SimNetwork.server().sendPacket(new TypewriterKeySavePacket(newKeyBindings, blockPos, false));
     }
 
     public enum Mode {

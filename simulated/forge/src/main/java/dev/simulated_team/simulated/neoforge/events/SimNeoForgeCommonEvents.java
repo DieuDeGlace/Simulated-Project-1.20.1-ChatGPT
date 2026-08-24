@@ -13,6 +13,7 @@ import dev.simulated_team.simulated.index.SimArmInteractions;
 import dev.simulated_team.simulated.index.SimSoundEvents;
 import dev.simulated_team.simulated.index.SimTags;
 import dev.simulated_team.simulated.index.neoforge.NeoForgeSimStats;
+import dev.simulated_team.simulated.network.SimNetwork;
 import dev.simulated_team.simulated.multiloader.energy.SingleBattery;
 import dev.simulated_team.simulated.multiloader.energy.SingleBatteryWrapper;
 import dev.simulated_team.simulated.multiloader.inventory.AbstractContainer;
@@ -91,7 +92,8 @@ public class SimNeoForgeCommonEvents {
 
 	@SubscribeEvent
 	public static void syncDataPack(final OnDatapackSyncEvent event) {
-		EndSeaPhysicsData.syncDataPacket(packet -> event.getRelevantPlayers().forEach(player -> player.connection.send(packet)));
+		EndSeaPhysicsData.syncDataPacket(packet -> event.getRelevantPlayers().forEach(
+				player -> SimNetwork.player(player).sendPacket(packet)));
 	}
 
 	@SubscribeEvent

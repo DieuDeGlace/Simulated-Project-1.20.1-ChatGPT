@@ -4,12 +4,12 @@ import dev.ryanhcode.offroad.Offroad;
 import dev.ryanhcode.offroad.handlers.client.MultiMiningClientHandler;
 import dev.ryanhcode.offroad.handlers.client.MultiMiningClientHandler.ClientBlockBreakingData;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
-import foundry.veil.api.network.handler.PacketContext;
+import dev.simulated_team.simulated.network.context.PacketContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
@@ -17,9 +17,9 @@ import java.util.Map;
 /**
  * A packet specialized for converting server side {@link dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData server block breaking data} into {@link ClientBlockBreakingData client block breaking data}
  */
-public final class ClientboundMultiMiningSync implements CustomPacketPayload {
+public final class ClientboundMultiMiningSync implements SimPacket {
 
-    public static final Type<ClientboundMultiMiningSync> TYPE = new Type<>(Offroad.path("borehead_sync_blocks"));
+    public static final Type<ClientboundMultiMiningSync> TYPE = new Type<>(Offroad.path("borehead_sync_blocks"), ClientboundMultiMiningSync.class);
 
     public static final StreamCodec<FriendlyByteBuf, ClientboundMultiMiningSync> CODEC = StreamCodec.of(
             (buf, p) -> p.write(buf), ClientboundMultiMiningSync::read
@@ -58,7 +58,7 @@ public final class ClientboundMultiMiningSync implements CustomPacketPayload {
 
         buf.writeInt(this.inData.size());
         for (final Map.Entry<BlockPos, BlockBreakingData> set : this.inData.entrySet()) {
-            BlockPos.STREAM_CODEC.encode(buf, set.getKey());
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS.encode(buf, set.getKey());
             set.getValue().clientAimedSerialization(buf);
         }
     }
@@ -69,7 +69,7 @@ public final class ClientboundMultiMiningSync implements CustomPacketPayload {
 
         final int size = buf.readInt();
         for (int i = 0; i < size; i++) {
-            final BlockPos pos = BlockPos.STREAM_CODEC.decode(buf);
+            final BlockPos pos = dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS.decode(buf);
 
             final ClientBlockBreakingData clientData = new ClientBlockBreakingData();
 
@@ -86,7 +86,7 @@ public final class ClientboundMultiMiningSync implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 

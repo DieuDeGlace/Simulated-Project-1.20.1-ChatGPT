@@ -19,7 +19,7 @@ import dev.simulated_team.simulated.index.SimIcons;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterDisconnectUser;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterKeySavePacket;
 import dev.simulated_team.simulated.util.SimColors;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.gui.element.GuiGameElement;
 import net.createmod.catnip.gui.element.ScreenElement;
 import net.minecraft.client.Minecraft;
@@ -209,7 +209,7 @@ public class LinkedTypewriterScreen extends AbstractSimiContainerScreen<LinkedTy
         LinkedTypewriterInteractionHandler.setMode(LinkedTypewriterInteractionHandler.Mode.IDLE);
         LinkedTypewriterInteractionHandler.associateTypewriter(null);
 
-        VeilPacketManager.server().sendPacket(new TypewriterDisconnectUser(this.clientBe.getBlockPos()));
+        SimNetwork.server().sendPacket(new TypewriterDisconnectUser(this.clientBe.getBlockPos()));
         super.onClose();
     }
 
@@ -219,7 +219,7 @@ public class LinkedTypewriterScreen extends AbstractSimiContainerScreen<LinkedTy
         }
 
         // save keys!
-        VeilPacketManager.server().sendPacket(new TypewriterKeySavePacket(this.newEntries, this.clientBe.getBlockPos(), clearServer));
+        SimNetwork.server().sendPacket(new TypewriterKeySavePacket(this.newEntries, this.clientBe.getBlockPos(), clearServer));
     }
 
     @Override

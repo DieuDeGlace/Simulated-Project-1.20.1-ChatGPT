@@ -2,22 +2,24 @@ package dev.simulated_team.simulated.network.packets;
 
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.util.Observable;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
 
-public record BlockEntityObservedPacket(BlockPos pos) implements CustomPacketPayload {
+public record BlockEntityObservedPacket(BlockPos pos) implements SimPacket {
 
-    public static Type<BlockEntityObservedPacket> TYPE = new Type<>(Simulated.path("be_observed"));
-    public static StreamCodec<ByteBuf, BlockEntityObservedPacket> CODEC = BlockPos.STREAM_CODEC.map(BlockEntityObservedPacket::new, BlockEntityObservedPacket::pos);
+    public static Type<BlockEntityObservedPacket> TYPE = new Type<>(Simulated.path("be_observed"), BlockEntityObservedPacket.class);
+    public static StreamCodec<ByteBuf, BlockEntityObservedPacket> CODEC = dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS.map(BlockEntityObservedPacket::new, BlockEntityObservedPacket::pos);
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends SimPacket> type() {
         return TYPE;
     }
 
@@ -26,7 +28,8 @@ public record BlockEntityObservedPacket(BlockPos pos) implements CustomPacketPay
         final ServerPlayer player = context.player();
 
         // More than 4 blocks + interaction range is way too far to observe a block
-        if (!player.canInteractWithBlock(this.pos, 4.0)) {
+        final double interactionRange = player.getAttributeValue(ForgeMod.BLOCK_REACH.get()) + 4.0;
+        if (new AABB(this.pos).distanceToSqr(player.getEyePosition()) >= interactionRange * interactionRange) {
             return;
         }
 

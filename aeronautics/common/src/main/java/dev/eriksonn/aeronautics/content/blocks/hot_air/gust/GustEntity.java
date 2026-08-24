@@ -14,7 +14,7 @@ import dev.ryanhcode.sable.util.SableNBTUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -158,12 +158,12 @@ public class GustEntity extends Entity implements IEntityWithComplexSpawn {
     }
 
     @Override
-    public void writeSpawnData(final @NotNull RegistryFriendlyByteBuf buffer) {
+    public void writeSpawnData(final @NotNull FriendlyByteBuf buffer) {
         SableBufferUtils.write(buffer, this.orientation);
     }
 
     @Override
-    public void readSpawnData(final @NotNull RegistryFriendlyByteBuf buffer) {
+    public void readSpawnData(final @NotNull FriendlyByteBuf buffer) {
         SableBufferUtils.read(buffer, this.orientation);
     }
 }

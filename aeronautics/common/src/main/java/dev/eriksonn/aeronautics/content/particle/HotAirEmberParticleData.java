@@ -8,9 +8,9 @@ import dev.eriksonn.aeronautics.index.AeroParticleTypes;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class HotAirEmberParticleData implements ParticleOptions, ICustomParticleDataWithSprite<HotAirEmberParticleData> {
 
@@ -18,7 +18,7 @@ public class HotAirEmberParticleData implements ParticleOptions, ICustomParticle
                     Codec.BOOL.fieldOf("isSoul").forGetter((p) -> p.isSoul)
     ).apply(i, HotAirEmberParticleData::new));
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, HotAirEmberParticleData> STREAM_CODEC = StreamCodec.composite(
+    private static final StreamCodec<FriendlyByteBuf, HotAirEmberParticleData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, (p) -> p.isSoul,
             HotAirEmberParticleData::new);
 
@@ -48,7 +48,7 @@ public class HotAirEmberParticleData implements ParticleOptions, ICustomParticle
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, HotAirEmberParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, HotAirEmberParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 }

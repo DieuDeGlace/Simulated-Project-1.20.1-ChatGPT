@@ -2,23 +2,23 @@ package dev.simulated_team.simulated.network.packets.name_plate;
 
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.nameplate.NameplateBlockEntity;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record NameplateChangeNamePacket(BlockPos controllerPos, @Nullable String name) implements CustomPacketPayload {
+public record NameplateChangeNamePacket(BlockPos controllerPos, @Nullable String name) implements SimPacket {
 
-    public static Type<NameplateChangeNamePacket> TYPE = new Type<>(Simulated.path("nameplate_change_name"));
+    public static Type<NameplateChangeNamePacket> TYPE = new Type<>(Simulated.path("nameplate_change_name"), NameplateChangeNamePacket.class);
 
-    public static StreamCodec<RegistryFriendlyByteBuf, NameplateChangeNamePacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, NameplateChangeNamePacket::controllerPos,
+    public static StreamCodec<FriendlyByteBuf, NameplateChangeNamePacket> CODEC = StreamCodec.composite(
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, NameplateChangeNamePacket::controllerPos,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), (packet) -> Optional.ofNullable(packet.name()),
             NameplateChangeNamePacket::fromCodec);
 
@@ -34,7 +34,7 @@ public record NameplateChangeNamePacket(BlockPos controllerPos, @Nullable String
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

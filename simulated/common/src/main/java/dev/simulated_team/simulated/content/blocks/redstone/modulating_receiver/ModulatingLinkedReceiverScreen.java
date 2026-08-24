@@ -12,7 +12,7 @@ import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimPartialModels;
 import dev.simulated_team.simulated.network.packets.ConfigureModulatingLinkedRecieverPacket;
 import dev.simulated_team.simulated.util.SimColors;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.gui.AbstractSimiScreen;
 import net.createmod.catnip.gui.ScreenOpener;
@@ -230,7 +230,7 @@ public class ModulatingLinkedReceiverScreen extends AbstractSimiScreen {
     }
 
     protected void send() {
-        VeilPacketManager.server().sendPacket(new ConfigureModulatingLinkedRecieverPacket(this.be.getBlockPos(), this.minScroll.getState(), this.maxScroll.getState()));
+        SimNetwork.server().sendPacket(new ConfigureModulatingLinkedRecieverPacket(this.be.getBlockPos(), this.minScroll.getState(), this.maxScroll.getState()));
     }
 
 }

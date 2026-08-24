@@ -13,7 +13,7 @@ import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimColors;
 import dev.simulated_team.simulated.util.SimMathUtils;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.KeyMapping;
@@ -228,7 +228,7 @@ public class ZiplineClientManager implements InteractCallback {
         mc.player.fallDistance = 0.0f;
 
         if (AnimationTickHolder.getTicks() % 10 == 0)
-            VeilPacketManager.server().sendPacket(new RopeRidingPacket(ridingRope, false));
+            SimNetwork.server().sendPacket(new RopeRidingPacket(ridingRope, false));
     }
 
     public static boolean canStartRidingDistance(final ClosestQuery query, final Player player) {
@@ -315,12 +315,12 @@ public class ZiplineClientManager implements InteractCallback {
         ridingRope = rope;
         mc.player.getAbilities().flying = false;
         mc.player.stopFallFlying();
-        VeilPacketManager.server().sendPacket(new RopeRidingPacket(ridingRope, false));
+        SimNetwork.server().sendPacket(new RopeRidingPacket(ridingRope, false));
     }
 
     public static void disembark() {
         if (ridingRope != null)
-            VeilPacketManager.server().sendPacket(new RopeRidingPacket(ridingRope, true));
+            SimNetwork.server().sendPacket(new RopeRidingPacket(ridingRope, true));
 
         ridingRope = null;
         Minecraft.getInstance()
@@ -358,7 +358,7 @@ public class ZiplineClientManager implements InteractCallback {
         }
 
         if (isDestroyer || (isWrench && mc.player.isShiftKeyDown())) {
-            VeilPacketManager.server().sendPacket(new RopeBreakPacket(hoveringRope));
+            SimNetwork.server().sendPacket(new RopeBreakPacket(hoveringRope));
             mc.player.swing(InteractionHand.MAIN_HAND);
             return new Result(true);
         }

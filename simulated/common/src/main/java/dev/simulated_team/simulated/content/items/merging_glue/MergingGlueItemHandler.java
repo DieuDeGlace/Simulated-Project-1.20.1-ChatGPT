@@ -9,7 +9,7 @@ import dev.simulated_team.simulated.network.packets.PlaceMergingGluePacket;
 import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimColors;
 import dev.simulated_team.simulated.util.SimDistUtil;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -104,7 +104,7 @@ public class MergingGlueItemHandler {
                     return true;
                 } else if (!this.firstPos.relative(this.firstDirection).equals(relative)) { //we are connecting!
                     player.swing(hand);
-                    VeilPacketManager.server().sendPacket(new PlaceMergingGluePacket(this.firstPos, pos, this.firstDirection, normal, hand));
+                    SimNetwork.server().sendPacket(new PlaceMergingGluePacket(this.firstPos, pos, this.firstDirection, normal, hand));
                     this.reset(false);
                     return true;
                 }

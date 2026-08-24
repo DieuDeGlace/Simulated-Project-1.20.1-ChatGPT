@@ -7,7 +7,7 @@ import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.index.SimEntityTypes;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.network.packets.honey_glue.HoneyGlueSyncBoundsPacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.core.BlockPos;
@@ -224,7 +224,7 @@ public class HoneyGlueEntity extends Entity implements SpecialEntityItemRequirem
     }
 
     public void syncBounds(@Nullable final Player player) {
-        VeilPacketManager.tracking(this).sendPacket(new HoneyGlueSyncBoundsPacket(this.getBoundingBox(), this.getId(), player != null ? player.getUUID() : null));
+        SimNetwork.tracking(this).sendPacket(new HoneyGlueSyncBoundsPacket(this.getBoundingBox(), this.getId(), player != null ? player.getUUID() : null));
     }
 
     public void setBounds(final AABB bounds) {

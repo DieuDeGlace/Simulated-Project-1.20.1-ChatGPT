@@ -4,11 +4,11 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.entities.honey_glue.HoneyGlueEntity;
 import dev.simulated_team.simulated.content.entities.honey_glue.HoneyGlueMaxSizing;
 import dev.simulated_team.simulated.index.SimSoundEvents;
-import foundry.veil.api.network.handler.PacketContext;
+import dev.simulated_team.simulated.network.context.PacketContext;
 import net.createmod.catnip.data.Pair;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -16,26 +16,26 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.UUID;
 
-public record HoneyGlueChangeBoundsPacket(AABB bounds, UUID honeyGlue) implements CustomPacketPayload {
-    public static Type<HoneyGlueChangeBoundsPacket> TYPE = new Type<>(Simulated.path("honey_glue_change_bounds"));
-    public static StreamCodec<RegistryFriendlyByteBuf, HoneyGlueChangeBoundsPacket> CODEC = StreamCodec.of(HoneyGlueChangeBoundsPacket::writeToBuf, HoneyGlueChangeBoundsPacket::readFromBuf);
+public record HoneyGlueChangeBoundsPacket(AABB bounds, UUID honeyGlue) implements SimPacket {
+    public static Type<HoneyGlueChangeBoundsPacket> TYPE = new Type<>(Simulated.path("honey_glue_change_bounds"), HoneyGlueChangeBoundsPacket.class);
+    public static StreamCodec<FriendlyByteBuf, HoneyGlueChangeBoundsPacket> CODEC = StreamCodec.of(HoneyGlueChangeBoundsPacket::writeToBuf, HoneyGlueChangeBoundsPacket::readFromBuf);
 
-    public static void writeToBuf(final RegistryFriendlyByteBuf buf, final HoneyGlueChangeBoundsPacket packet) {
+    public static void writeToBuf(final FriendlyByteBuf buf, final HoneyGlueChangeBoundsPacket packet) {
         writeAABB(buf, packet.bounds);
         buf.writeUUID(packet.honeyGlue());
     }
 
-    public static HoneyGlueChangeBoundsPacket readFromBuf(final RegistryFriendlyByteBuf buf) {
+    public static HoneyGlueChangeBoundsPacket readFromBuf(final FriendlyByteBuf buf) {
         final AABB serializedBounds = new AABB(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
         return new HoneyGlueChangeBoundsPacket(serializedBounds, buf.readUUID());
     }
 
-    public static void writeAABB(final RegistryFriendlyByteBuf bytebuf, final AABB bb) {
+    public static void writeAABB(final FriendlyByteBuf bytebuf, final AABB bb) {
         HoneyGlueSyncBoundsPacket.writeAABB(bytebuf, bb);
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 

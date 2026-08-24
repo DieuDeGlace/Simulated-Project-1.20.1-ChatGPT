@@ -7,7 +7,7 @@ import dev.simulated_team.simulated.network.packets.PlaceSpringPacket;
 import dev.simulated_team.simulated.util.SimColors;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -97,7 +97,7 @@ public class SpringItemHandler implements InteractCallback {
                 }
 
                 player.swing(hand);
-                VeilPacketManager.server().sendPacket(new PlaceSpringPacket(this.linkPos, pos, this.linkDirection, dir, hand));
+                SimNetwork.server().sendPacket(new PlaceSpringPacket(this.linkPos, pos, this.linkDirection, dir, hand));
                 this.reset(false);
                 return new Result(true);
             }

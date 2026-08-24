@@ -25,7 +25,7 @@ import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeDataPacket;
 import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeStoppedPacket;
 import dev.simulated_team.simulated.service.SimConfigService;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -133,16 +133,16 @@ public class RopeStrandHolderBehavior extends BlockEntityBehaviour {
 
             if (alreadyTrackingPlayers.add(uuid)) {
                 this.ownedServerStrand.updatePose();
-                VeilPacketManager.player(player).sendPacket(this.makeUpdatePacket());
+                SimNetwork.player(player).sendPacket(this.makeUpdatePacket());
             }
         }
     }
 
-    public VeilPacketManager.PacketSink getStrandPacketSink() {
+    public SimNetwork.PacketSink getStrandPacketSink() {
         final List<ServerPlayer> players = this.getStrandTrackingPlayers();
         return packet -> {
             for (final ServerPlayer player : players) {
-                player.connection.send(packet);
+                SimNetwork.player(player).sendPacket(packet);
             }
         };
     }

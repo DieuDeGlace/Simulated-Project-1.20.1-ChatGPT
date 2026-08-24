@@ -8,9 +8,9 @@ import dev.eriksonn.aeronautics.index.AeroParticleTypes;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class LevititeSparkleParticleData implements ParticleOptions, ICustomParticleDataWithSprite<LevititeSparkleParticleData> {
     public static final int LEVITITE_GREEN = 9424022;
@@ -21,7 +21,7 @@ public class LevititeSparkleParticleData implements ParticleOptions, ICustomPart
                     Codec.INT.fieldOf("color").forGetter(p -> p.color)
             ).apply(instance, LevititeSparkleParticleData::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, LevititeSparkleParticleData> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf, LevititeSparkleParticleData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, p -> p.color,
             LevititeSparkleParticleData::new
     );
@@ -47,7 +47,7 @@ public class LevititeSparkleParticleData implements ParticleOptions, ICustomPart
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, LevititeSparkleParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, LevititeSparkleParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 

@@ -6,7 +6,7 @@ import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.network.packets.ConfigureAltitudeSensorPacket;
 import dev.simulated_team.simulated.util.SimColors;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.gui.AbstractSimiScreen;
@@ -238,7 +238,7 @@ public class AltitudeSensorScreen extends AbstractSimiScreen {
 
     @Override
     public void onClose() {
-        VeilPacketManager.server().sendPacket(
+        SimNetwork.server().sendPacket(
                 new ConfigureAltitudeSensorPacket(this.blockEntity.getBlockPos(), this.highSignal, this.lowSignal)
         );
         super.onClose();

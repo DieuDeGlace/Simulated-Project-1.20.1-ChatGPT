@@ -2,7 +2,7 @@ package dev.simulated_team.simulated.neoforge.mixin.self_mixins;
 
 import dev.simulated_team.simulated.content.entities.diagram.DiagramEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,14 +14,14 @@ public abstract class DiagramEntityMixin implements IEntityWithComplexSpawn {
     @Shadow public abstract void readAdditionalSaveData(CompoundTag tag);
 
     @Override
-    public void writeSpawnData(final RegistryFriendlyByteBuf registryFriendlyByteBuf) {
+    public void writeSpawnData(final FriendlyByteBuf registryFriendlyByteBuf) {
         final CompoundTag compound = new CompoundTag();
         this.addAdditionalSaveData(compound);
         registryFriendlyByteBuf.writeNbt(compound);
     }
 
     @Override
-    public void readSpawnData(final RegistryFriendlyByteBuf registryFriendlyByteBuf) {
+    public void readSpawnData(final FriendlyByteBuf registryFriendlyByteBuf) {
         this.readAdditionalSaveData(registryFriendlyByteBuf.readNbt());
     }
 }

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.network.packets.name_plate.NameplateChangeNamePacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -106,7 +106,7 @@ public class NameplateScreen extends Screen {
 
    @Override
    public void removed() {
-      VeilPacketManager.server().sendPacket(new NameplateChangeNamePacket(this.be.findController().getBlockPos(), this.message));
+      SimNetwork.server().sendPacket(new NameplateChangeNamePacket(this.be.findController().getBlockPos(), this.message));
    }
 
    @Override

@@ -7,12 +7,12 @@ import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimEntityTypes;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.index.SimSoundEvents;
-import foundry.veil.api.network.handler.PacketContext;
+import dev.simulated_team.simulated.network.context.PacketContext;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -23,27 +23,27 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
-public record HoneyGlueSpawnPacket(BlockPos from, BlockPos to) implements CustomPacketPayload {
-    public static Type<HoneyGlueSpawnPacket> TYPE = new Type<>(Simulated.path("honey_glue_spawn"));
-    public static StreamCodec<RegistryFriendlyByteBuf, HoneyGlueSpawnPacket> CODEC = StreamCodec.of(HoneyGlueSpawnPacket::writeToBuf, HoneyGlueSpawnPacket::readFromBuf);
+public record HoneyGlueSpawnPacket(BlockPos from, BlockPos to) implements SimPacket {
+    public static Type<HoneyGlueSpawnPacket> TYPE = new Type<>(Simulated.path("honey_glue_spawn"), HoneyGlueSpawnPacket.class);
+    public static StreamCodec<FriendlyByteBuf, HoneyGlueSpawnPacket> CODEC = StreamCodec.of(HoneyGlueSpawnPacket::writeToBuf, HoneyGlueSpawnPacket::readFromBuf);
 
-    public static void writeToBuf(final RegistryFriendlyByteBuf buf, final HoneyGlueSpawnPacket packet) {
+    public static void writeToBuf(final FriendlyByteBuf buf, final HoneyGlueSpawnPacket packet) {
         buf.writeBlockPos(packet.from);
         buf.writeBlockPos(packet.to);
     }
 
-    public static HoneyGlueSpawnPacket readFromBuf(final RegistryFriendlyByteBuf buf) {
+    public static HoneyGlueSpawnPacket readFromBuf(final FriendlyByteBuf buf) {
         return new HoneyGlueSpawnPacket(buf.readBlockPos(), buf.readBlockPos());
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 
     private InteractionHand getHoneyGlueHand(final Player player) {
-        return player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.HONEY_GLUE) ? InteractionHand.MAIN_HAND :
-                player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.HONEY_GLUE) ? InteractionHand.OFF_HAND :
+        return player.getItemInHand(InteractionHand.MAIN_HAND).is(SimItems.HONEY_GLUE.get()) ? InteractionHand.MAIN_HAND :
+                player.getItemInHand(InteractionHand.OFF_HAND).is(SimItems.HONEY_GLUE.get()) ? InteractionHand.OFF_HAND :
                         null;
     }
 
@@ -56,7 +56,13 @@ public record HoneyGlueSpawnPacket(BlockPos from, BlockPos to) implements Custom
         if (hand == null)
             return;
 
-        final AABB newBounds = AABB.encapsulatingFullBlocks(this.from, this.to);
+        final AABB newBounds = new AABB(
+                Math.min(this.from.getX(), this.to.getX()),
+                Math.min(this.from.getY(), this.to.getY()),
+                Math.min(this.from.getZ(), this.to.getZ()),
+                Math.max(this.from.getX(), this.to.getX()) + 1,
+                Math.max(this.from.getY(), this.to.getY()) + 1,
+                Math.max(this.from.getZ(), this.to.getZ()) + 1);
         final Pair<Boolean, String> pair = HoneyGlueMaxSizing.checkBounds(newBounds);
 
         if (pair.getFirst()) {
@@ -67,7 +73,7 @@ public record HoneyGlueSpawnPacket(BlockPos from, BlockPos to) implements Custom
             level.playSound(player, this.to, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.75f, 1.0f);
 
             final ItemStack honeyGlueItem = player.getItemInHand(hand);
-            honeyGlueItem.hurtAndBreak(1, level, player, (item) -> {});
+            honeyGlueItem.hurtAndBreak(1, player, item -> {});
 
             final HoneyGlueEntity entity = SimEntityTypes.HONEY_GLUE.create(level);
             assert entity != null;

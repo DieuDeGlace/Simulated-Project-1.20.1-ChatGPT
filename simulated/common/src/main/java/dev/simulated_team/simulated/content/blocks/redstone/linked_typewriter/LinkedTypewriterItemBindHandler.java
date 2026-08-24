@@ -11,7 +11,7 @@ import dev.simulated_team.simulated.index.SimBlocks;
 import dev.simulated_team.simulated.mixin.accessor.RedstoneLinkBlockEntityAccessor;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterSaveKeyToItemPacket;
 import dev.simulated_team.simulated.util.SimColors;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.lang.FontHelper;
 import net.createmod.catnip.outliner.Outliner;
@@ -106,7 +106,7 @@ public class LinkedTypewriterItemBindHandler {
         if (key != GLFW.GLFW_KEY_ESCAPE) {
             final InteractionHand hand = getHand();
             if (hand != null) {
-                VeilPacketManager.server().sendPacket(new TypewriterSaveKeyToItemPacket(hand, new LinkedTypewriterEntries.KeyboardEntry(frequency.getFirst(), frequency.getSecond(), key, BlockPos.ZERO)));
+                SimNetwork.server().sendPacket(new TypewriterSaveKeyToItemPacket(hand, new LinkedTypewriterEntries.KeyboardEntry(frequency.getFirst(), frequency.getSecond(), key, BlockPos.ZERO)));
                 LinkedTypewriterInteractionHandler.preventPress(key, scanCode);
 
                 SimLang.builder()

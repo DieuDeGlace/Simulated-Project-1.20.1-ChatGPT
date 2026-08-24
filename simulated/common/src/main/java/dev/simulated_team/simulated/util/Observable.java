@@ -1,7 +1,7 @@
 package dev.simulated_team.simulated.util;
 
 import dev.simulated_team.simulated.network.packets.BlockEntityObservedPacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 
@@ -21,6 +21,6 @@ public interface Observable {
      * @param pos The position this block entity was observed at
      */
     default void sendObserved(final BlockPos pos) {
-        VeilPacketManager.server().sendPacket(new BlockEntityObservedPacket(pos));
+        SimNetwork.server().sendPacket(new BlockEntityObservedPacket(pos));
     }
 }

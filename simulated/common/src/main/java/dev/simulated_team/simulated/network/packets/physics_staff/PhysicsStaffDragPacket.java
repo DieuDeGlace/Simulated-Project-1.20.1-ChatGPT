@@ -3,10 +3,10 @@ package dev.simulated_team.simulated.network.packets.physics_staff;
 import dev.ryanhcode.sable.util.SableBufferUtils;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.physics_staff.PhysicsStaffServerHandler;
-import foundry.veil.api.network.handler.ServerPacketContext;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -18,15 +18,15 @@ import org.joml.Vector3dc;
 import java.util.UUID;
 
 public record PhysicsStaffDragPacket(UUID subLevel, Vector3dc playerRelativeGoal,
-                                     Vector3dc localAnchor, Quaterniondc orientation) implements CustomPacketPayload {
-    public static final StreamCodec<RegistryFriendlyByteBuf, PhysicsStaffDragPacket> CODEC = StreamCodec.of((buf, value) -> value.write(buf), PhysicsStaffDragPacket::read);
-    public static Type<PhysicsStaffDragPacket> TYPE = new Type<>(Simulated.path("physics_staff_drag"));
+                                     Vector3dc localAnchor, Quaterniondc orientation) implements SimPacket {
+    public static final StreamCodec<FriendlyByteBuf, PhysicsStaffDragPacket> CODEC = StreamCodec.of((buf, value) -> value.write(buf), PhysicsStaffDragPacket::read);
+    public static Type<PhysicsStaffDragPacket> TYPE = new Type<>(Simulated.path("physics_staff_drag"), PhysicsStaffDragPacket.class);
 
-    private static PhysicsStaffDragPacket read(final RegistryFriendlyByteBuf buf) {
+    private static PhysicsStaffDragPacket read(final FriendlyByteBuf buf) {
         return new PhysicsStaffDragPacket(buf.readUUID(), SableBufferUtils.read(buf, new Vector3d()), SableBufferUtils.read(buf, new Vector3d()), SableBufferUtils.read(buf, new Quaterniond()));
     }
 
-    private void write(final RegistryFriendlyByteBuf buf) {
+    private void write(final FriendlyByteBuf buf) {
         buf.writeUUID(this.subLevel);
         SableBufferUtils.write(buf, this.playerRelativeGoal);
         SableBufferUtils.write(buf, this.localAnchor);
@@ -42,7 +42,7 @@ public record PhysicsStaffDragPacket(UUID subLevel, Vector3dc playerRelativeGoal
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

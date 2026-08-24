@@ -30,7 +30,7 @@ import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimAssemblyHelper;
 import dev.simulated_team.simulated.util.SimMathUtils;
 import dev.simulated_team.simulated.util.assembly.SimAssemblyException;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -290,7 +290,7 @@ public class PhysicsAssemblerBlockEntity extends SmartBlockEntity implements IDi
         final Level level = this.getLevel();
         assert level != null;
         try {
-            VeilPacketManager.tracking(this).sendPacket(new PhysicsAssemblerFlickAndHoldLeverPacket(this.worldPosition, subLevel == null));
+            SimNetwork.tracking(this).sendPacket(new PhysicsAssemblerFlickAndHoldLeverPacket(this.worldPosition, subLevel == null));
 
             if (subLevel instanceof final ServerSubLevel serverSubLevel) {
                 if (DisassemblyPrevention.checkSubLevelForPrimary(level, this.getBlockPos())) {
@@ -318,7 +318,7 @@ public class PhysicsAssemblerBlockEntity extends SmartBlockEntity implements IDi
 
     private void assemblyFailed(final AssemblyException exception) {
         this.lastException = exception;
-        VeilPacketManager.tracking(this).sendPacket(new PhysicsAssemblerFailedPacket(this.worldPosition));
+        SimNetwork.tracking(this).sendPacket(new PhysicsAssemblerFailedPacket(this.worldPosition));
         this.sendData();
     }
 

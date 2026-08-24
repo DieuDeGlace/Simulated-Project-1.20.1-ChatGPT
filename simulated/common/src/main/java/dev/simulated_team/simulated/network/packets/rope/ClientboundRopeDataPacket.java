@@ -4,13 +4,13 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import dev.ryanhcode.sable.util.SableBufferUtils;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.rope.RopeStrandHolderBehavior;
-import foundry.veil.api.network.handler.ClientPacketContext;
+import dev.simulated_team.simulated.network.context.ClientPacketContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -23,11 +23,11 @@ import java.util.UUID;
 public record ClientboundRopeDataPacket(int interpolationTick, BlockPos ownerPos,
                                         UUID uuid, List<Vector3d> points,
                                         @Nullable BlockPos startAttachmentPos,
-                                        @Nullable BlockPos endAttachmentPos) implements CustomPacketPayload {
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRopeDataPacket> CODEC = StreamCodec.of((buf, value) -> value.write(buf), ClientboundRopeDataPacket::read);
-    public static Type<ClientboundRopeDataPacket> TYPE = new Type<>(Simulated.path("rope_data"));
+                                        @Nullable BlockPos endAttachmentPos) implements SimPacket {
+    public static final StreamCodec<FriendlyByteBuf, ClientboundRopeDataPacket> CODEC = StreamCodec.of((buf, value) -> value.write(buf), ClientboundRopeDataPacket::read);
+    public static Type<ClientboundRopeDataPacket> TYPE = new Type<>(Simulated.path("rope_data"), ClientboundRopeDataPacket.class);
 
-    private static ClientboundRopeDataPacket read(final RegistryFriendlyByteBuf buf) {
+    private static ClientboundRopeDataPacket read(final FriendlyByteBuf buf) {
         final int interpolationTick = buf.readInt();
         final BlockPos ownerPos = buf.readBlockPos();
         final UUID uuid = buf.readUUID();
@@ -44,7 +44,7 @@ public record ClientboundRopeDataPacket(int interpolationTick, BlockPos ownerPos
         return new ClientboundRopeDataPacket(interpolationTick, ownerPos, uuid, points, startAttachment, endAttachment);
     }
 
-    private void write(final RegistryFriendlyByteBuf buf) {
+    private void write(final FriendlyByteBuf buf) {
         buf.writeInt(this.interpolationTick);
         buf.writeBlockPos(this.ownerPos);
         buf.writeUUID(this.uuid);
@@ -85,7 +85,7 @@ public record ClientboundRopeDataPacket(int interpolationTick, BlockPos ownerPos
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

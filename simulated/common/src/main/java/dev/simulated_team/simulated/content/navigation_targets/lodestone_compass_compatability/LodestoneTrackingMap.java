@@ -13,7 +13,7 @@ import dev.ryanhcode.sable.sublevel.storage.serialization.SubLevelData;
 import dev.ryanhcode.sable.sublevel.tracking_points.SubLevelTrackingPointSavedData;
 import dev.ryanhcode.sable.sublevel.tracking_points.TrackingPoint;
 import dev.simulated_team.simulated.network.packets.lodestone_compass.UpdateClientLodestonePositionPacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
@@ -272,7 +272,7 @@ public class LodestoneTrackingMap extends SavedData {
 	public void sendUpdateForPlayer(final UUID trackerID, final ServerPlayer sp) {
 		for (final LodestoneInformation info : this.lodestoneInformationSet) {
 			if (info.id().equals(trackerID)) {
-				VeilPacketManager.player(sp).sendPacket(new UpdateClientLodestonePositionPacket(info.id(), info.projectedPos()));
+				SimNetwork.player(sp).sendPacket(new UpdateClientLodestonePositionPacket(info.id(), info.projectedPos()));
 				break;
 			}
 		}

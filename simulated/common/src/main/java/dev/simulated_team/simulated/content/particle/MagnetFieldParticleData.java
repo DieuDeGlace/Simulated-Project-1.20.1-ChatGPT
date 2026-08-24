@@ -9,9 +9,9 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class MagnetFieldParticleData implements ParticleOptions, ICustomParticleDataWithSprite<MagnetFieldParticleData> {
     public static final MapCodec<MagnetFieldParticleData> CODEC = RecordCodecBuilder.mapCodec((i) -> {
@@ -42,7 +42,7 @@ public class MagnetFieldParticleData implements ParticleOptions, ICustomParticle
         return MagnetFieldParticle.Factory::new;
     }
 
-    public StreamCodec<? super RegistryFriendlyByteBuf, MagnetFieldParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, MagnetFieldParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 

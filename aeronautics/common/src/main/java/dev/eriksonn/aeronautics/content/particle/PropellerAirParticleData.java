@@ -8,9 +8,9 @@ import dev.eriksonn.aeronautics.index.AeroParticleTypes;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class PropellerAirParticleData implements ParticleOptions, ICustomParticleDataWithSprite<PropellerAirParticleData> {
 
@@ -19,7 +19,7 @@ public class PropellerAirParticleData implements ParticleOptions, ICustomParticl
                     Codec.BOOL.fieldOf("virtual").forGetter(p -> p.isVirtual))
             .apply(i, PropellerAirParticleData::new));
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, PropellerAirParticleData> STREAM_CODEC = StreamCodec.composite(
+    private static final StreamCodec<FriendlyByteBuf, PropellerAirParticleData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, (p) -> p.enableCollision,
             ByteBufCodecs.BOOL, (p) -> p.isVirtual,
             PropellerAirParticleData::new);
@@ -53,7 +53,7 @@ public class PropellerAirParticleData implements ParticleOptions, ICustomParticl
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, PropellerAirParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, PropellerAirParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 }

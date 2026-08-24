@@ -16,9 +16,9 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -182,7 +182,7 @@ public class LinkedTypewriterEntries {
                                 Codec.INT.fieldOf("GLFWKey").forGetter(KeyboardEntry::getGLFWKeyCode))
                         .apply(instance, KeyboardEntry::createFromCodec));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, KeyboardEntry> STREAM_CODEC = StreamCodec.composite(
+        public static final StreamCodec<FriendlyByteBuf, KeyboardEntry> STREAM_CODEC = StreamCodec.composite(
                 ItemStack.OPTIONAL_STREAM_CODEC, KeyboardEntry::getFirstAsItemStack,
                 ItemStack.OPTIONAL_STREAM_CODEC, KeyboardEntry::getSecondAsItemStack,
                 ByteBufCodecs.INT, KeyboardEntry::getGLFWKeyCode,

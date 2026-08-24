@@ -8,13 +8,13 @@ import dev.simulated_team.simulated.content.blocks.spring.SpringBlockEntity;
 import dev.simulated_team.simulated.content.items.spring.SpringItem;
 import dev.simulated_team.simulated.content.items.spring.SpringItemHandler;
 import dev.simulated_team.simulated.index.SimBlocks;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -24,21 +24,21 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public record PlaceSpringPacket(BlockPos parentPos, BlockPos childPos, Direction parentFacing, Direction childFacing,
-                                InteractionHand hand) implements CustomPacketPayload {
+                                InteractionHand hand) implements SimPacket {
 
-    public static Type<PlaceSpringPacket> TYPE = new Type<>(Simulated.path("place_spring"));
+    public static Type<PlaceSpringPacket> TYPE = new Type<>(Simulated.path("place_spring"), PlaceSpringPacket.class);
 
-    public static StreamCodec<RegistryFriendlyByteBuf, PlaceSpringPacket> CODEC = StreamCodec.composite(
+    public static StreamCodec<FriendlyByteBuf, PlaceSpringPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, (packet) -> packet.hand().ordinal(),
-            BlockPos.STREAM_CODEC, PlaceSpringPacket::parentPos,
-            BlockPos.STREAM_CODEC, PlaceSpringPacket::childPos,
-            Direction.STREAM_CODEC, PlaceSpringPacket::parentFacing,
-            Direction.STREAM_CODEC, PlaceSpringPacket::childFacing,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, PlaceSpringPacket::parentPos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, PlaceSpringPacket::childPos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.DIRECTION, PlaceSpringPacket::parentFacing,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.DIRECTION, PlaceSpringPacket::childFacing,
             (hand, parentPos, childPos, parentFacing, childFacing) -> new PlaceSpringPacket(parentPos, childPos, parentFacing, childFacing, hand == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND)
     );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 
@@ -64,12 +64,13 @@ public record PlaceSpringPacket(BlockPos parentPos, BlockPos childPos, Direction
             return;
         }
 
-        final double distance = Math.clamp(Math.sqrt(distanceSquared) + 1, 1, SpringItemHandler.MAX_LENGTH);
+        final double distance = net.minecraft.util.Mth.clamp(
+                Math.sqrt(distanceSquared) + 1, 1, SpringItemHandler.MAX_LENGTH);
         controllerSpring.setDesiredLength(distance);
         partnerSpring.setDesiredLength(distance);
 
         player.awardStat(Stats.ITEM_USED.get(spring.getItem()));
-        if (!player.hasInfiniteMaterials()) {
+        if (!player.getAbilities().instabuild) {
             spring.shrink(1);
         }
     }

@@ -10,9 +10,9 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -76,7 +76,7 @@ public class AugerIndicatorParticleData implements ParticleOptions, ICustomParti
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, AugerIndicatorParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, AugerIndicatorParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 

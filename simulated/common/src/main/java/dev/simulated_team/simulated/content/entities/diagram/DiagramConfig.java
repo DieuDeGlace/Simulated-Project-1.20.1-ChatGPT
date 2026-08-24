@@ -8,8 +8,8 @@ import dev.simulated_team.simulated.util.SimCodecUtil;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class DiagramConfig {
     ).apply(instance, DiagramConfig::new));
 
     public static final StreamCodec<ByteBuf, DiagramConfig> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()), DiagramConfig::enabledForceGroups,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.RESOURCE_LOCATION.apply(ByteBufCodecs.list()), DiagramConfig::enabledForceGroups,
             ByteBufCodecs.BOOL, DiagramConfig::displayCenterOfMass,
             ByteBufCodecs.BOOL, DiagramConfig::mergeForces,
             ByteBufCodecs.DOUBLE, DiagramConfig::yaw,

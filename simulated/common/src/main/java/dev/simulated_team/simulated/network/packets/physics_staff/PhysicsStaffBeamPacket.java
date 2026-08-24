@@ -6,25 +6,25 @@ import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.SimulatedClient;
 import dev.simulated_team.simulated.util.SimCodecUtil;
-import foundry.veil.api.network.handler.PacketContext;
+import dev.simulated_team.simulated.network.context.PacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.level.Level;
 import org.joml.Vector3d;
 
 import java.util.UUID;
 
-public class PhysicsStaffBeamPacket implements CustomPacketPayload {
+public class PhysicsStaffBeamPacket implements SimPacket {
 
     public static final StreamCodec<ByteBuf, PhysicsStaffBeamPacket> CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, packet -> packet.uuid,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.UUID, packet -> packet.uuid,
             SimCodecUtil.STREAM_VECTOR3D, packet -> packet.start,
             SimCodecUtil.STREAM_VECTOR3D, packet -> packet.end,
             PhysicsStaffBeamPacket::new
     );
-    public static Type<PhysicsStaffBeamPacket> TYPE = new Type<>(Simulated.path("physics_staff_beam"));
+    public static Type<PhysicsStaffBeamPacket> TYPE = new Type<>(Simulated.path("physics_staff_beam"), PhysicsStaffBeamPacket.class);
     private final UUID uuid;
     private final Vector3d start;
     private final Vector3d end;
@@ -36,7 +36,7 @@ public class PhysicsStaffBeamPacket implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 

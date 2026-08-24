@@ -2,20 +2,20 @@ package dev.simulated_team.simulated.network.packets.linked_typewriter;
 
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.screen.LinkedTypewriterMenuCommon;
-import foundry.veil.api.network.handler.ServerPacketContext;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-public record TypewriterMenuModifySlots(ItemStack first, ItemStack second) implements CustomPacketPayload {
+public record TypewriterMenuModifySlots(ItemStack first, ItemStack second) implements SimPacket {
 
-    public static Type<TypewriterMenuModifySlots> TYPE = new Type<>(Simulated.path("entry_modify"));
+    public static Type<TypewriterMenuModifySlots> TYPE = new Type<>(Simulated.path("entry_modify"), TypewriterMenuModifySlots.class);
 
-    public static StreamCodec<RegistryFriendlyByteBuf, TypewriterMenuModifySlots> CODEC = StreamCodec.composite(
-            ItemStack.OPTIONAL_STREAM_CODEC, TypewriterMenuModifySlots::first,
-            ItemStack.OPTIONAL_STREAM_CODEC, TypewriterMenuModifySlots::second,
+    public static StreamCodec<FriendlyByteBuf, TypewriterMenuModifySlots> CODEC = StreamCodec.composite(
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.ITEM_STACK, TypewriterMenuModifySlots::first,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.ITEM_STACK, TypewriterMenuModifySlots::second,
             TypewriterMenuModifySlots::new
     );
 
@@ -29,7 +29,7 @@ public record TypewriterMenuModifySlots(ItemStack first, ItemStack second) imple
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

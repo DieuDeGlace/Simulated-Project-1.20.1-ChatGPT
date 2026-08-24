@@ -15,7 +15,7 @@ import dev.simulated_team.simulated.mixin_interface.PlayerLaunchedPlungerExtensi
 import dev.simulated_team.simulated.network.packets.PlungerLauncherShootPacket;
 import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.service.SimEntityService;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
@@ -104,9 +104,9 @@ public class PlungerLauncherItem extends Item implements CustomArmPoseItem {
 
             player.awardStat(Stats.ITEM_USED.get(heldStack.getItem()));
             // send shoot packet
-            VeilPacketManager.player((ServerPlayer) player).sendPacket(new PlungerLauncherShootPacket(interactionHand));
+            SimNetwork.player((ServerPlayer) player).sendPacket(new PlungerLauncherShootPacket(interactionHand));
             // todo: send to all tracking players for playing (to be implemented) external animation
-//            VeilPacketManager.tracking(player).sendPacket(new PlungerLauncherShootPacket(interactionHand));
+//            SimNetwork.tracking(player).sendPacket(new PlungerLauncherShootPacket(interactionHand));
 
             if (!BacktankUtil.canAbsorbDamage(player, maxUses()))
                 heldStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(interactionHand));

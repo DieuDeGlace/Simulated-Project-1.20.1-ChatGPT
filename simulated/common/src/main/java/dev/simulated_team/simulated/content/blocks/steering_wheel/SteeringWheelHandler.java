@@ -7,7 +7,7 @@ import dev.simulated_team.simulated.network.packets.SteeringWheelPacket;
 import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction;
 import dev.simulated_team.simulated.util.hold_interaction.HoldInteractionManager;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -142,7 +142,7 @@ public class SteeringWheelHandler extends BlockHoldInteraction {
             blockEntity = null;
         }
 
-        VeilPacketManager.server().sendPacket(new SteeringWheelPacket(true, effectiveAngle, this.getInteractionPos()));
+        SimNetwork.server().sendPacket(new SteeringWheelPacket(true, effectiveAngle, this.getInteractionPos()));
         super.stop();
     }
 
@@ -185,7 +185,7 @@ public class SteeringWheelHandler extends BlockHoldInteraction {
 
     public void setTargetAngle(final float targetAngle) {
         if (updated) {
-            VeilPacketManager.server().sendPacket(new SteeringWheelPacket(false, targetAngle, this.getInteractionPos()));
+            SimNetwork.server().sendPacket(new SteeringWheelPacket(false, targetAngle, this.getInteractionPos()));
 
             updated = false;
             blockEntity.targetAngleToUpdate = targetAngle;

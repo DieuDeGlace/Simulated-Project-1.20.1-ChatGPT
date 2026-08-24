@@ -27,7 +27,7 @@ import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
 import foundry.veil.api.client.render.post.PostPipeline;
 import foundry.veil.api.client.render.post.PostProcessingManager;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.createmod.catnip.gui.AbstractSimiScreen;
 import net.createmod.catnip.lang.LangBuilder;
@@ -478,13 +478,13 @@ public class DiagramScreen extends AbstractSimiScreen {
         }
 
         if (this.configDirty) {
-            VeilPacketManager.server().sendPacket(new DiagramSaveConfigPacket(this.diagram.getId(), this.config));
+            SimNetwork.server().sendPacket(new DiagramSaveConfigPacket(this.diagram.getId(), this.config));
             this.configDirty = false;
         }
 
         if (this.ticksWithoutUpdate++ > UPDATE_REQUEST_INTERVAL) {
             this.ticksWithoutUpdate = 0;
-            VeilPacketManager.server().sendPacket(new RequestDiagramDataPacket(this.subLevel.getUniqueId()));
+            SimNetwork.server().sendPacket(new RequestDiagramDataPacket(this.subLevel.getUniqueId()));
         }
 
         this.lastPaperOffset = this.paperOffset;

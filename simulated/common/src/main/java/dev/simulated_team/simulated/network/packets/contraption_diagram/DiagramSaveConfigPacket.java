@@ -6,18 +6,18 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramEntity;
-import foundry.veil.api.network.handler.ServerPacketContext;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public record DiagramSaveConfigPacket(int entityID, DiagramConfig config) implements CustomPacketPayload {
-    public static final Type<DiagramSaveConfigPacket> TYPE = new Type<>(Simulated.path("save_diagram"));
+public record DiagramSaveConfigPacket(int entityID, DiagramConfig config) implements SimPacket {
+    public static final Type<DiagramSaveConfigPacket> TYPE = new Type<>(Simulated.path("save_diagram"), DiagramSaveConfigPacket.class);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, DiagramSaveConfigPacket> CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf, DiagramSaveConfigPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, DiagramSaveConfigPacket::entityID,
             DiagramConfig.STREAM_CODEC, DiagramSaveConfigPacket::config,
             DiagramSaveConfigPacket::new
@@ -37,7 +37,7 @@ public record DiagramSaveConfigPacket(int entityID, DiagramConfig config) implem
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

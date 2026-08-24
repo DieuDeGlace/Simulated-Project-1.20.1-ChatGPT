@@ -19,11 +19,10 @@ import dev.simulated_team.simulated.network.packets.physics_assembler.PhysicsAss
 import dev.simulated_team.simulated.network.packets.physics_staff.*;
 import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeDataPacket;
 import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeStoppedPacket;
-import foundry.veil.api.network.VeilPacketManager;
 
 public class SimPacketManager {
 
-    public static final VeilPacketManager INSTANCE = VeilPacketManager.create(Simulated.MOD_ID, "0.1");
+    public static final SimNetwork INSTANCE = SimNetwork.create(Simulated.MOD_ID, "0.1");
 
     public static void init() {
         INSTANCE.registerServerbound(AssemblePacket.TYPE, AssemblePacket.CODEC, AssemblePacket::handle);

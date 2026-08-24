@@ -7,8 +7,8 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class AirPoofParticleData implements ParticleOptions, ICustomParticleDataWithSprite<AirPoofParticleData> {
     public static final AirPoofParticleData INSTANCE = new AirPoofParticleData();
@@ -28,7 +28,7 @@ public class AirPoofParticleData implements ParticleOptions, ICustomParticleData
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, AirPoofParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, AirPoofParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 

@@ -6,13 +6,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import dev.simulated_team.simulated.index.SimParticleTypes;
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public class MagnetFieldParticleData2 implements ParticleOptions, ICustomParticleDataWithSprite<MagnetFieldParticleData2> {
@@ -58,14 +57,14 @@ public class MagnetFieldParticleData2 implements ParticleOptions, ICustomParticl
         return MagnetFieldParticle2.Factory::new;
     }
 
-    public StreamCodec<? super RegistryFriendlyByteBuf, MagnetFieldParticleData2> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, MagnetFieldParticleData2> getStreamCodec() {
         return STREAM_CODEC;
     }
 
     static {
         STREAM_CODEC = StreamCodec.composite(
-                CatnipStreamCodecs.VEC3, p -> p.previousOffset,
-                CatnipStreamCodecs.VEC3, p -> p.nextOffset,
+                dev.simulated_team.simulated.network.codec.SimVanillaCodecs.VEC3, p -> p.previousOffset,
+                dev.simulated_team.simulated.network.codec.SimVanillaCodecs.VEC3, p -> p.nextOffset,
                 ByteBufCodecs.BOOL, p -> p.negative,
                 ByteBufCodecs.INT,p -> p.timeUntilEnd,
                 MagnetFieldParticleData2::new);

@@ -3,17 +3,17 @@ package dev.simulated_team.simulated.network.packets.end_sea;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.end_sea.EndSeaPhysics;
 import dev.simulated_team.simulated.content.end_sea.EndSeaPhysicsData;
-import foundry.veil.api.network.handler.ClientPacketContext;
+import dev.simulated_team.simulated.network.context.ClientPacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record ClientboundEndSeaPacket(List<EndSeaPhysics> physics) implements CustomPacketPayload {
-    public static final Type<ClientboundEndSeaPacket> TYPE = new CustomPacketPayload.Type<>(Simulated.path("end_sea"));
+public record ClientboundEndSeaPacket(List<EndSeaPhysics> physics) implements SimPacket {
+    public static final Type<ClientboundEndSeaPacket> TYPE = new SimPacket.Type<>(Simulated.path("end_sea"), ClientboundEndSeaPacket.class);
 
     public static final StreamCodec<ByteBuf, ClientboundEndSeaPacket> CODEC = StreamCodec.of((buf, value) -> value.write(buf), ClientboundEndSeaPacket::read);
 
@@ -38,7 +38,7 @@ public record ClientboundEndSeaPacket(List<EndSeaPhysics> physics) implements Cu
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

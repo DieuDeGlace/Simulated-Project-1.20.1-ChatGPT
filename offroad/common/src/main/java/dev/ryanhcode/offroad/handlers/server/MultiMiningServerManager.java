@@ -5,7 +5,7 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import dev.engine_room.flywheel.lib.util.LevelAttached;
 import dev.ryanhcode.offroad.handlers.MultiminingDataTickResult;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -112,7 +112,7 @@ public class MultiMiningServerManager {
 
         if (!this.dirtyBreakingData.isEmpty()) {
             for (final Map.Entry<BlockPos, ClientboundMultiMiningSync> set : this.dirtyBreakingData.entrySet()) {
-                VeilPacketManager.tracking((ServerLevel) level, set.getKey())
+                SimNetwork.tracking((ServerLevel) level, set.getKey())
                         .sendPacket(set.getValue());
             }
 

@@ -4,13 +4,13 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterBlockEntity;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterEntries;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -18,13 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record TypewriterKeySavePacket(Map<Integer, LinkedTypewriterEntries.KeyboardEntry> changedKeys, BlockPos pos,
-                                      boolean clearAll) implements CustomPacketPayload {
+                                      boolean clearAll) implements SimPacket {
 
-    public static final Type<TypewriterKeySavePacket> TYPE = new Type<>(Simulated.path("linked_typewriter_save"));
+    public static final Type<TypewriterKeySavePacket> TYPE = new Type<>(Simulated.path("linked_typewriter_save"), TypewriterKeySavePacket.class);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, TypewriterKeySavePacket> CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf, TypewriterKeySavePacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.INT, LinkedTypewriterEntries.KeyboardEntry.STREAM_CODEC), TypewriterKeySavePacket::changedKeys,
-            BlockPos.STREAM_CODEC, TypewriterKeySavePacket::pos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, TypewriterKeySavePacket::pos,
             ByteBufCodecs.BOOL, TypewriterKeySavePacket::clearAll,
             TypewriterKeySavePacket::new);
 
@@ -58,7 +58,7 @@ public record TypewriterKeySavePacket(Map<Integer, LinkedTypewriterEntries.Keybo
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

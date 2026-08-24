@@ -7,18 +7,18 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramEntity;
 import dev.simulated_team.simulated.content.entities.diagram.screen.DiagramScreen;
-import foundry.veil.api.network.handler.ClientPacketContext;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.context.ClientPacketContext;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
-public record DiagramOpenPacket(int entityID, DiagramConfig config) implements CustomPacketPayload {
-    public static final Type<DiagramOpenPacket> TYPE = new Type<>(Simulated.path("open_diagram"));
+public record DiagramOpenPacket(int entityID, DiagramConfig config) implements SimPacket {
+    public static final Type<DiagramOpenPacket> TYPE = new Type<>(Simulated.path("open_diagram"), DiagramOpenPacket.class);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, DiagramOpenPacket> CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf, DiagramOpenPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, DiagramOpenPacket::entityID,
             DiagramConfig.STREAM_CODEC, DiagramOpenPacket::config,
             DiagramOpenPacket::new
@@ -39,7 +39,7 @@ public record DiagramOpenPacket(int entityID, DiagramConfig config) implements C
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

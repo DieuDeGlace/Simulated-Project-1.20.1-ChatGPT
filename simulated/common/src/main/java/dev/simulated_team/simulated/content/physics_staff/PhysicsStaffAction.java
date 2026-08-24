@@ -1,8 +1,8 @@
 package dev.simulated_team.simulated.content.physics_staff;
 
 import io.netty.buffer.ByteBuf;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.minecraft.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 /**
  * An action the player can complete using the physics staff
@@ -12,5 +12,5 @@ public enum PhysicsStaffAction {
     LOCK,
     START_DRAG;
 
-    public static final StreamCodec<ByteBuf, PhysicsStaffAction> STREAM_CODEC = CatnipStreamCodecBuilders.ofEnum(PhysicsStaffAction.class);
+    public static final StreamCodec<ByteBuf, PhysicsStaffAction> STREAM_CODEC = ByteBufCodecs.ofEnum(PhysicsStaffAction.class);
 }

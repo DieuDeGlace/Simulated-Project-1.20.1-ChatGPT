@@ -18,7 +18,7 @@ import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimColors;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.client.KeyMapping;
@@ -68,7 +68,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
             if (!this.checkBBValidity(player, honeyGlueStack, pos, false)) {
                 return false;
             }
-            VeilPacketManager.server().sendPacket(new HoneyGlueSpawnPacket(this.selectedPos, pos));
+            SimNetwork.server().sendPacket(new HoneyGlueSpawnPacket(this.selectedPos, pos));
             SimSoundEvents.HONEY_ADDED.playAt(player.level(), pos, 0.5F, 0.95F, false);
             player.level().playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.75f, 1);
             this.selectedPos = null;
@@ -116,7 +116,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
             }
 
             if (this.hoveredGlue != null) {
-                VeilPacketManager.server().sendPacket(new HoneyGlueChangeBoundsPacket(new AABB(0, 0, 0, 0, 0, 0), this.hoveredGlue.getUUID()));
+                SimNetwork.server().sendPacket(new HoneyGlueChangeBoundsPacket(new AABB(0, 0, 0, 0, 0, 0), this.hoveredGlue.getUUID()));
                 this.clearAndSwing(player);
                 return new Result(true);
             }
@@ -155,7 +155,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
 
             if (pair.getFirst()) {
                 this.hoveredGlue.setBounds(newBounds);
-                VeilPacketManager.server().sendPacket(new HoneyGlueChangeBoundsPacket(newBounds, this.hoveredGlue.getUUID()));
+                SimNetwork.server().sendPacket(new HoneyGlueChangeBoundsPacket(newBounds, this.hoveredGlue.getUUID()));
             } else {
                 SimLang.text(pair.getSecond() + getDimensionalText(bb))
                         .color(SimColors.NUH_UH_RED)

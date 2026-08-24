@@ -4,7 +4,7 @@ import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationP
 import dev.eriksonn.aeronautics.util.CatalyzerHelper;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -50,7 +50,7 @@ public class LevititeClientCatalyzerHandler implements InteractCallback {
             final ClipContext context = gatherContext(player);
             final BlockHitResult ray = level.clip(context);
             if (ray.getType() != HitResult.Type.MISS && level.getFluidState(ray.getBlockPos()).getType() == LevititeBlendHelper.getFluid()) {
-                VeilPacketManager.server().sendPacket(new LevititeCatalystCrystallizationPacket(ray.getBlockPos(), hand));
+                SimNetwork.server().sendPacket(new LevititeCatalystCrystallizationPacket(ray.getBlockPos(), hand));
                 player.swing(hand);
                 return new Result(true);
             }

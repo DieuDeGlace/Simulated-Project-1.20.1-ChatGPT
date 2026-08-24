@@ -5,17 +5,18 @@ import dev.simulated_team.simulated.content.blocks.altitude_sensor.AltitudeSenso
 import dev.simulated_team.simulated.network.packets.helpers.SimBlockEntityConfigurationPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class ConfigureAltitudeSensorPacket extends SimBlockEntityConfigurationPacket<AltitudeSensorBlockEntity> {
-    public static final Type<ConfigureAltitudeSensorPacket> TYPE = new Type<>(Simulated.path("configure_altitude_sensor"));
+    public static final Type<ConfigureAltitudeSensorPacket> TYPE = new Type<>(
+            Simulated.path("configure_altitude_sensor"), ConfigureAltitudeSensorPacket.class);
     public static final StreamCodec<ByteBuf, ConfigureAltitudeSensorPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, SimBlockEntityConfigurationPacket::getPos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, SimBlockEntityConfigurationPacket::getPos,
             ByteBufCodecs.FLOAT, ConfigureAltitudeSensorPacket::highSignal,
             ByteBufCodecs.FLOAT, ConfigureAltitudeSensorPacket::lowSignal,
             ConfigureAltitudeSensorPacket::new
@@ -40,17 +41,14 @@ public class ConfigureAltitudeSensorPacket extends SimBlockEntityConfigurationPa
 
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends SimPacket> type() {
         return TYPE;
     }
 
     @Override
     protected void applySettings(final ServerPlayer serverPlayer, final AltitudeSensorBlockEntity be) {
-        if (be instanceof final AltitudeSensorBlockEntity abe) {
-            abe.highSignal = this.highSignal;
-            abe.lowSignal = this.lowSignal;
-
-            abe.notifyUpdate();
-        }
+        be.highSignal = this.highSignal;
+        be.lowSignal = this.lowSignal;
+        be.notifyUpdate();
     }
 }

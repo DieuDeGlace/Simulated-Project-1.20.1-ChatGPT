@@ -16,7 +16,7 @@ import dev.simulated_team.simulated.config.server.physics.SimPhysics;
 import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffDragSessionsPacket;
 import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffLocksPacket;
 import dev.simulated_team.simulated.service.SimConfigService;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.createmod.catnip.data.Pair;
@@ -67,7 +67,7 @@ public class PhysicsStaffServerHandler extends SavedData {
 
         for (final ServerLevel level : server.getAllLevels()) {
             final PhysicsStaffServerHandler handler = PhysicsStaffServerHandler.get(level);
-            VeilPacketManager.player((ServerPlayer) player).sendPacket(new PhysicsStaffLocksPacket(level.dimension(), handler.locks.keySet()), makeSessionsPacket(level, handler));
+            SimNetwork.player((ServerPlayer) player).sendPacket(new PhysicsStaffLocksPacket(level.dimension(), handler.locks.keySet()), makeSessionsPacket(level, handler));
         }
     }
 
@@ -174,13 +174,13 @@ public class PhysicsStaffServerHandler extends SavedData {
     }
 
     private void sendLocksToClients() {
-        VeilPacketManager.all(this.level.getServer()).sendPacket(
+        SimNetwork.all(this.level.getServer()).sendPacket(
                 new PhysicsStaffLocksPacket(this.level.dimension(), this.locks.keySet())
         );
     }
 
     private void sendDragSessionsToClients() {
-        VeilPacketManager.all(this.level.getServer()).sendPacket(
+        SimNetwork.all(this.level.getServer()).sendPacket(
                 makeSessionsPacket(this.level, this)
         );
     }

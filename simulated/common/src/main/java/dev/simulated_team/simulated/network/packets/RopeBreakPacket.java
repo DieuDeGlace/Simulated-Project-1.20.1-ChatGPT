@@ -7,28 +7,28 @@ import dev.simulated_team.simulated.content.blocks.rope.strand.server.RopeAttach
 import dev.simulated_team.simulated.content.blocks.rope.strand.server.RopeAttachmentPoint;
 import dev.simulated_team.simulated.content.blocks.rope.strand.server.ServerLevelRopeManager;
 import dev.simulated_team.simulated.content.blocks.rope.strand.server.ServerRopeStrand;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.UUID;
 
-public record RopeBreakPacket(UUID uuid) implements CustomPacketPayload {
-    public static Type<RopeBreakPacket> TYPE = new Type<>(Simulated.path("break_rope"));
+public record RopeBreakPacket(UUID uuid) implements SimPacket {
+    public static Type<RopeBreakPacket> TYPE = new Type<>(Simulated.path("break_rope"), RopeBreakPacket.class);
 
-    public static StreamCodec<RegistryFriendlyByteBuf, RopeBreakPacket> CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, RopeBreakPacket::uuid,
+    public static StreamCodec<FriendlyByteBuf, RopeBreakPacket> CODEC = StreamCodec.composite(
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.UUID, RopeBreakPacket::uuid,
             RopeBreakPacket::new
     );
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 
@@ -60,7 +60,7 @@ public record RopeBreakPacket(UUID uuid) implements CustomPacketPayload {
                 return;
             }
 
-            holder.destroyRope(player, null, !player.hasInfiniteMaterials());
+            holder.destroyRope(player, null, !player.getAbilities().instabuild);
         }
     }
 }

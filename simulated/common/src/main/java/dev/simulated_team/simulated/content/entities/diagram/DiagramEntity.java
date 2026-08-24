@@ -22,7 +22,7 @@ import dev.simulated_team.simulated.index.SimStats;
 import dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramDataPacket;
 import dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramOpenPacket;
 import dev.simulated_team.simulated.util.SimColors;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -142,7 +142,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
             final DiagramDataPacket dataPacket = makeDiagramDataPacket(ticket.subLevel());
 
             for (final var player : ticket.players()) {
-                VeilPacketManager.player(player).sendPacket(dataPacket);
+                SimNetwork.player(player).sendPacket(dataPacket);
             }
 
             subLevel.enableIndividualQueuedForcesTracking(false);
@@ -426,7 +426,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
             if (subLevel != null) {
                 DiagramEntity.queueDiagramDataFor(subLevel, ((ServerPlayer) player));
-                VeilPacketManager.player((ServerPlayer) player).sendPacket(new DiagramOpenPacket(this.getId(), this.config));
+                SimNetwork.player((ServerPlayer) player).sendPacket(new DiagramOpenPacket(this.getId(), this.config));
                 SimStats.INTERACT_WITH_CONTRAPTION_DIAGRAM.awardTo(player);
                 SimAdvancements.MEASURE_ONCE_BUILD_TWICE.awardTo(player);
             }

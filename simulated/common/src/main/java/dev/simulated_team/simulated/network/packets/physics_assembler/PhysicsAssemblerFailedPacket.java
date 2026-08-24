@@ -5,25 +5,25 @@ import dev.ryanhcode.sable.api.SubLevelHelper;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlockEntity;
 import dev.simulated_team.simulated.index.SimSoundEvents;
-import foundry.veil.api.network.handler.ClientPacketContext;
+import dev.simulated_team.simulated.network.context.ClientPacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public record PhysicsAssemblerFailedPacket(BlockPos pos) implements CustomPacketPayload {
+public record PhysicsAssemblerFailedPacket(BlockPos pos) implements SimPacket {
 
-    public static Type<PhysicsAssemblerFailedPacket> TYPE = new Type<>(Simulated.path("assembler_failed"));
+    public static Type<PhysicsAssemblerFailedPacket> TYPE = new Type<>(Simulated.path("assembler_failed"), PhysicsAssemblerFailedPacket.class);
     public static StreamCodec<ByteBuf, PhysicsAssemblerFailedPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS,
             PhysicsAssemblerFailedPacket::pos,
             PhysicsAssemblerFailedPacket::new
     );
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends SimPacket> type() {
         return TYPE;
     }
 

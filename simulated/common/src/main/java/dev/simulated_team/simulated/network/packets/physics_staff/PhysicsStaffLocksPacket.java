@@ -2,14 +2,13 @@ package dev.simulated_team.simulated.network.packets.physics_staff;
 
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.SimulatedClient;
-import foundry.veil.api.network.handler.PacketContext;
+import dev.simulated_team.simulated.network.context.PacketContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
@@ -17,13 +16,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class PhysicsStaffLocksPacket implements CustomPacketPayload {
+public class PhysicsStaffLocksPacket implements SimPacket {
 
-    public static Type<PhysicsStaffLocksPacket> TYPE = new Type<>(Simulated.path("physics_staff_locks"));
+    public static Type<PhysicsStaffLocksPacket> TYPE = new Type<>(Simulated.path("physics_staff_locks"), PhysicsStaffLocksPacket.class);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PhysicsStaffLocksPacket> CODEC = StreamCodec.composite(
-            ResourceKey.streamCodec(Registries.DIMENSION), packet -> packet.dimension,
-            CatnipStreamCodecBuilders.list(UUIDUtil.STREAM_CODEC), packet -> packet.locks,
+    public static final StreamCodec<FriendlyByteBuf, PhysicsStaffLocksPacket> CODEC = StreamCodec.composite(
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.resourceKey(Registries.DIMENSION), packet -> packet.dimension,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.UUID.apply(
+                    dev.simulated_team.simulated.network.codec.ByteBufCodecs.list()), packet -> packet.locks,
             PhysicsStaffLocksPacket::new
     );
 
@@ -36,7 +36,7 @@ public class PhysicsStaffLocksPacket implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 

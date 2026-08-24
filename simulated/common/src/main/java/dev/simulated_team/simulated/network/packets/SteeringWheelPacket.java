@@ -4,22 +4,22 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlockEntity;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimStats;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 
-public record SteeringWheelPacket(boolean shouldStop, float targetAngle, BlockPos pos) implements CustomPacketPayload {
+public record SteeringWheelPacket(boolean shouldStop, float targetAngle, BlockPos pos) implements SimPacket {
 
-    public static Type<SteeringWheelPacket> TYPE = new Type<>(Simulated.path("steering_wheel_update"));
+    public static Type<SteeringWheelPacket> TYPE = new Type<>(Simulated.path("steering_wheel_update"), SteeringWheelPacket.class);
 
-    public static StreamCodec <RegistryFriendlyByteBuf, SteeringWheelPacket> CODEC = StreamCodec.composite(
+    public static StreamCodec <FriendlyByteBuf, SteeringWheelPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, SteeringWheelPacket::shouldStop,
             ByteBufCodecs.FLOAT, SteeringWheelPacket::targetAngle,
-            BlockPos.STREAM_CODEC, SteeringWheelPacket::pos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, SteeringWheelPacket::pos,
             SteeringWheelPacket::new);
 
     public void handle(final ServerPacketContext context) {
@@ -39,7 +39,7 @@ public record SteeringWheelPacket(boolean shouldStop, float targetAngle, BlockPo
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public Type<? extends SimPacket> type() {
         return TYPE;
     }
 }

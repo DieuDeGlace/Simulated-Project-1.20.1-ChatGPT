@@ -5,16 +5,17 @@ import dev.simulated_team.simulated.content.blocks.redstone.modulating_receiver.
 import dev.simulated_team.simulated.network.packets.helpers.SimBlockEntityConfigurationPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class ConfigureModulatingLinkedRecieverPacket extends SimBlockEntityConfigurationPacket<ModulatingLinkedReceiverBlockEntity> {
-    public static final Type<ConfigureModulatingLinkedRecieverPacket> TYPE = new Type<>(Simulated.path("configure_modulating_linked_reciever"));
+    public static final Type<ConfigureModulatingLinkedRecieverPacket> TYPE = new Type<>(
+            Simulated.path("configure_modulating_linked_reciever"), ConfigureModulatingLinkedRecieverPacket.class);
     public static final StreamCodec<ByteBuf, ConfigureModulatingLinkedRecieverPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, SimBlockEntityConfigurationPacket::getPos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, SimBlockEntityConfigurationPacket::getPos,
             ByteBufCodecs.INT, ConfigureModulatingLinkedRecieverPacket::getMinRange,
             ByteBufCodecs.INT, ConfigureModulatingLinkedRecieverPacket::getMaxRange,
             ConfigureModulatingLinkedRecieverPacket::new);
@@ -37,17 +38,14 @@ public class ConfigureModulatingLinkedRecieverPacket extends SimBlockEntityConfi
     }
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends SimPacket> type() {
         return TYPE;
     }
 
     @Override
     protected void applySettings(final ServerPlayer serverPlayer, final ModulatingLinkedReceiverBlockEntity be) {
-        if (be instanceof final ModulatingLinkedReceiverBlockEntity abe) {
-            abe.minRange = this.minRange;
-            abe.maxRange = this.maxRange;
-
-            abe.notifyUpdate();
-        }
+        be.minRange = this.minRange;
+        be.maxRange = this.maxRange;
+        be.notifyUpdate();
     }
 }

@@ -10,7 +10,7 @@ import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.sc
 import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterMenuModifySlots;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -95,7 +95,7 @@ public class EntryModifierScreen {
         final ItemStack second = psuedoEntry.second.getStack();
         menu.ghostInventory.setStackInSlot(0, first);
         menu.ghostInventory.setStackInSlot(1, second);
-        VeilPacketManager.server().sendPacket(new TypewriterMenuModifySlots(first, second));
+        SimNetwork.server().sendPacket(new TypewriterMenuModifySlots(first, second));
 
         return psuedoEntry;
     }
@@ -151,7 +151,7 @@ public class EntryModifierScreen {
         menu.slotsActive = false;
         menu.ghostInventory.setStackInSlot(0, ItemStack.EMPTY);
         menu.ghostInventory.setStackInSlot(1, ItemStack.EMPTY);
-        VeilPacketManager.server().sendPacket(new TypewriterMenuModifySlots(ItemStack.EMPTY, ItemStack.EMPTY));
+        SimNetwork.server().sendPacket(new TypewriterMenuModifySlots(ItemStack.EMPTY, ItemStack.EMPTY));
     }
 
     public class PsuedoKeyboardEntry {

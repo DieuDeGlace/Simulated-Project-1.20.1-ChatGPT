@@ -7,9 +7,9 @@ import dev.eriksonn.aeronautics.index.AeroParticleTypes;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import org.joml.Quaternionf;
 
@@ -20,7 +20,7 @@ public record GustParticleData(
             ExtraCodecs.QUATERNIONF.fieldOf("orientation").forGetter(o -> o.orientation)
     ).apply(instance, GustParticleData::new));
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, GustParticleData> STREAM_CODEC = StreamCodec.composite(
+    private static final StreamCodec<FriendlyByteBuf, GustParticleData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.QUATERNIONF, (o -> o.orientation),
             GustParticleData::new
     );
@@ -41,7 +41,7 @@ public record GustParticleData(
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, GustParticleData> getStreamCodec() {
+    public StreamCodec<? super FriendlyByteBuf, GustParticleData> getStreamCodec() {
         return STREAM_CODEC;
     }
 

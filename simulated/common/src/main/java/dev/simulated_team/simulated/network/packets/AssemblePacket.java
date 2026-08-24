@@ -3,19 +3,19 @@ package dev.simulated_team.simulated.network.packets;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.physics_assembler.PhysicsAssemblerBlockEntity;
 import dev.simulated_team.simulated.index.SimStats;
-import foundry.veil.api.network.handler.ServerPacketContext;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public record AssemblePacket(BlockPos pos) implements CustomPacketPayload {
-    public static final Type<AssemblePacket> TYPE = new Type<>(Simulated.path("assemble"));
+public record AssemblePacket(BlockPos pos) implements SimPacket {
+    public static final Type<AssemblePacket> TYPE = new Type<>(Simulated.path("assemble"), AssemblePacket.class);
 
     public static final StreamCodec<ByteBuf, AssemblePacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, packet -> packet.pos,
+            dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, packet -> packet.pos,
             AssemblePacket::new);
 
     @Override

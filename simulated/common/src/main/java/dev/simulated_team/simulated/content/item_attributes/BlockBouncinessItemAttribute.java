@@ -8,9 +8,9 @@ import dev.ryanhcode.sable.mixinterface.block_properties.BlockStateExtension;
 import dev.ryanhcode.sable.physics.config.block_properties.PhysicsBlockPropertyTypes;
 import dev.simulated_team.simulated.index.SimItemAttributeTypes;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -73,7 +73,7 @@ public record BlockBouncinessItemAttribute(double bounciness) implements ItemAtt
 		}
 
 		@Override
-		public StreamCodec<? super RegistryFriendlyByteBuf, ? extends ItemAttribute> streamCodec() {
+		public StreamCodec<? super FriendlyByteBuf, ? extends ItemAttribute> streamCodec() {
 			return STREAM_CODEC;
 		}
 	}

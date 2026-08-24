@@ -1,12 +1,14 @@
 package dev.simulated_team.simulated.content.blocks.handle;
 
 import dev.simulated_team.simulated.index.SimStats;
+import dev.simulated_team.simulated.network.SimNetwork;
 import dev.simulated_team.simulated.network.packets.handle.ClientboundPlayersHoldingHandlePacket;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Map;
 import java.util.UUID;
@@ -57,6 +59,9 @@ public class ServerHandleHoldingHandler {
 	}
 
 	public static void sync() {
-		CatnipServices.NETWORK.sendToAllClients(new ClientboundPlayersHoldingHandlePacket(holdingPlayers.keySet()));
+		final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if (server != null) {
+			SimNetwork.all(server).sendPacket(new ClientboundPlayersHoldingHandlePacket(holdingPlayers.keySet()));
+		}
 	}
 }

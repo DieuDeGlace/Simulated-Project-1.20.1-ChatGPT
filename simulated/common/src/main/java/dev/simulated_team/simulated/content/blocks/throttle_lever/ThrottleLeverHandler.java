@@ -6,7 +6,7 @@ import com.simibubi.create.foundation.gui.AllGuiTextures;
 import dev.simulated_team.simulated.network.packets.ThrottleLeverSignalPacket;
 import dev.simulated_team.simulated.util.SimColors;
 import dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.gui.UIRenderHelper;
 import net.minecraft.client.Minecraft;
@@ -132,6 +132,6 @@ public class ThrottleLeverHandler extends BlockHoldInteraction {
     }
 
     private void changed() {
-        VeilPacketManager.server().sendPacket(new ThrottleLeverSignalPacket(this.getInteractionPos(), this.signal));
+        SimNetwork.server().sendPacket(new ThrottleLeverSignalPacket(this.getInteractionPos(), this.signal));
     }
 }

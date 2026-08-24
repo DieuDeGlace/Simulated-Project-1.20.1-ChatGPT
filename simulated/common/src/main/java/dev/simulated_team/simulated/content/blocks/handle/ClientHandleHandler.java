@@ -8,7 +8,7 @@ import dev.simulated_team.simulated.index.SimTags;
 import dev.simulated_team.simulated.network.packets.UpdatePlayerUsingHandlePacket;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -100,7 +100,7 @@ public class ClientHandleHandler extends BlockHoldInteraction {
                 this.deltaRange(player, 0.5f);
             }
 
-            VeilPacketManager.server().sendPacket(new UpdatePlayerUsingHandlePacket(-1, false, interactionPos));
+            SimNetwork.server().sendPacket(new UpdatePlayerUsingHandlePacket(-1, false, interactionPos));
 
             final Vec3 eyePos = player.getEyePosition();
             final Vec3 goalEyePos = JOMLConversion.toMojang(globalTarget).add(player.getLookAngle().scale(-(this.desiredRange * 0.4f) - Math.max(-player.getLookAngle().y, 0)));
@@ -206,6 +206,6 @@ public class ClientHandleHandler extends BlockHoldInteraction {
     }
 
     private void sendUpdate(final boolean remove) {
-        VeilPacketManager.server().sendPacket(new UpdatePlayerUsingHandlePacket(remove ? -1 : this.desiredRange, remove, this.getInteractionPos()));
+        SimNetwork.server().sendPacket(new UpdatePlayerUsingHandlePacket(remove ? -1 : this.desiredRange, remove, this.getInteractionPos()));
     }
 }

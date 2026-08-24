@@ -6,7 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.network.packets.end_sea.ClientboundEndSeaPacket;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +49,7 @@ public class EndSeaPhysicsData {
         }
     }
 
-    public static void syncDataPacket(final VeilPacketManager.PacketSink sink) {
+    public static void syncDataPacket(final SimNetwork.PacketSink sink) {
         sink.sendPacket(new ClientboundEndSeaPacket(END_SEA_PHYSICS_DATA.entrySet().stream().map(Map.Entry::getValue).toList()));
     }
 

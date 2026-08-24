@@ -6,27 +6,26 @@ import dev.eriksonn.aeronautics.api.levitite_blend_crystallization.LevititeBlend
 import dev.eriksonn.aeronautics.index.AeroLevititeBlendPropagationContexts;
 import dev.eriksonn.aeronautics.index.AeroTags;
 import dev.eriksonn.aeronautics.util.CatalyzerHelper;
-import foundry.veil.api.network.handler.ServerPacketContext;
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import dev.simulated_team.simulated.network.context.ServerPacketContext;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import dev.simulated_team.simulated.network.codec.StreamCodec;
+import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
-public record LevititeCatalystCrystallizationPacket(BlockPos pos, InteractionHand hand) implements CustomPacketPayload {
-	public static final Type<LevititeCatalystCrystallizationPacket> TYPE = new Type<>(Aeronautics.path("levitite_blend_crystallize"));
+public record LevititeCatalystCrystallizationPacket(BlockPos pos, InteractionHand hand) implements SimPacket {
+	public static final Type<LevititeCatalystCrystallizationPacket> TYPE = new Type<>(Aeronautics.path("levitite_blend_crystallize"), LevititeCatalystCrystallizationPacket.class);
 
-	public static final StreamCodec<RegistryFriendlyByteBuf, LevititeCatalystCrystallizationPacket> STREAM_CODEC = StreamCodec.composite(
-			BlockPos.STREAM_CODEC, LevititeCatalystCrystallizationPacket::pos,
-			CatnipStreamCodecs.HAND, LevititeCatalystCrystallizationPacket::hand,
+	public static final StreamCodec<FriendlyByteBuf, LevititeCatalystCrystallizationPacket> STREAM_CODEC = StreamCodec.composite(
+			dev.simulated_team.simulated.network.codec.SimVanillaCodecs.BLOCK_POS, LevititeCatalystCrystallizationPacket::pos,
+			dev.simulated_team.simulated.network.codec.SimVanillaCodecs.HAND, LevititeCatalystCrystallizationPacket::hand,
 			LevititeCatalystCrystallizationPacket::new);
 
 	@Override
-	public Type<? extends CustomPacketPayload> type() {
+	public Type<? extends SimPacket> type() {
 		return TYPE;
 	}
 

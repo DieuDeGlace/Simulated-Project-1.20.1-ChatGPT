@@ -16,7 +16,7 @@ import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffDr
 import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -196,7 +196,7 @@ public class PhysicsStaffClientHandler {
     }
 
     private void lockSubLevel(final SubLevel subLevel, final Vec3 hitLocation, final LocalPlayer player, final InteractionHand hand) {
-        VeilPacketManager.server().sendPacket(new PhysicsStaffActionPacket(PhysicsStaffAction.LOCK, subLevel.getUniqueId(), JOMLConversion.toJOML(hitLocation)));
+        SimNetwork.server().sendPacket(new PhysicsStaffActionPacket(PhysicsStaffAction.LOCK, subLevel.getUniqueId(), JOMLConversion.toJOML(hitLocation)));
 
         final SoundEvent soundEvent = this.isLocked(subLevel) ? SimSoundEvents.STAFF_UNLOCK.event() : SimSoundEvents.STAFF_LOCK.event();
         player.playSound(soundEvent);
@@ -332,7 +332,7 @@ public class PhysicsStaffClientHandler {
 
         final Vec3 goalPosition = player.getLookAngle().scale(session.distance);
 
-        VeilPacketManager.server().sendPacket(new PhysicsStaffDragPacket(
+        SimNetwork.server().sendPacket(new PhysicsStaffDragPacket(
                 session.dragSubLevel.getUniqueId(),
                 JOMLConversion.toJOML(goalPosition),
                 session.dragLocalAnchor,
@@ -344,7 +344,7 @@ public class PhysicsStaffClientHandler {
         final ClientDragSession session = this.dragSession;
         assert session != null;
 
-        VeilPacketManager.server().sendPacket(new PhysicsStaffActionPacket(PhysicsStaffAction.STOP_DRAG, session.dragSubLevel.getUniqueId(), session.dragLocalAnchor));
+        SimNetwork.server().sendPacket(new PhysicsStaffActionPacket(PhysicsStaffAction.STOP_DRAG, session.dragSubLevel.getUniqueId(), session.dragLocalAnchor));
         this.dragSession = null;
         this.state = State.PASSIVE;
 

@@ -10,7 +10,7 @@ import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimSoundEvents;
 import dev.simulated_team.simulated.network.packets.AssemblePacket;
 import dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction;
-import foundry.veil.api.network.VeilPacketManager;
+import dev.simulated_team.simulated.network.SimNetwork;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -52,7 +52,7 @@ public class PhysicsAssemblerGUIHandler extends BlockHoldInteraction {
 
             if ((inPlot && animatedValue < PULLED_THRESHOLD && lastAnimatedValue < PULLED_THRESHOLD) ||
                     (!inPlot && lastAnimatedValue > 1.0 - PULLED_THRESHOLD && animatedValue > 1.0 - PULLED_THRESHOLD)) {
-                VeilPacketManager.server().sendPacket(new AssemblePacket(this.getInteractionPos()));
+                SimNetwork.server().sendPacket(new AssemblePacket(this.getInteractionPos()));
                 inPlot = !inPlot;
                 be.setClientHoldLeverInPlace(true);
             }
