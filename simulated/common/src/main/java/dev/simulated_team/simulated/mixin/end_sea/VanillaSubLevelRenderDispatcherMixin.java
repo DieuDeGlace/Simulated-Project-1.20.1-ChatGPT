@@ -6,6 +6,9 @@ import dev.simulated_team.simulated.content.end_sea.EndSeaPhysics;
 import dev.simulated_team.simulated.content.end_sea.EndSeaPhysicsData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class VanillaSubLevelRenderDispatcherMixin {
 
     @Inject(method = "setupDynamicEffects", at = @At("TAIL"), remap = false)
-    private static void setupDynamicEffects(final ShaderInstance shader, final boolean onSubLevel, final boolean upload, final CallbackInfo ci) {
+    private static void setupDynamicEffects(final ShaderInstance shader, final boolean onSubLevel, final boolean upload, final Matrix4fc normalMatrix, final CallbackInfo ci) {
         final Uniform cameraY = shader.getUniform("EndSeaCameraY");
 
         if (cameraY != null) {
@@ -34,6 +37,14 @@ public class VanillaSubLevelRenderDispatcherMixin {
                 if (upload) {
                     cameraY.upload();
                 }
+            }
+        }
+
+        final Uniform inverseNormalMatrix = shader.getUniform("EndSeaInverseNormalMat");
+        if (inverseNormalMatrix != null && onSubLevel && normalMatrix != null) {
+            inverseNormalMatrix.set(new Matrix4f(normalMatrix).normal(new Matrix3f()).invert());
+            if (upload) {
+                inverseNormalMatrix.upload();
             }
         }
     }

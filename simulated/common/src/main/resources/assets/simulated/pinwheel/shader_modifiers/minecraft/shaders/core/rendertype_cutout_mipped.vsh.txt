@@ -1,0 +1,11 @@
+#version 150
+#priority 1000
+
+[UNIFORM]
+uniform float EndSeaCameraY;
+uniform mat3 EndSeaInverseNormalMat;
+
+[FUNCTION main(0) TAIL]
+if (EndSeaCameraY != 0.0) {
+    vertexColor.rgb = mix(vertexColor.rgb, vec3(0.086, 0.078, 0.109) * 2.0, clamp((-(EndSeaInverseNormalMat * (ModelViewMat * vec4(pos, 0.0)).rgb).y - EndSeaCameraY) / 30.0, 0.0, 1.0));
+}

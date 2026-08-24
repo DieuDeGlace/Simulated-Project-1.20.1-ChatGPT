@@ -21,10 +21,9 @@ import dev.ryanhcode.sable.sublevel.render.vanilla.VanillaSingleSubLevelRenderDa
 import dev.simulated_team.simulated.mixin_interface.diagram.LightTextureExtension;
 import dev.simulated_team.simulated.mixin_interface.diagram.VisualManagerExtension;
 import dev.simulated_team.simulated.mixin_interface.diagram.VisualizationManagerExtension;
-import foundry.veil.api.client.render.CameraMatrices;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
-import foundry.veil.impl.client.render.perspective.LevelPerspectiveCamera;
+import foundry.veil.impl.client.render.LevelPerspectiveCamera;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -42,7 +41,9 @@ public class SimpleSubLevelGroupRenderer {
     private static final LevelPerspectiveCamera CAMERA = new LevelPerspectiveCamera();
     private static final Matrix4f TRANSFORM = new Matrix4f();
     private static final Matrix4f BACKUP_PROJECTION = new Matrix4f();
-    private static final CameraMatrices BACKUP_CAMERA_MATRICES = new CameraMatrices();
+    private static final Matrix4f BACKUP_CAMERA_PROJECTION = new Matrix4f();
+    private static final Matrix4f BACKUP_CAMERA_VIEW = new Matrix4f();
+    private static final Vector3f BACKUP_CAMERA_POSITION = new Vector3f();
     public static boolean RENDERING_SIMPLE = false;
 
     /**
@@ -98,36 +99,42 @@ public class SimpleSubLevelGroupRenderer {
         final LightTexture lightTexture = gameRenderer.lightTexture();
         final VanillaSubLevelBlockEntityRenderer beRenderer = new VanillaSubLevelBlockEntityRenderer(minecraft.getBlockEntityRenderDispatcher(), minecraft.renderBuffers(), new Long2ObjectOpenHashMap<>());
 
-        CAMERA.setup(cameraPosition, null, minecraft.level, orientation, 0f);
+        CAMERA.setup(cameraPosition, null, minecraft.level, orientation);
 
         final PoseStack poseStack = new PoseStack();
-        poseStack.mulPose(TRANSFORM.set(modelView));
+        poseStack.mulPoseMatrix(TRANSFORM.set(modelView));
         poseStack.mulPose(CAMERA.rotation());
 
         BACKUP_PROJECTION.set(RenderSystem.getProjectionMatrix());
         gameRenderer.resetProjectionMatrix(TRANSFORM.set(projectionMat));
 
-        final CameraMatrices matrices = VeilRenderSystem.renderer().getCameraMatrices();
-        matrices.backup(BACKUP_CAMERA_MATRICES);
+        final var matrices = VeilRenderSystem.renderer().getCameraMatrices();
+        BACKUP_CAMERA_PROJECTION.set(matrices.getProjectionMatrix());
+        BACKUP_CAMERA_VIEW.set(matrices.getViewMatrix());
+        BACKUP_CAMERA_POSITION.set(matrices.getCameraPosition());
+        final float backupNearPlane = matrices.getNearPlane();
+        final float backupFarPlane = matrices.getFarPlane();
+        matrices.update(projectionMat, poseStack.last().pose(),
+                new Vector3f((float) cameraPosition.x(), (float) cameraPosition.y(), (float) cameraPosition.z()),
+                0.05f, gameRenderer.getDepthFar());
 
-        final Matrix4fStack matrix4fstack = RenderSystem.getModelViewStack();
-        matrix4fstack.pushMatrix();
-        matrix4fstack.identity();
-        matrix4fstack.mul(poseStack.last().pose());
+        final PoseStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.pushPose();
+        modelViewStack.setIdentity();
+        modelViewStack.mulPoseMatrix(poseStack.last().pose());
         RenderSystem.applyModelViewMatrix();
 
-        final AdvancedFbo drawFbo = VeilRenderSystem.renderer().getDynamicBufferManger().getDynamicFbo(fbo);
-        drawFbo.bind(true);
+        fbo.bind(true);
 
         try {
-            Lighting.setupNetherLevel();
+            Lighting.setupNetherLevel(RenderSystem.getModelViewMatrix());
             ((LightTextureExtension) lightTexture).simulated$makeDiagramLightTexture(0.65f);
 
             SimpleSubLevelGroupRenderer.RENDERING_SIMPLE = true;
             for (final RenderType layer : RenderType.chunkBufferLayers()) {
                 layer.setupRenderState();
                 final ShaderInstance shader = RenderSystem.getShader();
-                shader.setDefaultUniforms(VertexFormat.Mode.QUADS, RenderSystem.getModelViewMatrix(), projectionMat, minecraft.getWindow());
+                ShaderInstanceCompat.setDefaultUniforms(shader, VertexFormat.Mode.QUADS, RenderSystem.getModelViewMatrix(), projectionMat, minecraft.getWindow());
                 shader.apply();
                 SubLevelRenderDispatcher.get().renderSectionLayer(subLevels, layer, shader, cameraPosition.x, cameraPosition.y, cameraPosition.z, RenderSystem.getModelViewMatrix(), projectionMat, partialTicks);
 
@@ -180,7 +187,7 @@ public class SimpleSubLevelGroupRenderer {
 
                     final PoseStack beMatrices = new PoseStack();
                     beMatrices.pushPose();
-                    beMatrices.mulPose(transformation);
+                    beMatrices.mulPoseMatrix(transformation);
                     beRenderer.renderBlockEntities(embeddingInfo.blockEntities(), beMatrices, partialTicks, -chunkOffset.x, -chunkOffset.y, -chunkOffset.z);
                     beMatrices.popPose();
 
@@ -196,7 +203,7 @@ public class SimpleSubLevelGroupRenderer {
 
                 final PoseStack entityPoseStack = new PoseStack();
                 entityPoseStack.pushPose();
-                entityPoseStack.mulPose(TRANSFORM.set(modelView));
+                entityPoseStack.mulPoseMatrix(TRANSFORM.set(modelView));
 
                 for (final Entity entity : entities) {
                     if (Sable.HELPER.getContaining(entity) != entitySubLevel && Sable.HELPER.getTrackingOrVehicleSubLevel(entity) != entitySubLevel) {
@@ -220,16 +227,16 @@ public class SimpleSubLevelGroupRenderer {
 
             bufferSource.endBatch();
         } finally {
+            modelViewStack.popPose();
+            RenderSystem.applyModelViewMatrix();
+
             if (level.effects().constantAmbientLight()) {
-                Lighting.setupNetherLevel();
+                Lighting.setupNetherLevel(RenderSystem.getModelViewMatrix());
             } else {
-                Lighting.setupLevel();
+                Lighting.setupLevel(RenderSystem.getModelViewMatrix());
             }
 
-            matrices.restore(BACKUP_CAMERA_MATRICES);
-
-            matrix4fstack.popMatrix();
-            RenderSystem.applyModelViewMatrix();
+            matrices.update(BACKUP_CAMERA_PROJECTION, BACKUP_CAMERA_VIEW, BACKUP_CAMERA_POSITION, backupNearPlane, backupFarPlane);
 
             gameRenderer.resetProjectionMatrix(BACKUP_PROJECTION);
             AdvancedFbo.unbind();
