@@ -6,7 +6,6 @@ import com.mojang.serialization.DataResult;
 import dev.eriksonn.aeronautics.content.blocks.hot_air.balloon.Balloon;
 import dev.eriksonn.aeronautics.content.blocks.hot_air.balloon.ServerBalloon;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -23,7 +22,7 @@ public class BalloonLevelSavedData extends SavedData {
 
     private Level level;
 
-    private static BalloonLevelSavedData create(final ServerLevel level, final CompoundTag tag, final HolderLookup.Provider registries) {
+    private static BalloonLevelSavedData create(final ServerLevel level, final CompoundTag tag) {
         final BalloonLevelSavedData sd = new BalloonLevelSavedData();
 
         if (tag.contains(ID)) {
@@ -37,7 +36,8 @@ public class BalloonLevelSavedData extends SavedData {
 
     public static BalloonLevelSavedData get(final ServerLevel level) {
         final BalloonLevelSavedData data = level.getChunkSource().getDataStorage().computeIfAbsent(
-                new Factory<>(BalloonLevelSavedData::new, (nbt, lookup) -> create(level, nbt, lookup), null),
+                nbt -> create(level, nbt),
+                BalloonLevelSavedData::new,
                 BalloonLevelSavedData.ID);
         data.level = level;
 
@@ -45,7 +45,7 @@ public class BalloonLevelSavedData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(final CompoundTag tag, final HolderLookup.@NotNull Provider provider) {
+    public @NotNull CompoundTag save(final CompoundTag tag) {
         final BalloonMap map = BalloonMap.MAP.get(this.level);
         final ObjectArrayList<SavedBalloon> list = new ObjectArrayList<>(map.getUnloadedBalloons());
 
