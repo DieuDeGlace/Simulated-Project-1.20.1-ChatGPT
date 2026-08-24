@@ -103,11 +103,6 @@ if (project.path.endsWith(":common")) {
         // forge variant of JEI for 1.20.1
         compileOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
-        compileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
-        compileOnly("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
-        compileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}")
-        implementation("com.tterrag.registrate:Registrate:${registrate_version}")
-
         // Veil dev jar is remapped SRG -> named by patchVeilForNamedDev.
         compileOnly files(patchVeilForNamedDev)
 
@@ -115,6 +110,19 @@ if (project.path.endsWith(":common")) {
         compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-common-api:$computercraft_tweaked_version")
         // DEFERRED (no verified 1.20.1 Forge target artifact frozen yet; not installed in PJ):
         // natures-compass, explorers-compass, sodium, iris
+    }
+}
+
+// These artifacts contain references to obfuscated Minecraft methods. Supplying
+// them as plain compileOnly/implementation dependencies leaves SRG override names
+// (for example IBE's EntityBlock methods) on the named development classpath.
+// Let ModDevGradle remap them before compiling common sources.
+plugins.withId('net.neoforged.moddev.legacyforge') {
+    dependencies {
+        modImplementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+        modImplementation("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
+        modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}")
+        modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
     }
 }
 
