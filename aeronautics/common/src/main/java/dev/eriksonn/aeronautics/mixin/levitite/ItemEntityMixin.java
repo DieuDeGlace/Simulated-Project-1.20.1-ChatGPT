@@ -2,6 +2,7 @@ package dev.eriksonn.aeronautics.mixin.levitite;
 
 import dev.eriksonn.aeronautics.content.components.Levitating;
 import dev.eriksonn.aeronautics.index.AeroDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.createmod.catnip.math.VecHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +28,7 @@ public abstract class ItemEntityMixin extends Entity {
 
     @Inject(method = "getDefaultGravity", at = @At("HEAD"), cancellable = true)
     private void aeronautics$levitatingGravity(final CallbackInfoReturnable<Double> cir) {
-        final Levitating component = this.getItem().get(AeroDataComponents.LEVITATING);
+        final Levitating component = ItemComponentCompat.get(this.getItem(), AeroDataComponents.LEVITATING);
         if (component != null) {
             cir.setReturnValue(0d);
         }
@@ -35,7 +36,7 @@ public abstract class ItemEntityMixin extends Entity {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"))
     private void aeronautics$levitatingDragAndSparkles(final CallbackInfo ci) {
-        final Levitating component = this.getItem().get(AeroDataComponents.LEVITATING);
+        final Levitating component = ItemComponentCompat.get(this.getItem(), AeroDataComponents.LEVITATING);
         if (component != null) {
             final float dragFraction = Math.clamp(component.dragFraction(), 0, 1);
             this.setDeltaMovement(this.getDeltaMovement().scale(dragFraction));

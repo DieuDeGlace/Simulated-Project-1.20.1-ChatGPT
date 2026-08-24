@@ -84,7 +84,6 @@ public class OffroadBlocks {
                             .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(AllBlocks.INDUSTRIAL_IRON_BLOCK))
                             .save(p))
                     .item()
-                    .properties(x -> x.component(OffroadDataComponents.TIRE, TireLike.ROCKCUTTING_WHEEL))
                     .transform(customItemModel())
                     .lang("Rock Cutting Wheel")
                     .register();
@@ -114,5 +113,7 @@ public class OffroadBlocks {
                     .register();
 
     public static void init() {
+        dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+                ROCK_CUTTER_BLOCK, OffroadDataComponents.TIRE, TireLike.ROCKCUTTING_WHEEL);
     }
 }

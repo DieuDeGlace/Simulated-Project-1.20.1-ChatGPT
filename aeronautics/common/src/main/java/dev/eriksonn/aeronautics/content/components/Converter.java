@@ -3,6 +3,7 @@ package dev.eriksonn.aeronautics.content.components;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.eriksonn.aeronautics.index.AeroDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.eriksonn.aeronautics.index.AeroItems;
 import dev.eriksonn.aeronautics.index.AeroSoundEvents;
 import net.minecraft.core.particles.ParticleOptions;
@@ -41,12 +42,12 @@ public record Converter(ItemStack item, int ticks, Optional<ResourceLocation> so
 		if(converter.item().isEmpty()) return;
 
 		if(converter.ticks() > 0) {
-			stack.set(AeroDataComponents.CONVERTER, new Converter(converter, converter.ticks() - 1));
+			ItemComponentCompat.set(stack, AeroDataComponents.CONVERTER, new Converter(converter, converter.ticks() - 1));
 		} else {
 			int count = stack.getCount();
 			entity.setItem(converter.item().copy());
 			ItemStack newItem = entity.getItem();
-			newItem.remove(AeroDataComponents.CONVERTER);
+			ItemComponentCompat.remove(newItem, AeroDataComponents.CONVERTER);
 			newItem.setCount(count);
 
 			if(converter.sound().isPresent()) {

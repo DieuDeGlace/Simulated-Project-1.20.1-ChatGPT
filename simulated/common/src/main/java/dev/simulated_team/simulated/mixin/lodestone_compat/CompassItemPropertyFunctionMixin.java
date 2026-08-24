@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.simulated_team.simulated.content.navigation_targets.lodestone_compass_compatability.ClientLodestonePositions;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.CompassItemPropertyFunction;
 import net.minecraft.core.BlockPos;
@@ -25,8 +26,8 @@ public abstract class CompassItemPropertyFunctionMixin {
 
 	@WrapMethod(method = "getCompassRotation")
     private float simulated$prioritizeID(final ItemStack stack, final ClientLevel level, final int seed, final Entity entity, final Operation<Float> original) {
-        if (stack.has(SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER)) {
-	        final UUID trackerID = stack.get(SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER);
+        if (ItemComponentCompat.has(stack, SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER)) {
+	        final UUID trackerID = ItemComponentCompat.get(stack, SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER);
 	        final ClientLodestonePositions positions = ClientLodestonePositions.clientPositions.get(level);
 
 	        final Vector3d pos = positions.CLIENT_LODESTONE_MAP.get(trackerID);

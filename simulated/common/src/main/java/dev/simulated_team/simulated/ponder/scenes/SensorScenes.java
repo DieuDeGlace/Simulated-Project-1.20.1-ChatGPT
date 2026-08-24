@@ -35,14 +35,13 @@ import net.createmod.ponder.foundation.instruction.RotateSceneInstruction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedStoneWireBlock;
@@ -956,14 +955,15 @@ public class SensorScenes {
         final Selection lodestone = util.select().fromTo(5, 1, 1, 5, 2, 1);
         final Selection fullPlatform = util.select().fromTo(1, 2, 1, 5, 2, 5).add(centralRedstone).substract(lodestone);
 
-        final DataComponentPatch lodestoneComponent = DataComponentPatch.builder()
-                .set(DataComponents.LODESTONE_TRACKER, new LodestoneTracker(Optional.of(new GlobalPos(Level.OVERWORLD, new BlockPos(0, 0, 0))), true))
-                .build();
-
         final ItemStack map = Items.FILLED_MAP.getDefaultInstance();
         final ItemStack recoveryCompass = Items.RECOVERY_COMPASS.getDefaultInstance();
         final ItemStack lodestoneCompass = Items.COMPASS.getDefaultInstance();
-        lodestoneCompass.applyComponents(lodestoneComponent);
+        final CompoundTag lodestoneTag = lodestoneCompass.getOrCreateTag();
+        lodestoneTag.put("LodestonePos", NbtUtils.writeBlockPos(new BlockPos(0, 0, 0)));
+        Level.RESOURCE_KEY_CODEC.encodeStart(NbtOps.INSTANCE, Level.OVERWORLD)
+                .result()
+                .ifPresent(tag -> lodestoneTag.put("LodestoneDimension", tag));
+        lodestoneTag.putBoolean("LodestoneTracked", true);
 
         scene.idle(20);
         world.showSection(allKinetics, Direction.DOWN);

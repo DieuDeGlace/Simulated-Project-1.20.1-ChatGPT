@@ -12,7 +12,6 @@ import dev.simulated_team.simulated.index.SimBlockShapes;
 import dev.simulated_team.simulated.service.SimMenuService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
@@ -20,6 +19,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +45,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -182,9 +183,9 @@ public class LinkedTypewriterBlock extends HorizontalDirectionalBlock implements
         final ItemStack itemStack = super.getCloneItemStack(level, pos, state);
         final BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
-            BlockItem.setBlockEntityData(itemStack, blockEntity.getType(), blockEntity.saveWithoutMetadata(level.registryAccess()));
-            if (blockEntity.components().has(DataComponents.CUSTOM_NAME)) {
-                itemStack.set(DataComponents.CUSTOM_NAME, blockEntity.components().get(DataComponents.CUSTOM_NAME));
+            BlockItem.setBlockEntityData(itemStack, blockEntity.getType(), blockEntity.saveWithoutMetadata());
+            if (blockEntity instanceof LinkedTypewriterBlockEntity typewriter && typewriter.getCustomName() != null) {
+                itemStack.setHoverName(typewriter.getCustomName());
             }
         }
 
@@ -192,16 +193,16 @@ public class LinkedTypewriterBlock extends HorizontalDirectionalBlock implements
     }
 
     @Override
-    public BlockState playerWillDestroy(final Level level, final BlockPos pos, final BlockState state, final Player player) {
+    public void playerWillDestroy(final Level level, final BlockPos pos, final BlockState state, final Player player) {
         assert level != null;
 
         final BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null && !level.isClientSide && player.isCreative() &&
-                blockEntity instanceof final LinkedTypewriterBlockEntity linkedTypewriterBlockEntity && (!linkedTypewriterBlockEntity.getTypewriterEntries().getKeyMap().isEmpty() || linkedTypewriterBlockEntity.components().has(DataComponents.CUSTOM_NAME))) {
+                blockEntity instanceof final LinkedTypewriterBlockEntity linkedTypewriterBlockEntity && (!linkedTypewriterBlockEntity.getTypewriterEntries().getKeyMap().isEmpty() || linkedTypewriterBlockEntity.getCustomName() != null)) {
 
             Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), this.getCloneItemStack(level, pos, state));
         }
-        return super.playerWillDestroy(level, pos, state, player);
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
@@ -209,7 +210,7 @@ public class LinkedTypewriterBlock extends HorizontalDirectionalBlock implements
         final BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof final LinkedTypewriterBlockEntity typewriter) {
             final ItemStack itemStack = new ItemStack(this);
-            typewriter.saveToItem(itemStack, params.getLevel().registryAccess());
+            typewriter.saveToItem(itemStack);
 
             params.withDynamicDrop(ShulkerBoxBlock.CONTENTS, consumer -> itemStack.copy());
             return ImmutableList.of(itemStack);
@@ -219,5 +220,15 @@ public class LinkedTypewriterBlock extends HorizontalDirectionalBlock implements
 
     protected void displayScreen(final LinkedTypewriterBlockEntity be, final Player player) {
         SimMenuService.INSTANCE.openScreen((ServerPlayer) player, be, be::sendToMenu);
+    }
+
+    @Override
+    public void setPlacedBy(final Level level, final BlockPos pos, final BlockState state,
+                            final @Nullable LivingEntity placer, final ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (stack.hasCustomHoverName()
+                && level.getBlockEntity(pos) instanceof LinkedTypewriterBlockEntity typewriter) {
+            typewriter.setCustomName(stack.getHoverName());
+        }
     }
 }

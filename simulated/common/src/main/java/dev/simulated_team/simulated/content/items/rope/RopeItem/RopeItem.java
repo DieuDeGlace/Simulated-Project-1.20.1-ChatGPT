@@ -5,6 +5,7 @@ import dev.simulated_team.simulated.content.blocks.rope.RopeStrandHolderBehavior
 import dev.simulated_team.simulated.content.blocks.rope.rope_winch.RopeWinchBlockEntity;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -62,17 +63,17 @@ public class RopeItem extends Item {
         final boolean validLocation = isValidRopeAttachment(level, clickedPos);
 
         if (player != null && player.isShiftKeyDown()) {
-            heldStack.remove(SimDataComponents.ROPE_FIRST_CONNECTION);
+            ItemComponentCompat.remove(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION);
             return InteractionResult.SUCCESS;
         }
 
         if (validLocation) {
-            if (heldStack.has(SimDataComponents.ROPE_FIRST_CONNECTION)) {
+            if (ItemComponentCompat.has(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION)) {
 
                 if (!level.isClientSide) {
-                    if (!this.attachRope(level, heldStack.get(SimDataComponents.ROPE_FIRST_CONNECTION), clickedPos, !player.hasInfiniteMaterials())) {
+                    if (!this.attachRope(level, ItemComponentCompat.get(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION), clickedPos, !player.hasInfiniteMaterials())) {
                         // failure to connect
-                        heldStack.remove(SimDataComponents.ROPE_FIRST_CONNECTION);
+                        ItemComponentCompat.remove(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION);
                         return InteractionResult.SUCCESS;
                     } else {
                         // we attached the rope!
@@ -80,7 +81,7 @@ public class RopeItem extends Item {
                     }
                 }
 
-                heldStack.remove(SimDataComponents.ROPE_FIRST_CONNECTION);
+                ItemComponentCompat.remove(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION);
 
                 if (!player.hasInfiniteMaterials())
                     context.getItemInHand()
@@ -89,7 +90,7 @@ public class RopeItem extends Item {
                 return InteractionResult.SUCCESS;
             }
 
-            heldStack.set(SimDataComponents.ROPE_FIRST_CONNECTION, clickedPos);
+            ItemComponentCompat.set(heldStack, SimDataComponents.ROPE_FIRST_CONNECTION, clickedPos);
             return InteractionResult.SUCCESS;
         }
 

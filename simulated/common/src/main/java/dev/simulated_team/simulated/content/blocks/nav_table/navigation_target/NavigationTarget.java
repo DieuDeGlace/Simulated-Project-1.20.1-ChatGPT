@@ -3,6 +3,7 @@ package dev.simulated_team.simulated.content.blocks.nav_table.navigation_target;
 import dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlock;
 import dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlockEntity;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.util.SimMathUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -121,6 +122,6 @@ public interface NavigationTarget {
 
     @Nullable
     static NavigationTarget ofStack(final ItemStack itemStack) {
-        return itemStack.get(SimDataComponents.TARGET);
+        return ItemComponentCompat.get(itemStack, SimDataComponents.TARGET);
     }
 }

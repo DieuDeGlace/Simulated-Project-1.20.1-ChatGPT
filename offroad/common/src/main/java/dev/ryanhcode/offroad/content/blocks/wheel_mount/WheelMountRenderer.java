@@ -10,6 +10,7 @@ import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.ryanhcode.offroad.index.OffroadPartialModels;
 import dev.simulated_team.simulated.util.SimColors;
 import net.createmod.catnip.math.AngleHelper;
@@ -114,7 +115,7 @@ public class WheelMountRenderer extends KineticBlockEntityRenderer<WheelMountBlo
         ms.mulPose(Axis.ZP.rotation((float) signMultiplier));
 
         final ItemStack itemStack = be.getHeldItem();
-        final TireLike tireLike = itemStack.get(OffroadDataComponents.TIRE);
+        final TireLike tireLike = ItemComponentCompat.get(itemStack, OffroadDataComponents.TIRE);
         if (tireLike != null) {
             final Vec3 rotation = tireLike.rotation();
             ms.mulPose(Axis.XP.rotation((float) Math.toRadians(rotation.x)));

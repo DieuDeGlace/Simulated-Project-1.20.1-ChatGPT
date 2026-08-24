@@ -15,7 +15,6 @@ import dev.simulated_team.simulated.service.SimPlatformService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -41,6 +40,7 @@ public class LinkedTypewriterBlockEntity extends SmartBlockEntity implements Men
     private final List<Integer> pressedKeys = new ArrayList<>();
     private UUID currentUser;
     private String typedEntry = "";
+    private Component customName;
 
     public boolean powered;
     public final AttachedComputerHandler computerHandler;
@@ -128,12 +128,12 @@ public class LinkedTypewriterBlockEntity extends SmartBlockEntity implements Men
     }
 
     public void sendConnectMessage(final Player player) {
-        final Component customName = this.components().getOrDefault(DataComponents.CUSTOM_NAME, SimLang.translate("linked_typewriter.title").component());
+        final Component customName = this.customName == null ? SimLang.translate("linked_typewriter.title").component() : this.customName;
         player.displayClientMessage(SimLang.translate("linked_typewriter.start_controlling", customName.getString()).component(), true);
     }
 
     public void sendDisconnectMessage(final Player player) {
-        final Component customName = this.components().getOrDefault(DataComponents.CUSTOM_NAME, SimLang.translate("linked_typewriter.title").component());
+        final Component customName = this.customName == null ? SimLang.translate("linked_typewriter.title").component() : this.customName;
         player.displayClientMessage(SimLang.translate("linked_typewriter.stop_controlling", customName.getString()).component(), true);
     }
 
@@ -240,6 +240,9 @@ public class LinkedTypewriterBlockEntity extends SmartBlockEntity implements Men
         if (this.currentUser != null) {
             tag.putUUID("CurrentUser", this.currentUser);
         }
+        if (this.customName != null) {
+            tag.putString("CustomName", Component.Serializer.toJson(this.customName));
+        }
     }
 
     @Override
@@ -253,6 +256,18 @@ public class LinkedTypewriterBlockEntity extends SmartBlockEntity implements Men
         } else {
             this.currentUser = null;
         }
+        this.customName = tag.contains("CustomName", CompoundTag.TAG_STRING)
+                ? Component.Serializer.fromJson(tag.getString("CustomName"))
+                : null;
+    }
+
+    public @Nullable Component getCustomName() {
+        return this.customName;
+    }
+
+    public void setCustomName(final @Nullable Component customName) {
+        this.customName = customName;
+        this.setChanged();
     }
 
     public String getTypedEntry() {

@@ -3,8 +3,8 @@ package dev.eriksonn.aeronautics.mixin.item_converter;
 import dev.eriksonn.aeronautics.content.components.Converter;
 import dev.eriksonn.aeronautics.content.components.Levitating;
 import dev.eriksonn.aeronautics.index.AeroDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.eriksonn.aeronautics.index.AeroTags;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,19 +23,16 @@ public abstract class ItemEntityMixin {
 
 		final ItemStack item = entity.getItem();
 		final Level level = entity.level();
-		if(item.has(AeroDataComponents.CONVERTER)) {
-			final Converter converter = item.get(AeroDataComponents.CONVERTER);
+		if(ItemComponentCompat.has(item, AeroDataComponents.CONVERTER)) {
+			final Converter converter = ItemComponentCompat.get(item, AeroDataComponents.CONVERTER);
 			Converter.tick(level, entity, item, converter);
 		}
 
 		if(level.dimension().equals(Level.OVERWORLD) && item.is(AeroTags.ItemTags.CONVERTS_TO_CLOUD_SKIPPER)) {
 			// magic cloud number, i have no idea where its actually defined
-			if(entity.getY() >= 192 && entity.getY() <= 196 && !item.has(AeroDataComponents.CONVERTER)) {
-				final DataComponentPatch patch = DataComponentPatch.builder()
-						.set(AeroDataComponents.CONVERTER, Converter.cloudSkipper())
-						.set(AeroDataComponents.LEVITATING, Levitating.DEFAULT)
-						.build();
-				item.applyComponents(patch);
+			if(entity.getY() >= 192 && entity.getY() <= 196 && !ItemComponentCompat.has(item, AeroDataComponents.CONVERTER)) {
+				ItemComponentCompat.set(item, AeroDataComponents.CONVERTER, Converter.cloudSkipper());
+				ItemComponentCompat.set(item, AeroDataComponents.LEVITATING, Levitating.DEFAULT);
 				entity.setDeltaMovement(entity.getDeltaMovement().scale(0.5f));
 			}
 		}

@@ -25,8 +25,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -275,7 +273,6 @@ public class HoneyGlueClientHandler implements InteractCallback {
         if (this.currentState == State.BINDING) {
             String key = "super_glue.click_to_confirm";
 
-            final DataComponentMap components = honeyGlueStack.getComponents();
             final AABB bb = AABB.encapsulatingFullBlocks(this.selectedPos, hoveredPos);
             boolean showDimensions = true;
 
@@ -283,7 +280,7 @@ public class HoneyGlueClientHandler implements InteractCallback {
                 key = "super_glue.too_far";
                 color = SimColors.DISCARDABLE_ORANGE;
             } else {
-                if (!components.has(DataComponents.MAX_DAMAGE)) {
+                if (!honeyGlueStack.isDamageableItem()) {
                     key = "super_glue.not_enough";
                     showDimensions = false;
                     color = SimColors.DISCARDABLE_ORANGE;

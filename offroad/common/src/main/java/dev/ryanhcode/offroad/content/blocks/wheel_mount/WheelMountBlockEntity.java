@@ -17,6 +17,7 @@ import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.data.OffroadLang;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.block.BlockEntitySubLevelActor;
 import dev.ryanhcode.sable.api.math.OrientedBoundingBox3d;
@@ -134,7 +135,7 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
     @Override
     public void sable$physicsTick(final ServerSubLevel subLevel, final RigidBodyHandle handle, final double timeStep) {
         final ItemStack item = this.getHeldItem();
-        final TireLike tire = item.get(OffroadDataComponents.TIRE);
+        final TireLike tire = ItemComponentCompat.get(item, OffroadDataComponents.TIRE);
         final BlockPos blockPos = this.getBlockPos();
 
         if (tire == null) {
@@ -241,7 +242,7 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
         super.tick();
 
         final ItemStack item = this.getHeldItem();
-        final TireLike tire = item.get(OffroadDataComponents.TIRE);
+        final TireLike tire = ItemComponentCompat.get(item, OffroadDataComponents.TIRE);
 
         this.lastChasingYaw = this.chasingYaw;
         this.chasingYaw = Mth.lerp(0.4, this.chasingYaw, this.computeYaw());
@@ -512,8 +513,8 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
     @Override
     protected AABB createRenderBoundingBox() {
         AABB aabb = new AABB(this.getBlockPos());
-        if(this.getHeldItem() != null && this.getHeldItem().has(OffroadDataComponents.TIRE)) {
-            final TireLike tire = this.getHeldItem().getComponents().get(OffroadDataComponents.TIRE);
+        if(this.getHeldItem() != null && ItemComponentCompat.has(this.getHeldItem(), OffroadDataComponents.TIRE)) {
+            final TireLike tire = ItemComponentCompat.get(this.getHeldItem(), OffroadDataComponents.TIRE);
             aabb = aabb.inflate(tire.radius() + 1);
         }
         return aabb;

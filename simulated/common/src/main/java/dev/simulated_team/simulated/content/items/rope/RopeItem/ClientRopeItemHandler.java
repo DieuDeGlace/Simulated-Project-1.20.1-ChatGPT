@@ -5,6 +5,7 @@ import dev.simulated_team.simulated.config.server.blocks.SimBlockConfigs;
 import dev.simulated_team.simulated.content.blocks.rope.RopeStrandHolderBehavior;
 import dev.simulated_team.simulated.content.blocks.rope.rope_winch.RopeWinchBlockEntity;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.service.SimConfigService;
 import dev.simulated_team.simulated.util.SimColors;
@@ -39,10 +40,10 @@ public class ClientRopeItemHandler {
             if (!SimItems.ROPE_COUPLING.isIn(heldItem))
                 continue;
 
-            if (!heldItem.has(SimDataComponents.ROPE_FIRST_CONNECTION))
+            if (!ItemComponentCompat.has(heldItem, SimDataComponents.ROPE_FIRST_CONNECTION))
                 continue;
 
-            final BlockPos firstBlock = heldItem.get(SimDataComponents.ROPE_FIRST_CONNECTION);
+            final BlockPos firstBlock = ItemComponentCompat.get(heldItem, SimDataComponents.ROPE_FIRST_CONNECTION);
 
             final HitResult rayTrace = Minecraft.getInstance().hitResult;
 

@@ -10,6 +10,7 @@ import dev.simulated_team.simulated.index.SimBlockEntityTypes;
 import dev.simulated_team.simulated.index.SimBlockShapes;
 import dev.simulated_team.simulated.index.SimBlocks;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.multiloader.CommonRedstoneBlock;
 import dev.simulated_team.simulated.multiloader.inventory.ContainerSlot;
 import net.minecraft.core.BlockPos;
@@ -76,7 +77,7 @@ public class NavTableBlock extends DirectionalBlock implements IBE<NavTableBlock
     private boolean canSwitchStacks(ItemStack heldStack, Level level, BlockPos pos) {
         NavTableBlockEntity blockEntity = (NavTableBlockEntity) level.getBlockEntity(pos);
         if(blockEntity != null) {
-            return heldStack.has(SimDataComponents.TARGET) || !blockEntity.getHeldItem().isEmpty() && heldStack.isEmpty();
+            return ItemComponentCompat.has(heldStack, SimDataComponents.TARGET) || !blockEntity.getHeldItem().isEmpty() && heldStack.isEmpty();
         }
         return false;
     }

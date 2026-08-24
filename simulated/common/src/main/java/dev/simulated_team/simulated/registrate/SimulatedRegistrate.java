@@ -12,7 +12,7 @@ import dev.simulated_team.simulated.content.blocks.nav_table.navigation_target.N
 import dev.simulated_team.simulated.index.SimDataComponents;
 import dev.simulated_team.simulated.index.SimRegistries;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentPatch;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -118,12 +118,10 @@ public class SimulatedRegistrate extends CreateRegistrate {
         return this.simple(this.self(), name, SimRegistries.Keys.PROPERTY_TOOLTIP, tooltipFunction);
     }
 
-    public static void onAddDefaultComponents(BiConsumer<ItemLike, Consumer<DataComponentPatch.Builder>> modify) {
+    public static void registerDefaultComponents() {
         for (Map.Entry<ResourceLocation, Supplier<ItemLike>> entry : NAVIGATION_TARGET_ITEMS.entrySet()) {
             NavigationTarget target = SimRegistries.NAVIGATION_TARGET.get(entry.getKey());
-            ItemLike item = entry.getValue().get();
-            modify.accept(item, builder -> builder
-                    .set(SimDataComponents.TARGET, target));
+            ItemComponentCompat.registerDefault(entry.getValue(), SimDataComponents.TARGET, target);
         }
     }
 }

@@ -3,8 +3,8 @@ package dev.simulated_team.simulated.content.navigation_targets;
 import dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlockEntity;
 import dev.simulated_team.simulated.content.blocks.nav_table.navigation_target.NavigationTarget;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class RecoveryCompassNavigationTarget implements NavigationTarget {
     @Override
     public @Nullable Vec3 getTarget(final NavTableBlockEntity navBE, final ItemStack self) {
-        final UUID lastPlayer = self.get(SimDataComponents.COMPASS_PLACER_UUID);
+        final UUID lastPlayer = ItemComponentCompat.get(self, SimDataComponents.COMPASS_PLACER_UUID);
         if (lastPlayer != null) {
             GlobalPos lastDeathLocation;
 
@@ -25,14 +25,14 @@ public class RecoveryCompassNavigationTarget implements NavigationTarget {
             if (player != null) {
                 Optional<GlobalPos> lastDeathLocationOptional = player.getLastDeathLocation();
                 if (lastDeathLocationOptional.isEmpty()) {
-                    self.remove(SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
+                    ItemComponentCompat.remove(self, SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
                     return null;
                 }
 
                 lastDeathLocation = lastDeathLocationOptional.get();
-                self.set(SimDataComponents.LAST_PLAYER_DEATH_LOCATION, lastDeathLocation);
+                ItemComponentCompat.set(self, SimDataComponents.LAST_PLAYER_DEATH_LOCATION, lastDeathLocation);
             } else {
-                lastDeathLocation = self.get(SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
+                lastDeathLocation = ItemComponentCompat.get(self, SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
             }
 
             if (lastDeathLocation == null) {
@@ -53,15 +53,15 @@ public class RecoveryCompassNavigationTarget implements NavigationTarget {
     @Override
     public void onInsert(final ItemStack itemStack, final NavTableBlockEntity be, @Nullable final Player player) {
         if (player != null) {
-            DataComponentMap.Builder builder = DataComponentMap.builder().set(SimDataComponents.COMPASS_PLACER_UUID, player.getUUID());
-            player.getLastDeathLocation().ifPresent(globalPos -> builder.set(SimDataComponents.LAST_PLAYER_DEATH_LOCATION, globalPos));
-            itemStack.applyComponents(builder.build());
+            ItemComponentCompat.set(itemStack, SimDataComponents.COMPASS_PLACER_UUID, player.getUUID());
+            player.getLastDeathLocation().ifPresent(globalPos ->
+                    ItemComponentCompat.set(itemStack, SimDataComponents.LAST_PLAYER_DEATH_LOCATION, globalPos));
         }
     }
 
     @Override
     public void onExtract(final ItemStack itemStack, final NavTableBlockEntity be, @Nullable final Player player) {
-        itemStack.remove(SimDataComponents.COMPASS_PLACER_UUID);
-        itemStack.remove(SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
+        ItemComponentCompat.remove(itemStack, SimDataComponents.COMPASS_PLACER_UUID);
+        ItemComponentCompat.remove(itemStack, SimDataComponents.LAST_PLAYER_DEATH_LOCATION);
     }
 }

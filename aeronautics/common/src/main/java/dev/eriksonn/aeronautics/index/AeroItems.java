@@ -38,14 +38,12 @@ public class AeroItems {
 							.stacksTo(1)
 							.rarity(Rarity.RARE)
 							.jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, Aeronautics.path("cloud_skipper")))
-							.component(AeroDataComponents.LEVITATING, Levitating.DEFAULT)
 					)
 					.tag(AeroTags.ItemTags.MUSIC_DISCS)
 					.lang("Music Disc")
 					.register();
 
-	public static ItemEntry<Item> ENDSTONE_POWDER = ingredient("end_stone_powder", p -> p
-			.component(AeroDataComponents.LEVITATING, Levitating.END_STONE));
+	public static ItemEntry<Item> ENDSTONE_POWDER = ingredient("end_stone_powder", p -> p);
 
 	private static ItemEntry<Item> ingredient(final String name, NonNullUnaryOperator<Item.Properties> poperator) {
 		return REGISTRATE.item(name, Item::new)
@@ -53,5 +51,10 @@ public class AeroItems {
 				.register();
 	}
 
-	public static void init() {}
+	public static void init() {
+		dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+				MUSIC_DISC_CLOUD_SKIPPER, AeroDataComponents.LEVITATING, Levitating.DEFAULT);
+		dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+				ENDSTONE_POWDER, AeroDataComponents.LEVITATING, Levitating.END_STONE);
+	}
 }

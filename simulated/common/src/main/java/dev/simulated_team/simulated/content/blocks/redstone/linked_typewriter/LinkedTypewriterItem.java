@@ -8,7 +8,6 @@ import dev.simulated_team.simulated.mixin.accessor.RedstoneLinkBlockEntityAccess
 import net.createmod.catnip.data.Couple;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -20,6 +19,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -82,10 +82,11 @@ public class LinkedTypewriterItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(final ItemStack stack, final TooltipContext context, final List<Component> tooltipComponents, final TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        if (stack.has(DataComponents.BLOCK_ENTITY_DATA)) {
-            final CompoundTag tag = stack.get(DataComponents.BLOCK_ENTITY_DATA).copyTag();
+    public void appendHoverText(final ItemStack stack, final @Nullable Level level, final List<Component> tooltipComponents, final TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, tooltipComponents, tooltipFlag);
+        final CompoundTag blockEntityTag = BlockItem.getBlockEntityData(stack);
+        if (blockEntityTag != null) {
+            final CompoundTag tag = blockEntityTag.copy();
             if (tag.contains("Keys", CompoundTag.TAG_LIST)) {
                 final int keyCount = tag.getList("Keys", CompoundTag.TAG_COMPOUND).size();
                 tooltipComponents.add(Component.translatable("simulated.linked_typewriter.key_count", keyCount).withStyle(ChatFormatting.GOLD));

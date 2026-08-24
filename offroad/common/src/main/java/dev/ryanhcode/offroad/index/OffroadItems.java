@@ -19,7 +19,6 @@ public class OffroadItems {
     private static final SimulatedRegistrate REGISTRATE = Offroad.getRegistrate();
 
     public static final ItemEntry<TireItem> SMALL_TIRE = REGISTRATE.item("small_tire", TireItem::new)
-            .properties(x -> x.component(OffroadDataComponents.TIRE, TireLike.SMALL_TIRE))
             .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
                     .requires(AllBlocks.SHAFT)
                     .requires(Items.DRIED_KELP)
@@ -29,7 +28,6 @@ public class OffroadItems {
             .register();
 
     public static final ItemEntry<TireItem> TIRE = REGISTRATE.item("tire", TireItem::new)
-            .properties(x -> x.component(OffroadDataComponents.TIRE, TireLike.TIRE))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern(" K ")
                     .pattern("KSK")
@@ -42,7 +40,6 @@ public class OffroadItems {
             .register();
 
     public static final ItemEntry<TireItem> LARGE_TIRE = REGISTRATE.item("large_tire", TireItem::new)
-            .properties(x -> x.component(OffroadDataComponents.TIRE, TireLike.LARGE_TIRE))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern(" B ")
                     .pattern("BSB")
@@ -55,7 +52,6 @@ public class OffroadItems {
             .register();
 
     public static final ItemEntry<TireItem> MONSTROUS_TIRE = REGISTRATE.item("monstrous_tire", TireItem::new)
-            .properties(x -> x.component(OffroadDataComponents.TIRE, TireLike.MONSTROUS_TIRE))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern(" K ")
                     .pattern("KSK")
@@ -68,5 +64,13 @@ public class OffroadItems {
             .register();
 
     public static void init() {
+        dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+                SMALL_TIRE, OffroadDataComponents.TIRE, TireLike.SMALL_TIRE);
+        dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+                TIRE, OffroadDataComponents.TIRE, TireLike.TIRE);
+        dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+                LARGE_TIRE, OffroadDataComponents.TIRE, TireLike.LARGE_TIRE);
+        dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(
+                MONSTROUS_TIRE, OffroadDataComponents.TIRE, TireLike.MONSTROUS_TIRE);
     }
 }

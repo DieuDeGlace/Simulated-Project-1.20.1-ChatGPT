@@ -5,6 +5,7 @@ import dev.simulated_team.simulated.multiloader.inventory.ItemInfoWrapper;
 import dev.simulated_team.simulated.multiloader.inventory.SingleSlotContainer;
 import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 
 public class WheelMountInventory extends SingleSlotContainer {
     private WheelMountBlockEntity be;
@@ -18,7 +19,7 @@ public class WheelMountInventory extends SingleSlotContainer {
 
     @Override
     public boolean canInsertItem(final ItemInfoWrapper item) {
-        final TireLike tireLike = ItemInfoWrapper.generateFromInfo(item).get(OffroadDataComponents.TIRE);
+        final TireLike tireLike = ItemComponentCompat.get(ItemInfoWrapper.generateFromInfo(item), OffroadDataComponents.TIRE);
         return tireLike != null;
     }
 

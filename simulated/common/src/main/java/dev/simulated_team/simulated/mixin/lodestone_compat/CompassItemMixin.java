@@ -2,11 +2,12 @@ package dev.simulated_team.simulated.mixin.lodestone_compat;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.simulated_team.simulated.content.navigation_targets.lodestone_compass_compatability.LodestoneTrackingMap;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CompassItem;
@@ -27,11 +28,11 @@ public abstract class CompassItemMixin extends Item {
 		super(properties);
 	}
 
-	@Inject(method = "inventoryTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;"))
+	@Inject(method = "inventoryTick", at = @At("HEAD"))
 	private void simulated$checkID(final ItemStack stack, final Level level, final Entity entity, final int itemSlot, final boolean isSelected, final CallbackInfo ci) {
 		if (!level.isClientSide) {
-			if (stack.has(SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER)) {
-				final UUID trackerID = stack.get(SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER);
+			if (ItemComponentCompat.has(stack, SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER)) {
+				final UUID trackerID = ItemComponentCompat.get(stack, SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER);
 				final LodestoneTrackingMap map = LodestoneTrackingMap.getOrLoad(level);
 				if (map != null && entity instanceof final ServerPlayer sp) {
 					map.sendUpdateForPlayer(trackerID, sp);
@@ -40,17 +41,21 @@ public abstract class CompassItemMixin extends Item {
 		}
 	}
 
-	@WrapOperation(method = "useOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;set(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;"))
-	public <T> T simulated$setLodestoneData(final ItemStack instance, final DataComponentType<? super T> component, final T value, final Operation<T> original, @Local(argsOnly = true) final UseOnContext context) {
-		final BlockPos pos = context.getClickedPos();
+	@WrapOperation(method = "useOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/CompassItem;addLodestoneTags(Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/core/BlockPos;Lnet/minecraft/nbt/CompoundTag;)V"))
+	private void simulated$setLodestoneData(final CompassItem instance,
+	                                        final ResourceKey<Level> dimension,
+	                                        final BlockPos pos,
+	                                        final CompoundTag itemTag,
+	                                        final Operation<Void> original,
+	                                        final UseOnContext context) {
 		final LodestoneTrackingMap map = LodestoneTrackingMap.getOrLoad(context.getLevel());
 		if (map != null) {
 			final UUID uuid = map.addOrGetLodestoneTrackingPoint(pos);
 			if (uuid != null) {
-				instance.set(SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER, uuid);
+				ItemComponentCompat.set(itemTag, SimDataComponents.LODESTONE_COMPASS_SUBLEVEL_TRACKER, uuid);
 			}
 		}
 
-		return original.call(instance, component, value);
+		original.call(instance, dimension, pos, itemTag);
 	}
 }

@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +34,7 @@ public abstract class EntityMixin {
     private void simulated$bouncyItemVelocity(final Block instance, final BlockGetter level, final Entity entity,
                                               final Operation<Void> original) {
         if (entity instanceof final ItemEntity item) {
-            final Float bounce = item.getItem().get(SimDataComponents.BOUNCINESS);
+            final Float bounce = ItemComponentCompat.get(item.getItem(), SimDataComponents.BOUNCINESS);
             if (bounce != null && bounce > 0) {
                 entity.setDeltaMovement(entity.getDeltaMovement().multiply(1, -bounce, 1));
                 return;
@@ -47,7 +48,7 @@ public abstract class EntityMixin {
     private void simulated$bouncyItemAdvancement(final double d, final boolean onGround, final BlockState blockState, final BlockPos blockPos,
                                                  final CallbackInfo ci) {
         if (onGround && ((Entity)(Object)this) instanceof final ItemEntity item) {
-            final Float bounce = item.getItem().get(SimDataComponents.BOUNCINESS);
+            final Float bounce = ItemComponentCompat.get(item.getItem(), SimDataComponents.BOUNCINESS);
             if (bounce != null && bounce > 0) {
                 if (item.fallDistance >= 128 && item.getOwner() instanceof final Player player) {
                     SimAdvancements.MUST_COME_UP.awardTo(player);

@@ -37,6 +37,7 @@ public class Offroad {
 		OffroadEntityTypes.init();
 		OffroadDataComponents.init();
 		OffroadItems.init();
+		OffroadCommonEvents.registerDefaultComponents();
 		OffroadSoundEvents.init();
 		OffroadPacketManager.init();
 

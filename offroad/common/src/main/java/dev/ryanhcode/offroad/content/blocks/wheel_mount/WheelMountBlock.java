@@ -8,6 +8,7 @@ import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.index.OffroadBlockEntityTypes;
 import dev.ryanhcode.offroad.index.OffroadBlocks;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.multiloader.inventory.ContainerSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -101,9 +102,9 @@ public class WheelMountBlock extends HorizontalKineticBlock implements IBE<Wheel
         if (level.isClientSide()) {
             return this.onBlockEntityUseItemOn(level, blockPos, mount -> {
                 final ItemStack potentialTire = mount.getHeldItem();
-                if ((heldItem.isEmpty() && potentialTire.has(OffroadDataComponents.TIRE))
-                        || (heldItem.has(OffroadDataComponents.TIRE) && potentialTire.has(OffroadDataComponents.TIRE))
-                        || (heldItem.has(OffroadDataComponents.TIRE) && potentialTire.isEmpty())
+                if ((heldItem.isEmpty() && ItemComponentCompat.has(potentialTire, OffroadDataComponents.TIRE))
+                        || (ItemComponentCompat.has(heldItem, OffroadDataComponents.TIRE) && ItemComponentCompat.has(potentialTire, OffroadDataComponents.TIRE))
+                        || (ItemComponentCompat.has(heldItem, OffroadDataComponents.TIRE) && potentialTire.isEmpty())
                 ) {
                     return ItemInteractionResult.SUCCESS;
                 }
@@ -123,7 +124,7 @@ public class WheelMountBlock extends HorizontalKineticBlock implements IBE<Wheel
         final boolean[] passed = { false };
 
         final ItemStack heldItem = player.getItemInHand(hand);
-        final TireLike tireLike = heldItem.get(OffroadDataComponents.TIRE);
+        final TireLike tireLike = ItemComponentCompat.get(heldItem, OffroadDataComponents.TIRE);
 
         if (heldItem.isEmpty() || tireLike != null) {
             this.withBlockEntityDo(level, pos, mount -> {
