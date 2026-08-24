@@ -8,13 +8,12 @@ import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.content.components.Levitating;
 import dev.eriksonn.aeronautics.content.items.AviatorsGogglesItem;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.RecordItem;
 
 public class AeroItems {
 	private static final SimulatedRegistrate REGISTRATE = Aeronautics.getRegistrate();
@@ -32,12 +31,12 @@ public class AeroItems {
 					.tag(ItemTags.FREEZE_IMMUNE_WEARABLES)
 					.register();
 
-	public static ItemEntry<Item> MUSIC_DISC_CLOUD_SKIPPER =
-			REGISTRATE.item("music_disc_cloud_skipper", Item::new)
+	public static ItemEntry<RecordItem> MUSIC_DISC_CLOUD_SKIPPER =
+			REGISTRATE.item("music_disc_cloud_skipper",
+					properties -> new RecordItem(12, AeroSoundEvents.MUSIC_DISC_CLOUD_SKIPPER::event, properties, 225 * 20))
 					.properties(p -> p
 							.stacksTo(1)
 							.rarity(Rarity.RARE)
-							.jukeboxPlayable(ResourceKey.create(Registries.JUKEBOX_SONG, Aeronautics.path("cloud_skipper")))
 					)
 					.tag(AeroTags.ItemTags.MUSIC_DISCS)
 					.lang("Music Disc")

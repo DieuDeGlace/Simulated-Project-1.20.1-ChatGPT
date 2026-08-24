@@ -25,17 +25,23 @@ side = "BOTH"
 modId = "create"
 mandatory = true
 versionRange = "[${create_mod_version},)"
-ordering = "NONE"
+ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "sable"
 mandatory = true
 versionRange = "${sable_mod_version_range}"
-ordering = "NONE"
+ordering = "AFTER"
 side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "simulated"
 mandatory = true
 versionRange = "[${version},)"
+ordering = "AFTER"
+side = "BOTH"
+[[dependencies.${mod_id}]]
+modId = "veil"
+mandatory = true
+versionRange = "[1.0.0,)"
 ordering = "NONE"
 side = "BOTH"

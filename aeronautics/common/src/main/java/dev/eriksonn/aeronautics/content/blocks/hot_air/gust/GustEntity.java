@@ -18,7 +18,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -50,6 +52,11 @@ public class GustEntity extends Entity implements IEntityAdditionalSpawnData {
     public GustEntity(final EntityType<?> entityType, final Level level, final Quaterniondc orientation) {
         super(entityType, level);
         this.orientation.set(orientation);
+    }
+
+    @Override
+    protected float getEyeHeight(final Pose pose, final EntityDimensions dimensions) {
+        return 0.0F;
     }
 
     @Override

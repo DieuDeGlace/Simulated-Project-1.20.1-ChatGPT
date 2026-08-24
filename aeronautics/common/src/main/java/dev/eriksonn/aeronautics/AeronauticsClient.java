@@ -24,22 +24,17 @@ public class AeronauticsClient {
     }
 
     private static void registerEvents() {
-        VeilEventPlatform.INSTANCE.onVeilRenderLevelStage((stage,
-                                                           levelRenderer,
-                                                           bufferSource,
-                                                           matrixStack,
-                                                           frustumMatrix,
-                                                           projectionMatrix,
-                                                           renderTick,
-                                                           deltaTracker,
-                                                           camera,
-                                                           frustum) -> {
-            ClientBalloonEffectRenderer.onRenderLevelStage(stage, frustumMatrix, projectionMatrix, renderTick);
-        });
-
-        VeilEventPlatform.INSTANCE.onVeilRegisterBlockLayers(registry -> {
-            registry.registerBlockLayer(AeroRenderTypes.levitite());
-            registry.registerBlockLayer(AeroRenderTypes.levititeGhosts());
+        VeilEventPlatform.INSTANCE.onVeilRenderTypeStageRender((stage,
+                                                                levelRenderer,
+                                                                bufferSource,
+                                                                matrixStack,
+                                                                projectionMatrix,
+                                                                renderTick,
+                                                                partialTick,
+                                                                camera,
+                                                                frustum) -> {
+            ClientBalloonEffectRenderer.onRenderLevelStage(stage, matrixStack.last().pose(),
+                    projectionMatrix, renderTick, partialTick);
         });
 
         VeilEventPlatform.INSTANCE.onVeilRegisterFixedBuffers(registry -> {

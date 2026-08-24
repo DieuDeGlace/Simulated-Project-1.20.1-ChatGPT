@@ -8,10 +8,10 @@ import dev.ryanhcode.offroad.content.blocks.borehead_bearing.BoreheadBearingBloc
 import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(RotationPropagator.class)
+@Mixin(value = RotationPropagator.class, remap = false)
 public class RotationPropagatorMixin {
 
-    @WrapMethod(method = "getAxisModifier")
+    @WrapMethod(method = "getAxisModifier", remap = false)
     private static float offroad$boreheadBearingRotation(final KineticBlockEntity be, final Direction direction, final Operation<Float> original) {
         if (be.hasSource() && be instanceof final BoreheadBearingBlockEntity bhbe) {
             return bhbe.handleAxisModification(direction);

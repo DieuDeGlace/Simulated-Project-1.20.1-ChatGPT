@@ -1,7 +1,6 @@
 package dev.eriksonn.aeronautics.plugin;
 
-import foundry.veil.api.compat.IrisCompat;
-import foundry.veil.api.compat.SodiumCompat;
+import foundry.veil.Veil;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -15,8 +14,9 @@ public class AeroMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(final String mixinPackage) {
-        this.sodiumPresent = SodiumCompat.isLoaded();
-        this.irisPresent = IrisCompat.isLoaded();
+        this.sodiumPresent = Veil.platform().isSodiumLoaded();
+        this.irisPresent = Veil.platform().isModLoaded("iris")
+                || Veil.platform().isModLoaded("oculus");
     }
 
     @Override

@@ -1,5 +1,5 @@
 #include veil:fog
-#include veil:color
+#include veil:color_utilities
 
 uniform sampler2D Sampler0;
 uniform sampler2D DiffuseDepthSampler;
@@ -40,13 +40,13 @@ vec3 getGhostColorHsv(vec3 hsv, bool forwards)
 
 void main() {
     vec4 color = texture(Sampler0, texCoord0) * vertexColor;
-    vec3 hsv = rgb2hsv(color.rgb);
+    vec3 hsv = rgbToHsv(color.rgb);
     if (layerIndex == 0)
     {
         float s = exp(-ghostNoiseMagnitude);
         hsv.z = pow(hsv.z, s);
         hsv.y = pow(hsv.y, s);
-        color.rgb = hsv2rgb(hsv);
+        color.rgb = hsvToRgb(hsv);
     }
 
     if (onSublevel > 0)
@@ -54,12 +54,12 @@ void main() {
         float ghostAlpha = ghostLayerFullness * 0.3;
         if (layerIndex == 0)
         {
-            vec3 ghostTotal = (hsv2rgb(getGhostColorHsv(hsv, false))+hsv2rgb(getGhostColorHsv(hsv, true))).rgb;
+            vec3 ghostTotal = (hsvToRgb(getGhostColorHsv(hsv, false))+hsvToRgb(getGhostColorHsv(hsv, true))).rgb;
             color.rgb -= ghostTotal * ghostAlpha * 0.2;
         } else
         {
             hsv = getGhostColorHsv(hsv, layerIndex < 0);
-            color.rgb = hsv2rgb(hsv);
+            color.rgb = hsvToRgb(hsv);
 
             float depthSample = texture(DiffuseDepthSampler, gl_FragCoord.xy / ScreenSize).r;
             float depth2 = linearizeDepth(depthSample);

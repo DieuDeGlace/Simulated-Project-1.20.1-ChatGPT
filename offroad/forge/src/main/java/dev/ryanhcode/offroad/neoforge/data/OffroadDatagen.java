@@ -11,17 +11,15 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.concurrent.CompletableFuture;
 
 public class OffroadDatagen {
 
     public static void gatherDataHighPriority(final GatherDataEvent event) {
-        if (event.getMods().contains(Offroad.MOD_ID)) {
-            OffroadTags.addGenerators();
-        }
+        OffroadTags.addGenerators();
     }
 
     public static void gatherData(final GatherDataEvent event) {
@@ -30,15 +28,16 @@ public class OffroadDatagen {
         final CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(event.includeServer(), new OffroadAdvancements(output, lookupProvider));
-        event.addProvider(OffroadSoundEvents.REGISTRY.getProvider(output));
+        generator.addProvider(event.includeClient(), OffroadSoundEvents.REGISTRY.getProvider(output));
     }
 
     public static void registerEvent(final RegisterEvent event) {
         event.register(Registries.SOUND_EVENT, OffroadSoundEventsNeoForge::register);
 
-        if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
-            OffroadAdvancements.init();
-            OffroadAdvancementTriggers.register();
-        }
+    }
+
+    public static void registerCommonContent() {
+        OffroadAdvancements.init();
+        OffroadAdvancementTriggers.register();
     }
 }

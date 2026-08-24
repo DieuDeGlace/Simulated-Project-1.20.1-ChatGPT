@@ -20,6 +20,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -29,6 +31,11 @@ import net.minecraft.world.phys.Vec3;
 import static net.createmod.catnip.math.AngleHelper.angleLerp;
 
 public class BoreheadContraptionEntity extends ControlledContraptionEntity {
+
+    @Override
+    protected float getEyeHeight(final Pose pose, final EntityDimensions dimensions) {
+        return 0.0F;
+    }
 
     public BoreheadContraptionEntity(final EntityType<?> type, final Level world) {
         super(type, world);

@@ -14,6 +14,7 @@ import org.joml.Matrix3f;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -139,7 +140,7 @@ public class LevititeShaderManager {
     }
 
     public void prepareShaderForSublevel(ClientSubLevel subLevel, ShaderInstance shader, double camX, double camY, double camZ) {
-        final float pt = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+        final float pt = Minecraft.getInstance().getPartialTick();
 
         Pose3dc currentPose = subLevel.renderPose(pt);
         currentPos.set(currentPose.position());
@@ -165,6 +166,7 @@ public class LevititeShaderManager {
     }
 
     public static boolean isEnabled() {
-        return VeilRenderSystem.tessellationSupported() && enabled;
+        return (GL.getCapabilities().OpenGL40 || GL.getCapabilities().GL_ARB_tessellation_shader)
+                && enabled;
     }
 }

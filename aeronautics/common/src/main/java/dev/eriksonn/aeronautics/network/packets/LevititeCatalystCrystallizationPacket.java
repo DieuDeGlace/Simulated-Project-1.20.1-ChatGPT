@@ -13,7 +13,6 @@ import dev.simulated_team.simulated.network.codec.StreamCodec;
 import dev.simulated_team.simulated.network.packet.SimPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
 public record LevititeCatalystCrystallizationPacket(BlockPos pos, InteractionHand hand) implements SimPacket {
@@ -40,7 +39,7 @@ public record LevititeCatalystCrystallizationPacket(BlockPos pos, InteractionHan
 
 		if (!item.is(AeroTags.ItemTags.LEVITITE_CATALYZER_NO_CONSUME)) {
 			if (item.isDamageableItem()) {
-				item.hurtAndBreak(1, player, this.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+				item.hurtAndBreak(1, player, livingEntity -> livingEntity.broadcastBreakEvent(this.hand));
 			} else if (item.isStackable() && !context.player().getAbilities().instabuild) {
 				item.shrink(1);
 			}

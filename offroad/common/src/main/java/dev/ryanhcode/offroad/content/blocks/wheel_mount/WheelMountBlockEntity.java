@@ -335,12 +335,12 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
     }
 
     @Override
-    public boolean writeToClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Direction side) {
+    public boolean writeToClipboard(final CompoundTag tag, final Direction side) {
         return false;
     }
 
     @Override
-    public boolean readFromClipboard(final HolderLookup.@NotNull Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
+    public boolean readFromClipboard(final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
         return false;
     }
 
@@ -357,7 +357,7 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
         for (int i = -1; i <= 1; i++) {
             final Vec3 localPosO = wheelPosCenter.add(JOMLConversion.toMojang(normalD).scale(i));
 
-            final ClipContext clipContext = new ClipContext(localPosO, localPosO.subtract(0.0, 5.0, 0.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty());
+            final ClipContext clipContext = new ClipContext(localPosO, localPosO.subtract(0.0, 5.0, 0.0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
             ((ClipContextExtension) clipContext).sable$setIgnoredSubLevel(Sable.HELPER.getContaining(this));
             final BlockHitResult clipResult = this.level.clip(clipContext);
 
@@ -465,8 +465,8 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
     }
 
     @Override
-    protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        tag.put("CurrentStack", this.getHeldItem().saveOptional(registries));
+    protected void write(final CompoundTag tag, final boolean clientPacket) {
+        tag.put("CurrentStack", this.getHeldItem().save(new CompoundTag()));
 
         if (clientPacket) {
             tag.putInt("SteeringSignalStrength", this.lastServerSteeringSignal);
@@ -474,12 +474,12 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
             tag.putInt("SteeringSignalStrengthRight", this.lastServerSteeringSignalRight);
         }
 
-        super.write(tag, registries, clientPacket);
+        super.write(tag, clientPacket);
     }
 
     @Override
-    protected void read(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
-        final ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound("CurrentStack"));
+    protected void read(final CompoundTag tag, final boolean clientPacket) {
+        final ItemStack stack = ItemStack.of(tag.getCompound("CurrentStack"));
 
         this.inventory.suppressUpdate = true;
         this.inventory.slot.setStack(stack);
@@ -494,7 +494,7 @@ public class WheelMountBlockEntity extends KineticBlockEntity implements BlockEn
             this.onStackChanged();
         }
 
-        super.read(tag, registries, clientPacket);
+        super.read(tag, clientPacket);
     }
 
     @Override

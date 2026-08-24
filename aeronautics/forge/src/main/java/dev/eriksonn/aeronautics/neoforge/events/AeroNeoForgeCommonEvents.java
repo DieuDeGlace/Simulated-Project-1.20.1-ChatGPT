@@ -2,7 +2,7 @@ package dev.eriksonn.aeronautics.neoforge.events;
 
 import com.simibubi.create.compat.jei.ConversionRecipe;
 import com.simibubi.create.compat.jei.category.MysteriousItemConversionCategory;
-import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
 import dev.simulated_team.simulated.service.SimPlatformService;
 import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.data.AeroAdvancementTriggers;
@@ -13,23 +13,22 @@ import dev.eriksonn.aeronautics.neoforge.index.AeroFluidsNeoForge;
 import dev.eriksonn.aeronautics.neoforge.service.NeoForgeAeroConfigService;
 import net.createmod.catnip.config.ConfigBase;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -42,10 +41,24 @@ public class AeroNeoForgeCommonEvents {
 	}
 
 	@SubscribeEvent
-	public static void postServerTick(ServerTickEvent.Post event) {
+	public static void postServerTick(TickEvent.ServerTickEvent event) {
+		if (event.phase != TickEvent.Phase.END) {
+			return;
+		}
 		final MinecraftServer server = event.getServer();
 		for (final ServerLevel level : server.getAllLevels()) {
 			AeronauticsCommonEvents.onServerTickEnd(level);
+		}
+	}
+
+	/**
+	 * Forge 1.20.1 has no NeoForge item data-map registry. Preserve the upstream
+	 * furnace-fuel data map by applying its value to every item in the same tag.
+	 */
+	@SubscribeEvent
+	public static void furnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
+		if (event.getItemStack().is(AeroTags.ItemTags.ENVELOPE)) {
+			event.setBurnTime(100);
 		}
 	}
 
@@ -55,15 +68,6 @@ public class AeroNeoForgeCommonEvents {
 		@SubscribeEvent
 		public static void registerEvent(RegisterEvent event) {
 			AeroArmInteractionPoints.init();
-
-			if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
-				AeroAdvancements.init();
-				AeroAdvancementTriggers.register();
-
-				if (SimPlatformService.INSTANCE.isLoaded("jei")) {
-					jeiCompat();
-				}
-			}
 		}
 
 		// todo: move this somewhere more proper
@@ -76,18 +80,16 @@ public class AeroNeoForgeCommonEvents {
 							AeroBlocks.PEARLESCENT_LEVITITE.asItem().getDefaultInstance()));
 
 			ResourceLocation recipeId = Aeronautics.path("conversion_music_disc_cloud_skipper");
-			ConversionRecipe recipe = new StandardProcessingRecipe.Builder<>(ConversionRecipe::new, recipeId)
+			ConversionRecipe recipe = new ProcessingRecipeBuilder<>(ConversionRecipe::new, recipeId)
 					.withItemIngredients(Ingredient.of(AeroTags.ItemTags.CONVERTS_TO_CLOUD_SKIPPER))
 					.withSingleItemOutput(AeroItems.MUSIC_DISC_CLOUD_SKIPPER.asStack())
 					.build();
-			MysteriousItemConversionCategory.RECIPES.add(new RecipeHolder<>(recipeId, recipe));
+			MysteriousItemConversionCategory.RECIPES.add(recipe);
 		}
 
 		@SubscribeEvent(priority = EventPriority.HIGH)
 		public static void gatherDataHighPriority(GatherDataEvent event) {
-			if(event.getMods().contains(Aeronautics.MOD_ID)) {
-				AeroTags.addGenerators();
-			}
+			AeroTags.addGenerators();
 		}
 
 		@SubscribeEvent
@@ -98,12 +100,19 @@ public class AeroNeoForgeCommonEvents {
 
 			generator.addProvider(event.includeServer(), new AeroAdvancements(output, lookupProvider));
 			generator.addProvider(event.includeServer(), AeroProcessingRecipeGen.registerAll(output, lookupProvider));
-			event.addProvider(AeroSoundEvents.REGISTRY.getProvider(output));
+			generator.addProvider(event.includeClient(), AeroSoundEvents.REGISTRY.getProvider(output));
 		}
 
 		@SubscribeEvent
 		public static void commonSetup(FMLCommonSetupEvent event) {
-			AeroFluidsNeoForge.registerFluidInteractions();
+			event.enqueueWork(() -> {
+				AeroAdvancements.init();
+				AeroAdvancementTriggers.register();
+				AeroFluidsNeoForge.registerFluidInteractions();
+				if (SimPlatformService.INSTANCE.isLoaded("jei")) {
+					jeiCompat();
+				}
+			});
 		}
 
 		@SubscribeEvent

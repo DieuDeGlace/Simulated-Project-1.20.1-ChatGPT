@@ -11,6 +11,7 @@ import dev.ryanhcode.sable.companion.math.Pose3dc;
 import dev.ryanhcode.sable.render.region.SimpleCulledRenderRegionBuilder;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.sable.util.LevelAccelerator;
+import dev.simulated_team.simulated.util.ShaderInstanceCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
@@ -67,7 +68,8 @@ public class HeatedCulledRenderRegion implements NativeResource {
                 .translate((float) relativePos.x, (float) relativePos.y, (float) relativePos.z)
                 .rotate(globalOrientation);
 
-        shader.setDefaultUniforms(VertexFormat.Mode.QUADS, modelViewMatrix, projectionMatrix, client.getWindow());
+        ShaderInstanceCompat.setDefaultUniforms(shader, VertexFormat.Mode.QUADS,
+                modelViewMatrix, projectionMatrix, client.getWindow());
         shader.apply();
 
         this.buffer.bind();
@@ -111,11 +113,12 @@ public class HeatedCulledRenderRegion implements NativeResource {
 
         builder.buildNoGreedy();
 
-        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, this.getVertexFormat());
+        final BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, this.getVertexFormat());
         builder.render(new Matrix4f(), bufferBuilder);
 
         this.balloon = null;
-        final MeshData builtData = bufferBuilder.build();
+        final BufferBuilder.RenderedBuffer builtData = bufferBuilder.endOrDiscardIfEmpty();
 
         if (builtData != null) {
             this.buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);

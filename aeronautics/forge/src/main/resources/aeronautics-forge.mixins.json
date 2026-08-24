@@ -6,7 +6,8 @@
   "mixins": [
   ],
   "client": [
-    "BlockRenderDispatcherMixin"
+    "BlockRenderDispatcherMixin",
+    "ForgeRenderTypeStageHandlerAccessor"
   ],
   "server": [],
   "injectors": {

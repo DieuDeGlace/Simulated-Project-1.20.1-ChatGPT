@@ -3,6 +3,7 @@ package dev.eriksonn.aeronautics.neoforge.content.fluids.levitite;
 import dev.eriksonn.aeronautics.neoforge.content.fluids.AeroFluidType;
 import dev.eriksonn.aeronautics.neoforge.index.AeroFluidsNeoForge;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.material.FluidState;
@@ -20,7 +21,7 @@ public class LevititeBlendFluidType extends AeroFluidType {
 		final boolean falling = entity.getDeltaMovement().y < 0;
 		final double fluidHeight = entity.getFluidTypeHeight(AeroFluidsNeoForge.LEVITITE_BLEND.getType());
 		if (!entity.isCrouching()) { // if not crouching, reduce effective gravity based on immersion in fluid down to 0
-			gravity = Math.clamp(gravity * (1f - fluidHeight),
+			gravity = Mth.clamp(gravity * (1f - fluidHeight),
 					0, gravity);
 		}
 		entity.moveRelative(0.02F, movementVector);

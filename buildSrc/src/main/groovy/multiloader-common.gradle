@@ -89,13 +89,24 @@ def patchVeilForNamedDev = tasks.register('patchVeilForNamedDev', PatchVeilForNa
     outputJar = layout.buildDirectory.file("devlibs/Veil-forge-${minecraft_version}-${veil_version}-named-dev.jar")
 }
 
+// The supplied Sable artifact is the exact production SRG JAR used by PJ.
+// Remap that same artifact for ModDev's named compile/run classpath instead of
+// maintaining a second, potentially divergent Sable development build.
+def patchSableForNamedDev = tasks.register('patchSableForNamedDev', PatchVeilForNamedDev) {
+    dependsOn tasks.matching { it.name == 'createMinecraftArtifacts' }
+    inputJar = layout.file(providers.provider { sablePortJar.singleFile })
+    mappings = layout.buildDirectory.file('moddev/artifacts/intermediateToNamed.srg')
+    outputJar = layout.buildDirectory.file("devlibs/sable-forge-${minecraft_version}-named-dev.jar")
+}
+
 if (project.path.endsWith(":common")) {
     dependencies {
         compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
         annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
 
-        // Sable port jar embeds the 1.6.0 companion sources/classes.
-        implementation sablePortJar
+        // Development-only named view of the exact external production JAR.
+        // It remains external and is not nested into any published artifact.
+        implementation files(patchSableForNamedDev)
 
         compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.3'
         annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.3'
@@ -111,6 +122,9 @@ if (project.path.endsWith(":common")) {
         compileOnly("maven.modrinth:natures-compass:$minecraft_version-$natures_compass_version-forge")
         compileOnly("maven.modrinth:explorers-compass:$minecraft_version-$explorers_compass_version-forge")
         compileOnly("maven.modrinth:GchcoXML:$oculus_version_id")
+        // PJ's renderer is Embeddium 0.3.31. Keep it compile-only: the mod is
+        // optional at runtime and is never redistributed by this project.
+        compileOnly("maven.modrinth:embeddium:$embeddium_version")
     }
 
     // ModDevGradle produces the authoritative named -> SRG mapping used by the

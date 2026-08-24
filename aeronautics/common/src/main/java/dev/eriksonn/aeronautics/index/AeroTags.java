@@ -66,12 +66,12 @@ public class AeroTags {
 	}
 
 	public static class ItemTags {
-		public static final TagKey<Item> LEATHERS = AllTags.commonItemTag("leathers");
-		public static final TagKey<Item> ARMORS = AllTags.commonItemTag("armors");
+		public static final TagKey<Item> LEATHERS = AllTags.forgeItemTag("leathers");
+		public static final TagKey<Item> ARMORS = AllTags.forgeItemTag("armors");
 		public static final TagKey<Item> HEAD_ARMOR = TagKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace("head_armor"));
-		public static final TagKey<Item> IRON_SHEET = AllTags.commonItemTag("plates/iron");
-		public static final TagKey<Item> GOLD_SHEET = AllTags.commonItemTag("plates/gold");
-		public static final TagKey<Item> MUSIC_DISCS = AllTags.commonItemTag("music_discs");
+		public static final TagKey<Item> IRON_SHEET = AllTags.forgeItemTag("plates/iron");
+		public static final TagKey<Item> GOLD_SHEET = AllTags.forgeItemTag("plates/gold");
+		public static final TagKey<Item> MUSIC_DISCS = AllTags.forgeItemTag("music_discs");
 
 		public static final TagKey<Item> ENVELOPE = create("envelope");
 		public static final TagKey<Item> SHAFTLESS_ENVELOPE = create("shaftless_envelope");

@@ -91,7 +91,7 @@ public class AeroSoundEvents {
 
         GUST = REGISTRY.create("entity.gust", definition -> definition
                 .subtitle("Balloon leaks")
-                .addEventVariant(SoundEvents.WIND_CHARGE_BURST.value(), sound -> sound
+                .addEventVariant(SoundEvents.PUFFER_FISH_BLOW_OUT, sound -> sound
                         .setAttenuationDistance(16)
                         .setPitch(0.3f)
                         .setVolume(0.5f))),
@@ -112,9 +112,9 @@ public class AeroSoundEvents {
                 .addFileVariant(mc("music/game/floating_dream"), UnaryOperator.identity())
                 .addFileVariant(mc("music/game/infinite_amethyst"), UnaryOperator.identity())
                 .addFileVariant(mc("music/game/echo_in_the_wind"), UnaryOperator.identity())
-                .addFileVariant(mc("music/game/clark"), UnaryOperator.identity())
-                .addFileVariant(mc("music/game/subwoofer_lullaby"), UnaryOperator.identity())
-                .addFileVariant(mc("music/game/watcher"), UnaryOperator.identity())
+                // 1.20.1 stores these same recordings under their legacy asset names.
+                .addFileVariant(mc("music/game/calm2"), UnaryOperator.identity())
+                .addFileVariant(mc("music/game/hal1"), UnaryOperator.identity())
         ),
 
         MUSIC_AIRSHIP_RAIN = REGISTRY.create("music.rain", SoundSource.MUSIC, definition -> definition

@@ -1,37 +1,59 @@
 package dev.eriksonn.aeronautics.neoforge;
 
-import com.tterrag.registrate.util.OneTimeEventReceiver;
+import com.google.common.collect.ImmutableList;
 import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.AeronauticsClient;
-import dev.eriksonn.aeronautics.events.AeronauticsClientEvents;
-import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.eriksonn.aeronautics.index.client.AeroRenderTypes;
 import dev.eriksonn.aeronautics.neoforge.events.AeroNeoForgeClientEvents;
-import foundry.veil.forge.event.ForgeVeilRegisterBlockLayersEvent;
-import net.createmod.catnip.config.ui.BaseConfigScreen;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import dev.eriksonn.aeronautics.neoforge.mixin.ForgeRenderTypeStageHandlerAccessor;
+import foundry.veil.forge.ForgeRenderTypeStageHandler;
+import foundry.veil.forge.event.ForgeVeilRegisterBlockLayerEvent;
 import net.minecraft.client.renderer.RenderType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.common.NeoForge;
+import net.createmod.catnip.config.ui.BaseConfigScreen;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Mod(value = Aeronautics.MOD_ID, dist = Dist.CLIENT)
 public class AeronauticsNeoForgeClient {
-	public AeronauticsNeoForgeClient(final IEventBus modBus, final ModContainer container) {
-		NeoForge.EVENT_BUS.register(AeroNeoForgeClientEvents.class);
+	public AeronauticsNeoForgeClient(final IEventBus modBus) {
+		MinecraftForge.EVENT_BUS.register(AeroNeoForgeClientEvents.class);
 		modBus.register(AeroNeoForgeClientEvents.ModBusEvents.class);
-		container.registerExtensionPoint(IConfigScreenFactory.class, ((c, l) -> new BaseConfigScreen(l, Aeronautics.MOD_ID)));
+		ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
+				() -> new ConfigScreenHandler.ConfigScreenFactory(parent -> new BaseConfigScreen(parent, Aeronautics.MOD_ID)));
 
-		modBus.<ForgeVeilRegisterBlockLayersEvent>addListener(event -> event.registerBlockLayer(AeroRenderTypes.levitite()));
+		modBus.<ForgeVeilRegisterBlockLayerEvent>addListener(event -> {
+			event.registerBlockLayer(AeroRenderTypes.levitite());
+			event.registerBlockLayer(AeroRenderTypes.levititeGhosts());
+		});
+		installLateVeilBlockLayers();
 
 		AeronauticsClient.init();
+	}
+
+	private static void installLateVeilBlockLayers() {
+		final List<RenderType> currentLayers = ForgeRenderTypeStageHandler.getBlockLayers();
+		if (currentLayers == null) {
+			return;
+		}
+
+		final Set<RenderType> currentCustomLayers = ForgeRenderTypeStageHandlerAccessor.getCustomBlockLayers();
+		final Set<RenderType> orderedCustomLayers = new LinkedHashSet<>();
+		for (final RenderType renderType : currentLayers) {
+			if (currentCustomLayers.contains(renderType)) {
+				orderedCustomLayers.add(renderType);
+			}
+		}
+		orderedCustomLayers.add(AeroRenderTypes.levitite());
+		orderedCustomLayers.add(AeroRenderTypes.levititeGhosts());
+
+		ForgeRenderTypeStageHandlerAccessor.setBlockLayers(null);
+		final ImmutableList.Builder<RenderType> builder = ImmutableList.builder();
+		builder.addAll(orderedCustomLayers);
+		ForgeRenderTypeStageHandler.setBlockLayers(builder);
 	}
 }

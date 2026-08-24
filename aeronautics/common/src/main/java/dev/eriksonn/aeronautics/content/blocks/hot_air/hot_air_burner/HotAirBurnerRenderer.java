@@ -70,9 +70,9 @@ public class HotAirBurnerRenderer extends SmartBlockEntityRenderer<HotAirBurnerB
         final ShaderProgram shader = VeilRenderSystem.setShader(BURNER_FLAME_SHADER);
         if (shader != null) {
             final float flameRenderTime = (float) Mth.lerp(partialTicks, be.lastRenderTime, be.renderTime) + be.getTimeOffset();
-            shader.getUniformSafe("FlameRenderTime").setFloat(flameRenderTime);
-            shader.getUniformSafe("Intensity").setFloat(be.getFlameIntensity(partialTicks));
-            shader.getUniformSafe("Palette").setFloat(palette);
+            shader.setFloat("FlameRenderTime", flameRenderTime);
+            shader.setFloat("Intensity", be.getFlameIntensity(partialTicks));
+            shader.setFloat("Palette", palette);
 
             ms.rotateAround(Axis.YP.rotation((float) (-angle + Math.PI * 0.5f)), 1.0f, 0.0f, 0.0f);
             renderFlame(ms);
@@ -85,18 +85,19 @@ public class HotAirBurnerRenderer extends SmartBlockEntityRenderer<HotAirBurnerB
     private static void renderFlame(final PoseStack poseStack) {
         final float size = 2.0f;
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        final BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
         RenderSystem.enableDepthTest();
         RenderSystem.disableCull();
 
         final Matrix4f pose = poseStack.last().pose();
-        builder.addVertex(pose, 0.0f, 0.0f, 0.0f).setUv(0.0f, 1.0f);
-        builder.addVertex(pose, size, 0.0f, 0.0f).setUv(1.0f, 1.0f);
-        builder.addVertex(pose, size, size, 0.0f).setUv(1.0f, 0.0f);
-        builder.addVertex(pose, 0.0f, size, 0.0f).setUv(0.0f, 0.0f);
+        builder.vertex(pose, 0.0f, 0.0f, 0.0f).uv(0.0f, 1.0f).endVertex();
+        builder.vertex(pose, size, 0.0f, 0.0f).uv(1.0f, 1.0f).endVertex();
+        builder.vertex(pose, size, size, 0.0f).uv(1.0f, 0.0f).endVertex();
+        builder.vertex(pose, 0.0f, size, 0.0f).uv(0.0f, 0.0f).endVertex();
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        BufferUploader.drawWithShader(builder.end());
 
         RenderSystem.disableDepthTest();
         RenderSystem.enableCull();

@@ -18,21 +18,21 @@ import org.spongepowered.asm.mixin.Shadow;
 public class VanillaChunkedSubLevelRenderDataMixin {
 
     @Final
-    @Shadow
+    @Shadow(remap = false)
     private ClientSubLevel subLevel;
 
-    @WrapMethod(method = "renderChunkedSubLevel")
-    public void renderChunkedSubLevel(final RenderType layer,
+    @WrapMethod(method = "renderChunkedSubLevel", remap = false)
+    public int renderChunkedSubLevel(final RenderType layer,
                                       final ShaderInstance shader,
                                       final Matrix4f modelView,
                                       final double camX,
                                       final double camY,
                                       final double camZ,
-                                      final Operation<Void> original) {
+                                      final Operation<Integer> original) {
         if (layer == AeroRenderTypes.levitite()) {
             final LevititeShaderManager manager = LevititeShaderManager.getInstance(this.subLevel);
             manager.prepareShaderForSublevel(this.subLevel, shader, camX, camY, camZ);
-            original.call(layer, shader, modelView, camX, camY, camZ);
+            return original.call(layer, shader, modelView, camX, camY, camZ);
 
         } else if (layer == AeroRenderTypes.levititeGhosts()) {
             final LevititeShaderManager manager = LevititeShaderManager.getInstance(this.subLevel);
@@ -40,13 +40,15 @@ public class VanillaChunkedSubLevelRenderDataMixin {
                 manager.prepareShaderForSublevel(this.subLevel, shader, camX, camY, camZ);
                 shader.safeGetUniform("layerIndex").set(1);
                 RenderSystem.disableDepthTest();
-                original.call(layer, shader, modelView, camX, camY, camZ);
+                int renderedSections = original.call(layer, shader, modelView, camX, camY, camZ);
                 shader.safeGetUniform("layerIndex").set(-1);
-                original.call(layer, shader, modelView, camX, camY, camZ);
+                renderedSections += original.call(layer, shader, modelView, camX, camY, camZ);
                 shader.safeGetUniform("layerIndex").set(0);
                 RenderSystem.enableDepthTest();
+                return renderedSections;
             }
-        } else
-            original.call(layer, shader, modelView, camX, camY, camZ);
+            return 0;
+        }
+        return original.call(layer, shader, modelView, camX, camY, camZ);
     }
 }

@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.Map;
 
-@Mixin(MountedStorageManager.class)
+@Mixin(value = MountedStorageManager.class, remap = false)
 public interface MountedStorageAccessor {
 
-    @Accessor
+    @Accessor(remap = false)
     Map<BlockPos, MountedItemStorage> getItemsBuilder();
 
 }

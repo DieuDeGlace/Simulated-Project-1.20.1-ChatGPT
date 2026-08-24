@@ -3,17 +3,15 @@ package dev.ryanhcode.offroad.neoforge;
 import dev.ryanhcode.offroad.Offroad;
 import dev.ryanhcode.offroad.OffroadClient;
 import net.createmod.catnip.config.ui.BaseConfigScreen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 
-@Mod(value = Offroad.MOD_ID, dist = Dist.CLIENT)
 public class OffroadNeoForgeClient {
-	public OffroadNeoForgeClient(final IEventBus modBus, final ModContainer container) {
+	public OffroadNeoForgeClient(final IEventBus modBus) {
 		this.listenClientEvents(modBus);
-		container.registerExtensionPoint(IConfigScreenFactory.class, ((c, l) -> new BaseConfigScreen(l, Offroad.MOD_ID)));
+		ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
+				() -> new ConfigScreenHandler.ConfigScreenFactory(parent -> new BaseConfigScreen(parent, Offroad.MOD_ID)));
 
 		OffroadClient.init();
 	}

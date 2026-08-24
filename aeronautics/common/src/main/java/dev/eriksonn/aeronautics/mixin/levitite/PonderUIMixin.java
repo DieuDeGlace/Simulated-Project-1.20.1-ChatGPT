@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PonderUI.class)
 public class PonderUIMixin {
-    @Inject(method = "renderScene",at = @At("HEAD"))
+    @Inject(method = "renderScene", at = @At("HEAD"), remap = false)
     protected void renderScene(GuiGraphics graphics, int mouseX, int mouseY, int i, float partialTicks, CallbackInfo ci) {
         LevititeShaderManager.disableShader();
     }

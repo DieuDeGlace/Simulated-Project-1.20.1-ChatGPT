@@ -5,8 +5,8 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(WorldSectionElementImpl.class)
+@Mixin(value = WorldSectionElementImpl.class, remap = false)
 public interface WorldSectionElementImplAccessor {
-    @Accessor
+    @Accessor(remap = false)
     Vec3 getCenterOfRotation();
 }

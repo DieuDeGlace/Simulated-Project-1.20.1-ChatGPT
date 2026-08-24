@@ -16,7 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -92,32 +92,33 @@ public class WheelMountBlock extends HorizontalKineticBlock implements IBE<Wheel
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack heldItem, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        final ItemStack heldItem = player.getItemInHand(interactionHand);
         final Direction hitDirection = blockHitResult.getDirection();
 
         if(!hitDirection.equals(blockState.getValue(HORIZONTAL_FACING)) && hitDirection != Direction.DOWN) {
-            return super.useItemOn(heldItem, blockState, level, blockPos, player, interactionHand, blockHitResult);
+            return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
         }
 
         if (level.isClientSide()) {
-            return this.onBlockEntityUseItemOn(level, blockPos, mount -> {
+            return this.onBlockEntityUse(level, blockPos, mount -> {
                 final ItemStack potentialTire = mount.getHeldItem();
                 if ((heldItem.isEmpty() && ItemComponentCompat.has(potentialTire, OffroadDataComponents.TIRE))
                         || (ItemComponentCompat.has(heldItem, OffroadDataComponents.TIRE) && ItemComponentCompat.has(potentialTire, OffroadDataComponents.TIRE))
                         || (ItemComponentCompat.has(heldItem, OffroadDataComponents.TIRE) && potentialTire.isEmpty())
                 ) {
-                    return ItemInteractionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
 
-                return super.useItemOn(heldItem, blockState, level, blockPos, player, interactionHand, blockHitResult);
+                return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
             });
         }
 
         if (this.switchStacks(level, blockPos, player, interactionHand)) {
-            return ItemInteractionResult.CONSUME;
+            return InteractionResult.CONSUME;
         }
 
-        return super.useItemOn(heldItem, blockState, level, blockPos, player, interactionHand, blockHitResult);
+        return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
     }
 
     private boolean switchStacks(final Level level, final BlockPos pos, final Player player, final InteractionHand hand) {
@@ -133,7 +134,7 @@ public class WheelMountBlock extends HorizontalKineticBlock implements IBE<Wheel
                 final ItemStack oldSlotItem = save.copy();
 
                 slot.setStack(heldItem.copyWithCount(1));
-                if (!player.hasInfiniteMaterials()) {
+                if (!player.getAbilities().instabuild) {
                     heldItem.shrink(1);
                 }
                 player.getInventory().placeItemBackInInventory(save);

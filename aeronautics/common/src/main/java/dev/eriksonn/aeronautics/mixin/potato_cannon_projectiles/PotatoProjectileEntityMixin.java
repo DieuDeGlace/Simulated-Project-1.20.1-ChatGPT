@@ -13,10 +13,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PotatoProjectileEntity.class)
+@Mixin(value = PotatoProjectileEntity.class, remap = false)
 public class PotatoProjectileEntityMixin implements PotatoProjectileEntityExtension {
 
-	@Shadow protected float additionalDamageMult;
+	@Shadow(remap = false) protected float additionalDamageMult;
 	@Unique
 	public boolean aeronautics$isFromMountedPotatoCannon = false;
 
@@ -30,7 +30,7 @@ public class PotatoProjectileEntityMixin implements PotatoProjectileEntityExtens
 		this.additionalDamageMult = value;
 	}
 
-	@Inject(method = "onHitEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", shift = At.Shift.AFTER))
+	@Inject(method = "onHitEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", shift = At.Shift.AFTER, remap = true), remap = false)
 	private void onHitEntity(final EntityHitResult ray, final CallbackInfo ci) {
 		if(this.aeronautics$isFromMountedPotatoCannon && !ray.getEntity().isAlive() && ray.getEntity() instanceof final Phantom phantom) {
 			AeroAdvancements.GHOSTBUSTER.awardToNearby(BlockPos.containing(phantom.position()), phantom.level(), 30);

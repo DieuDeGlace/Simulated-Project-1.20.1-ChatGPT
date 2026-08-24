@@ -8,13 +8,13 @@ import dev.eriksonn.aeronautics.index.AeroBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 import java.util.concurrent.CompletableFuture;
 
 public class AeroMechanicalCraftingRecipes extends MechanicalCraftingRecipeGen {
 	public AeroMechanicalCraftingRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-		super(output, registries, Aeronautics.MOD_ID);
+		super(output, Aeronautics.MOD_ID);
 	}
 
 	private final GeneratedRecipe MOUNTED_POTATO_CANNON = this.create(AeroBlocks.MOUNTED_POTATO_CANNON::get)

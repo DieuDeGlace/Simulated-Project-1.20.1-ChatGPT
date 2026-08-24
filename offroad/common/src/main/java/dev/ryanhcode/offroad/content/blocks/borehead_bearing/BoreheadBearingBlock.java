@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -35,7 +34,7 @@ public class BoreheadBearingBlock extends DirectionalAxisKineticBlock implements
             TEMP_POSITIONS.clear();
 
             if (blockState.getBlock() instanceof BoreheadBearingBlock) {
-                TEMP_POSITIONS.addFirst(blockPos.relative(blockState.getValue(FACING)));
+                TEMP_POSITIONS.add(0, blockPos.relative(blockState.getValue(FACING)));
             }
 
             return TEMP_POSITIONS;
@@ -49,14 +48,15 @@ public class BoreheadBearingBlock extends DirectionalAxisKineticBlock implements
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+    public InteractionResult use(final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+        final ItemStack stack = player.getItemInHand(hand);
         if (!player.mayBuild())
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         if (player.isShiftKeyDown())
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         if (stack.isEmpty()) {
             if (level.isClientSide)
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             this.withBlockEntityDo(level, pos, be -> {
                 if (be.isRunning()) {
                     be.startDisassemblySlowdown();
@@ -65,9 +65,9 @@ public class BoreheadBearingBlock extends DirectionalAxisKineticBlock implements
 
                 be.setAssembleNextTick(true);
             });
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override

@@ -13,12 +13,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(BearingContraption.class)
+@Mixin(value = BearingContraption.class, remap = false)
 public class BearingContraptionMixin implements BearingContraptionExtension {
     @Shadow(remap = false)
     protected int sailBlocks;
 
-    @Shadow private boolean isWindmill;
+    @Shadow(remap = false) private boolean isWindmill;
 
     @Unique
     protected float aeronautics$tempSailStrength;

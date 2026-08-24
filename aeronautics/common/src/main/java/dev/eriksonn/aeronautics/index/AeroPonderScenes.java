@@ -6,7 +6,6 @@ import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.content.ponder.scenes.*;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.RegistryObject;
@@ -58,7 +57,7 @@ public class AeroPonderScenes {
     private static ItemProviderEntry<Item> aeroItemProvider(final String id) {
         return new ItemProviderEntry<>(
                 Aeronautics.getRegistrate(),
-                RegistryObject.create(ResourceKey.create(Registries.ITEM, Aeronautics.path(id)))
+                RegistryObject.create(Aeronautics.path(id), Registries.ITEM, Aeronautics.MOD_ID)
         );
     }
 }

@@ -11,11 +11,9 @@ import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.simibubi.create.foundation.utility.DyeHelper;
-import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.providers.RegistrateLangProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
-import com.tterrag.registrate.util.nullness.NonNullUnaryOperator;
 import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.config.server.AeroStress;
 import dev.eriksonn.aeronautics.content.blocks.hot_air.envelope.EnvelopeBlock;
@@ -38,7 +36,6 @@ import dev.simulated_team.simulated.registrate.SimulatedRegistrate;
 import dev.simulated_team.simulated.registrate.simulated_tab.CreativeTabItemTransforms;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -51,7 +48,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -97,7 +93,6 @@ public class AeroBlocks {
                     .save(p))
             .tag(AeroTags.BlockTags.ENVELOPE)
             .tag(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE)
-            .transform(flammable(30, 60))
             .item()
             .tag(AeroTags.ItemTags.ENVELOPE)
             .tag(AeroTags.ItemTags.SHAFTLESS_ENVELOPE)
@@ -134,7 +129,6 @@ public class AeroBlocks {
                     .tag(AeroTags.BlockTags.ENVELOPE)
                     .tag(net.minecraft.tags.BlockTags.MINEABLE_WITH_AXE)
                     .transform(CreativeTabItemTransforms.VisibilityType.SEARCH_ONLY.applyBlock())
-                    .transform(flammable(30, 60))
                     .item()
                     .tag(AeroTags.ItemTags.ENVELOPE)
                     .tag(AeroTags.ItemTags.SHAFTLESS_ENVELOPE)
@@ -389,11 +383,6 @@ public class AeroBlocks {
                     .tag(AeroTags.ItemTags.LEVITITE)
                     .build()
                     .register();
-
-    private static <B extends Block, R> NonNullUnaryOperator<BlockBuilder<B, R>> flammable(final int encouragement, final int flamability) {
-        return builder -> builder.onRegisterAfter(Registries.BLOCK, block -> ((FireBlock) Blocks.FIRE)
-                .setFlammable(block, encouragement, flamability));
-    }
 
     public static void init() {
         dev.simulated_team.simulated.compat.components.ItemComponentCompat.registerDefault(

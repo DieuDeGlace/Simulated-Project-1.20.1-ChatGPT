@@ -1,6 +1,5 @@
 package dev.ryanhcode.offroad.content.blocks.rock_cutting_wheel;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.api.contraption.BlockMovementChecks;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.impl.contraption.BlockMovementChecksImpl;
@@ -11,8 +10,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class RockCuttingWheelBlock extends AbstractDirectionalAxisBlock implements IBE<RockCuttingWheelBlockEntity> {
-    public static final MapCodec<RockCuttingWheelBlock> CODEC = simpleCodec(RockCuttingWheelBlock::new);
-
     static {
         BlockMovementChecksImpl.registerAttachedCheck((state, world, pos, direction) -> {
             if (state.getBlock() instanceof RockCuttingWheelBlock) {
@@ -38,11 +35,6 @@ public class RockCuttingWheelBlock extends AbstractDirectionalAxisBlock implemen
 
     public RockCuttingWheelBlock(final Properties properties) {
         super(properties);
-    }
-
-    @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override

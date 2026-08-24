@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class AeroDeployingRecipes extends DeployingRecipeGen {
     public AeroDeployingRecipes(final PackOutput output, final CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, Aeronautics.MOD_ID);
+        super(output, Aeronautics.MOD_ID);
 
         for (final DyeColor color : DyeColor.values()) {
             this.create("deploying_envelope_" + color.getName(), b -> b

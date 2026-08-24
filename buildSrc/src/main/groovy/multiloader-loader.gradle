@@ -24,22 +24,6 @@ dependencies {
 
     // ---
 
-    // External input; never copy or commit the Sable binary into this repository.
-    def sablePortJar = rootProject.files(providers.provider {
-        def configured = providers.gradleProperty('sable_jar')
-                .orElse(providers.environmentVariable('SIMULATED_SABLE_JAR'))
-                .orNull
-        if (configured == null || configured.trim().isEmpty()) {
-            throw new GradleException('Missing Sable dependency: use -Psable_jar=<path> or SIMULATED_SABLE_JAR')
-        }
-        def jar = rootProject.file(configured)
-        if (!jar.isFile()) {
-            throw new GradleException("Sable dependency does not exist: ${jar}")
-        }
-        jar
-    })
-    implementation sablePortJar
-
     // The loader task compiles the shared Java sources directly. Mirror the
     // shared source-set's compile-only contracts so loader compilation sees the
     // same optional integration and Mixin APIs as :common:compileJava.
@@ -48,12 +32,16 @@ dependencies {
     compileOnly("maven.modrinth:natures-compass:$minecraft_version-$natures_compass_version-forge")
     compileOnly("maven.modrinth:explorers-compass:$minecraft_version-$explorers_compass_version-forge")
     compileOnly("maven.modrinth:GchcoXML:$oculus_version_id")
+    compileOnly("maven.modrinth:embeddium:$embeddium_version")
 
     compileOnly("top.theillusivec4.curios:curios-forge:${curios_version}+${minecraft_version}")
     compileOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
     // Veil dev jar is remapped SRG -> named by patchVeilForNamedDev (from multiloader-common).
     implementation files(tasks.named('patchVeilForNamedDev'))
+    // Same rule for the external Sable production JAR: compile and run against
+    // its named development view, never the raw SRG bytecode.
+    implementation files(tasks.named('patchSableForNamedDev'))
 
     // Mod compat: only mods with verified 1.20.1 Forge coordinates are kept.
     compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-core-api:$computercraft_tweaked_version")

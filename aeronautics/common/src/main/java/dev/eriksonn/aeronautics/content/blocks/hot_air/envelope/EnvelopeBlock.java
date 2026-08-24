@@ -135,6 +135,16 @@ public class EnvelopeBlock extends CasingBlock implements Envelope, SpecialBlock
     }
 
     @Override
+    public int getFireSpreadSpeed(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction face) {
+        return 30;
+    }
+
+    @Override
+    public int getFlammability(final BlockState state, final BlockGetter level, final BlockPos pos, final Direction face) {
+        return 60;
+    }
+
+    @Override
     public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
         final ItemStack itemStack = player.getItemInHand(interactionHand);
         final DyeColor color = SimItemService.getDyeColor(itemStack);
