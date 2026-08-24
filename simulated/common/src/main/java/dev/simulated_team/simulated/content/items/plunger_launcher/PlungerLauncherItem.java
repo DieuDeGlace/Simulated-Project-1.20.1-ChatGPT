@@ -36,7 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,7 +108,7 @@ public class PlungerLauncherItem extends Item implements CustomArmPoseItem {
 //            SimNetwork.tracking(player).sendPacket(new PlungerLauncherShootPacket(interactionHand));
 
             if (!BacktankUtil.canAbsorbDamage(player, maxUses()))
-                heldStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(interactionHand));
+                heldStack.hurtAndBreak(1, player, livingEntity -> livingEntity.broadcastBreakEvent(interactionHand));
         } else {
             SimulatedClient.PLUNGER_LAUNCHER_RENDER_HANDLER.dontAnimateItem(interactionHand);
         }
@@ -146,7 +145,7 @@ public class PlungerLauncherItem extends Item implements CustomArmPoseItem {
                 barrelPos,
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
-                CollisionContext.empty()
+                null
         )).getLocation();
         barrelPos = Sable.HELPER.projectOutOfSubLevel(level, barrelPos);
 

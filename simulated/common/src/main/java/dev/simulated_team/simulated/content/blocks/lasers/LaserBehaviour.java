@@ -10,7 +10,6 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BooleanSupplier;
@@ -125,7 +124,7 @@ public class LaserBehaviour extends BlockEntityBehaviour {
                 end,
                 this.blockCollide,
                 this.fluidCollide,
-                CollisionContext.empty()
+                null
         );
     }
 

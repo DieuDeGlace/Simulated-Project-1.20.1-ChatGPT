@@ -6,7 +6,6 @@ import com.simibubi.create.foundation.utility.BlockHelper;
 import net.createmod.catnip.levelWrappers.SchematicLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class SchematicPrinterMixin {
     @Shadow(remap = false) private SchematicLevel blockReader;
 
-    @Redirect(method = "getCurrentRequirement", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/foundation/utility/BlockHelper;prepareBlockEntityData(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/nbt/CompoundTag;"), remap = false)
-    private CompoundTag fixBlockRequirements(final Level level, final BlockState block, final BlockEntity _blockEntity, @Local(name = "target") final BlockPos target) {
-        return BlockHelper.prepareBlockEntityData(level, block, this.blockReader.getBlockEntity(target));
+    @Redirect(method = "getCurrentRequirement", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/foundation/utility/BlockHelper;prepareBlockEntityData(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/nbt/CompoundTag;"), remap = false)
+    private CompoundTag fixBlockRequirements(final BlockState block, final BlockEntity _blockEntity, @Local(name = "target") final BlockPos target) {
+        return BlockHelper.prepareBlockEntityData(block, this.blockReader.getBlockEntity(target));
     }
 }

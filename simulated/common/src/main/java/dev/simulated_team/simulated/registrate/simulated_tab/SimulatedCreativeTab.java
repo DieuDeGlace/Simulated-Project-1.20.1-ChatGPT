@@ -16,6 +16,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -70,7 +71,7 @@ public class SimulatedCreativeTab {
 				setPlaying(bannerTexture, isHovering);
 			}
 
-			graphics.blitSprite(bannerTexture, x, y, w, h);
+			graphics.blit(x, y, 0, w, h, bannerSprite(bannerTexture));
 
 			Component text = section.title().text();
 			int textWidth = font.width(text);
@@ -101,7 +102,7 @@ public class SimulatedCreativeTab {
 		PoseStack ps = graphics.pose();
 		ps.pushPose();
 		ps.translate(0, 0, 1);
-		Matrix4f pose = ps.last().copy().pose();
+		Matrix4f pose = new Matrix4f(ps.last().pose());
 		Vector3f position = pose.transformPosition(new Vector3f(x, y, 0));
 		Vector3f corner = pose.transformPosition(new Vector3f(x + font.width(text), y + font.lineHeight / 1.8f, 0));
 
@@ -181,11 +182,15 @@ public class SimulatedCreativeTab {
 	}
 
 	public static void setPlaying(ResourceLocation resourceLocation, boolean playing) {
-		TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(resourceLocation);
+		TextureAtlasSprite sprite = bannerSprite(resourceLocation);
 		SpriteContents.Ticker ticker = ((SpriteContentsExtension) sprite.contents()).simulated$getTicker();
 		if(ticker instanceof TickerExtension extension) {
 			extension.simulated$setPlaying(playing);
 		}
+	}
+
+	private static TextureAtlasSprite bannerSprite(final ResourceLocation resourceLocation) {
+		return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(resourceLocation);
 	}
 
 }

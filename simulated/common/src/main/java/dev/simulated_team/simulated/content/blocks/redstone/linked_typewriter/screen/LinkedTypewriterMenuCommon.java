@@ -35,7 +35,7 @@ public abstract class LinkedTypewriterMenuCommon extends GhostItemMenu<LinkedTyp
 
         final BlockEntity blockEntity = world.getBlockEntity(extraData.readBlockPos());
         if (blockEntity instanceof final LinkedTypewriterBlockEntity linkedTypewriter) {
-            linkedTypewriter.readClient(extraData.readNbt(), extraData.registryAccess());
+            linkedTypewriter.readClient(extraData.readNbt());
             return linkedTypewriter;
         }
 

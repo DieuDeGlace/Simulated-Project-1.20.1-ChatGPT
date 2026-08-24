@@ -45,7 +45,7 @@ public class ContainerSlot implements NBTSerializable {
         //Make sure the incoming item is valid to be inserted into this slot, and the held item is either empty or the same item
         if (this.canInsert(info) && (this.getStack().isEmpty() || this.getStack().getItem() == info.type())) {
             //Add max stack size limitation
-            final int insertedAmount = Math.min(Math.min(this.parent.getMaxStackSize(), info.type().getDefaultMaxStackSize()) - this.getStack().getCount(), maxAmount);
+            final int insertedAmount = Math.min(Math.min(this.parent.getMaxStackSize(), info.type().getMaxStackSize()) - this.getStack().getCount(), maxAmount);
 
             //set the current stack in this slot if this isn't a simulated action
             if (!simulate && insertedAmount > 0) {

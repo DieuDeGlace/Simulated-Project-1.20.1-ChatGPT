@@ -11,6 +11,11 @@
     {
       "type": "single",
       "resource": "simulated:entity/diagram_small"
+    },
+    {
+      "type": "single",
+      "resource": "simulated:gui/sprites/banner",
+      "sprite": "simulated:banner"
     }
   ]
 }

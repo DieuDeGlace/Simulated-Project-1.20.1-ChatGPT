@@ -75,7 +75,7 @@ public class NewPonderTooltipManager {
 
 		final DataResult<Set<ResourceLocation>> result = CODEC.parse(JsonOps.INSTANCE, getOrCreateFile());
 		WATCHED_PONDER_SCENES = new HashSet<>();
-		result.ifSuccess((set) -> WATCHED_PONDER_SCENES.addAll(set));
+		result.result().ifPresent(WATCHED_PONDER_SCENES::addAll);
 	}
 
 	private static @NotNull JsonElement getOrCreateFile() {

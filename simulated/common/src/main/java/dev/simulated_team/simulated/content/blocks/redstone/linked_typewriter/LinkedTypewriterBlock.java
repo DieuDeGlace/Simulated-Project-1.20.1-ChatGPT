@@ -176,7 +176,7 @@ public class LinkedTypewriterBlock extends HorizontalDirectionalBlock implements
     }
 
     @Override
-    public ItemStack getCloneItemStack(final LevelReader level, final BlockPos pos, final BlockState state) {
+    public ItemStack getCloneItemStack(final BlockGetter level, final BlockPos pos, final BlockState state) {
         final ItemStack itemStack = super.getCloneItemStack(level, pos, state);
         final BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {

@@ -74,9 +74,9 @@ processResources {
 }
 
 dependencies {
-    jarJar(project(path: ":simulated:forge", configuration: "runtimeElements"))
-    jarJar(project(path: ":aeronautics:forge", configuration: "runtimeElements"))
-    jarJar(project(path: ":offroad:forge", configuration: "runtimeElements"))
+    jarJar(project(":simulated:forge"))
+    jarJar(project(":aeronautics:forge"))
+    jarJar(project(":offroad:forge"))
 }
 
 test {

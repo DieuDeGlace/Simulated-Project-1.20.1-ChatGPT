@@ -533,7 +533,7 @@ public class DockingConnectorBlockEntity extends SmartBlockEntity implements Sim
     }
 
     public AABB getBoundingBox(final BlockState state) {
-        return Shulker.getProgressAabb(1, state.getValue(ShulkerBoxBlock.FACING), this.getExtensionDistance(1.0F));
+        return Shulker.getProgressAabb(state.getValue(ShulkerBoxBlock.FACING), this.getExtensionDistance(1.0F));
     }
 
     @Override

@@ -58,7 +58,7 @@ public enum SimGUITextures implements ScreenElement {
     LINKED_TYPEWRITER_FREQUENCY("linked_typewriter/linked_typewriter", 0, 127, 36, 18),
     LINKED_TYPEWRITER_TOOLTIP_ARROW("linked_typewriter/linked_typewriter", 36, 127, 18, 11),
 
-    LINKED_TYPEWRITER_TOOLTIP_BACKGROUND(Simulated.path("widgets/item_background"), 0, 0 , 6, 6, 6, 6),
+    LINKED_TYPEWRITER_TOOLTIP_BACKGROUND(Simulated.path("textures/gui/sprites/widgets/item_background.png"), 0, 0 , 6, 6, 6, 6),
 
     KEY_START("linked_typewriter/linked_typewriter", 60, 127, 6, 14),
     KEY_MIDDLE("linked_typewriter/linked_typewriter", 66, 127, 2, 14),

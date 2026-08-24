@@ -250,9 +250,7 @@ public class SwivelBearingBlockEntity extends KineticBlockEntity implements Extr
                         pipeline.wakeUp(serverSubLevel);
                     }
 
-                    if (attached instanceof final ServerSubLevel serverSubLevel) {
-                        pipeline.wakeUp(serverSubLevel);
-                    }
+                    pipeline.wakeUp(attached);
                 }
             }
         }

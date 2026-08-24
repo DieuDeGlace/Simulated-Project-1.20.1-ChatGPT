@@ -125,6 +125,6 @@ public class KeyWidget extends AbstractSimiWidget {
 
     private void renderBackground(@NotNull final GuiGraphics pGuiGraphics, final int x, final int y, final int w, final int h) {
         final SimGUITextures bg = SimGUITextures.LINKED_TYPEWRITER_TOOLTIP_BACKGROUND;
-        pGuiGraphics.blitSprite(bg.location, x, y, 0, w, h);
+        pGuiGraphics.blitNineSliced(bg.location, x, y, w, h, 2, 6, 6, 0, 0);
     }
 }

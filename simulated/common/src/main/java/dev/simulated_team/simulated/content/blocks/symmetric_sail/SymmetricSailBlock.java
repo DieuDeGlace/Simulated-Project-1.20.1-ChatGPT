@@ -196,7 +196,7 @@ public class SymmetricSailBlock extends RotatedPillarBlock implements IWrenchabl
     }
 
     @Override
-    public ItemStack getCloneItemStack(final LevelReader level, final BlockPos pos, final BlockState state) {
+    public ItemStack getCloneItemStack(final BlockGetter level, final BlockPos pos, final BlockState state) {
         return SimBlocks.WHITE_SYMMETRIC_SAIL.asStack();
     }
 

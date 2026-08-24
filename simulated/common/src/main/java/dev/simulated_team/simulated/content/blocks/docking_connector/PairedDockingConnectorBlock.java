@@ -67,7 +67,7 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull Player player) {
+    public void playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull Player player) {
         if (!level.isClientSide()) {
             if (player.getAbilities().instabuild) {
                 final BlockPos connectorPos = pos.relative(state.getValue(FACING));
@@ -80,7 +80,7 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
             }
         }
 
-        return super.playerWillDestroy(level, pos, state, player);
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(final @NotNull LevelReader level, final @NotNull BlockPos pos, final @NotNull BlockState state) {
+    public @NotNull ItemStack getCloneItemStack(final @NotNull BlockGetter level, final @NotNull BlockPos pos, final @NotNull BlockState state) {
         return SimBlocks.DOCKING_CONNECTOR.asStack();
     }
 
