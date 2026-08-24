@@ -33,7 +33,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -74,15 +73,6 @@ public class LaunchedPlungerEntity extends ThrowableProjectile {
     private boolean addedToPlungerHandler = false;
     private PhysicsConstraintHandle constraint;
 
-    private static final ProjectileDeflection DEFLECTION = (projectile, entity, randomSource) -> {
-        Vec3 target = Vec3.ZERO;
-        if (entity instanceof LaunchedPlungerEntity launchedPlungerEntity) {
-            target = launchedPlungerEntity.getData(TARGET_POS);
-            target = target.subtract(entity.position());
-        }
-        projectile.setDeltaMovement(projectile.getDeltaMovement().scale(0.8).add(target.normalize().scale(0.5f)));
-    };
-
     public LaunchedPlungerEntity(final EntityType<? extends LaunchedPlungerEntity> entityType, final Level level) {
         super(entityType, level);
     }
@@ -92,18 +82,18 @@ public class LaunchedPlungerEntity extends ThrowableProjectile {
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+    protected void defineSynchedData() {
         //client stuff
-        builder.define(OTHER_PLUNGER_ID, -1);
+        this.entityData.define(OTHER_PLUNGER_ID, -1);
 
-        builder.define(TARGET_POS, Vec3.ZERO);
-        builder.define(OTHER_PLUNGER, Optional.empty());
-        builder.define(PLUNGED_BLOCK_POS, BlockPos.ZERO);
+        this.entityData.define(TARGET_POS, Vec3.ZERO);
+        this.entityData.define(OTHER_PLUNGER, Optional.empty());
+        this.entityData.define(PLUNGED_BLOCK_POS, BlockPos.ZERO);
 
-        builder.define(IS_FIRST, Boolean.FALSE);
+        this.entityData.define(IS_FIRST, Boolean.FALSE);
 
-        builder.define(PLUNGED_DIRECTION, Direction.UP);
-        builder.define(IS_PLUNGED, false);
+        this.entityData.define(PLUNGED_DIRECTION, Direction.UP);
+        this.entityData.define(IS_PLUNGED, false);
     }
 
     @Override
@@ -405,10 +395,13 @@ public class LaunchedPlungerEntity extends ThrowableProjectile {
         this.noPhysics = false;
     }
 
-    @Override
-    public ProjectileDeflection deflection(final Projectile projectile) {
+    public void applyProjectileDeflection(final Projectile projectile) {
         this.discard();
-        return DEFLECTION;
+
+        if (!projectile.level().isClientSide) {
+            final Vec3 target = this.getData(TARGET_POS).subtract(this.position());
+            projectile.setDeltaMovement(projectile.getDeltaMovement().scale(0.8).add(target.normalize().scale(0.5F)));
+        }
     }
 
     @Override

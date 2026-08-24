@@ -16,7 +16,6 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -47,7 +46,7 @@ public class HoneyGlueEntity extends Entity implements SpecialEntityItemRequirem
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+    protected void defineSynchedData() {
 
     }
 
@@ -231,8 +230,8 @@ public class HoneyGlueEntity extends Entity implements SpecialEntityItemRequirem
         this.setBoundingBox(bounds);
         this.resetPositionToBounds();
 
-        this.blockMin = BlockPos.containing(bounds.getMinPosition());
-        this.blockMax = BlockPos.containing(bounds.getMaxPosition());
+        this.blockMin = BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ);
+        this.blockMax = BlockPos.containing(bounds.maxX, bounds.maxY, bounds.maxZ);
     }
 
     @Override
@@ -277,6 +276,11 @@ public class HoneyGlueEntity extends Entity implements SpecialEntityItemRequirem
 
     @Override
     public @NotNull EntityDimensions getDimensions(@NotNull final Pose pose) {
-        return super.getDimensions(pose).withEyeHeight(0.0F);
+        return super.getDimensions(pose);
+    }
+
+    @Override
+    protected float getEyeHeight(@NotNull final Pose pose, @NotNull final EntityDimensions dimensions) {
+        return 0.0F;
     }
 }

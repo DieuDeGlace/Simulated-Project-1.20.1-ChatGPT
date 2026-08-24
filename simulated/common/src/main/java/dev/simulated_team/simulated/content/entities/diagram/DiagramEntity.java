@@ -32,7 +32,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -251,10 +250,14 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
     @Override
     public EntityDimensions getDimensions(final Pose pose) {
-        return super.getDimensions(pose).withEyeHeight(0);
+        return super.getDimensions(pose);
     }
 
     @Override
+    protected float getEyeHeight(final Pose pose, final EntityDimensions dimensions) {
+        return 0.0F;
+    }
+
     protected AABB calculateBoundingBox(final BlockPos blockPos, final Direction direction) {
         Vec3 pos = Vec3.atLowerCornerOf(this.getPos())
                 .add(.5, .5, .5)
@@ -389,7 +392,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
     }
 
     @Override
-    protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+    protected void defineSynchedData() {
 
     }
 
@@ -400,7 +403,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void lerpTo(final double pX, final double pY, final double pZ, final float pYRot, final float pXRot, final int pSteps) {
+    public void lerpTo(final double pX, final double pY, final double pZ, final float pYRot, final float pXRot, final int pSteps, final boolean teleport) {
         final BlockPos blockpos =
                 this.pos.offset(BlockPos.containing(pX - this.getX(), pY - this.getY(), pZ - this.getZ()));
         this.setPos(blockpos.getX(), blockpos.getY(), blockpos.getZ());

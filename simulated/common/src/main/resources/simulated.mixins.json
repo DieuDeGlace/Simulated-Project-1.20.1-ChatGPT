@@ -84,6 +84,7 @@
     "nav_table_compat.NixieTubeBlockMixin",
     "nav_table_compat.RedstoneLinkBlockMixin",
     "player.PlayerMixin",
+    "projectile.ProjectileUtilMixin",
     "ponder.TextWindowElementMixin",
     "sable_hooks.SableCommonEventsMixin",
     "schematicannon_fix.SchematicPrinterMixin",
