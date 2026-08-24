@@ -11,6 +11,7 @@ import net.minecraft.data.PackOutput;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SoundsProvider implements DataProvider {
@@ -37,8 +38,9 @@ public class SoundsProvider implements DataProvider {
 		JsonObject json = new JsonObject();
 		final DataResult<JsonElement> result = CODEC.encode(this.definitionMap, JsonOps.INSTANCE, new JsonObject());
 
-		if (result.isSuccess()) {
-			json = result.getOrThrow().getAsJsonObject();
+		final Optional<JsonElement> encoded = result.result();
+		if (encoded.isPresent()) {
+			json = encoded.get().getAsJsonObject();
 		}
 
 		return DataProvider.saveStable(cache, json, path.resolve("sounds.json"));

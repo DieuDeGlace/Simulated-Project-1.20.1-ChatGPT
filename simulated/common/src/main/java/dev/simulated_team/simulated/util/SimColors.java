@@ -2,6 +2,7 @@ package dev.simulated_team.simulated.util;
 
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import net.minecraft.util.Mth;
 
 import java.awt.*;
 
@@ -68,9 +69,9 @@ public class SimColors {
         final float s = s_*s_*s_;
 
         return new Color(
-                Math.clamp(+4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s, 0, 1),
-                Math.clamp(-1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s, 0, 1),
-                Math.clamp(-0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s, 0, 1)
+                Mth.clamp(+4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s, 0, 1),
+                Mth.clamp(-1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s, 0, 1),
+                Mth.clamp(-0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s, 0, 1)
         );
     }
 

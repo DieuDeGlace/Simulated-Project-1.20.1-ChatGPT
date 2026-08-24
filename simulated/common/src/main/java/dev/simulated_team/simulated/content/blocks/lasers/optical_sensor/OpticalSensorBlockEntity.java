@@ -26,6 +26,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeItem;
@@ -167,7 +168,7 @@ public class OpticalSensorBlockEntity extends AbstractLaserBlockEntity implement
 
     public void setRange(final int blocks) {
         final int max = SimConfigService.INSTANCE.server().blocks.opticalSensorRange.get();
-        this.range.setValue(Math.clamp(blocks, 1, max));
+        this.range.setValue(Mth.clamp(blocks, 1, max));
     }
 
     public float getRayDistance() {
@@ -202,7 +203,7 @@ public class OpticalSensorBlockEntity extends AbstractLaserBlockEntity implement
     @Override
     protected void read(final CompoundTag tag, final boolean clientPacket) {
         super.read(tag, clientPacket);
-        this.opacity = Math.clamp(tag.contains("Opacity") ? tag.getFloat("Opacity") : 1, 0, 1);
+        this.opacity = Mth.clamp(tag.contains("Opacity") ? tag.getFloat("Opacity") : 1, 0, 1);
     }
 
     @Override

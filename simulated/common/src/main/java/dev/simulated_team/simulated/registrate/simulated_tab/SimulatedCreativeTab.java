@@ -163,7 +163,7 @@ public class SimulatedCreativeTab {
 			final int rowCount = (int) Math.ceil(itemCount / 9.0f);
 			y += rowCount + 1;
 
-			if(key != null && key.equals(sectionKeys.getLast())) {
+			if(key != null && key.equals(sectionKeys.get(sectionKeys.size() - 1))) {
 				break;
 			}
 

@@ -20,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+
 @Mixin(PrimaryLevelData.class)
 public class PrimaryLevelDataMixin implements PrimaryLevelDataExtension {
 
@@ -32,8 +34,9 @@ public class PrimaryLevelDataMixin implements PrimaryLevelDataExtension {
 	@Inject(method = "parse", at = @At("RETURN"), remap = false)
 	private static <T> void simulated$parse(final Dynamic<T> dynamic, final LevelSettings levelSettings, final PrimaryLevelData.SpecialWorldProperty specialWorldProperty, final WorldOptions worldOptions, final Lifecycle lifecycle, final CallbackInfoReturnable<PrimaryLevelData> cir) {
 		final DataResult<String> string = dynamic.get(simulated$WORLD_PRESET_KEY).asString();
-		if(string.isSuccess()) {
-			((PrimaryLevelDataExtension) cir.getReturnValue()).setPreset(ResourceLocation.parse(string.getOrThrow()));
+		final Optional<String> preset = string.result();
+		if(preset.isPresent()) {
+			((PrimaryLevelDataExtension) cir.getReturnValue()).setPreset(ResourceLocation.parse(preset.get()));
 		}
 	}
 

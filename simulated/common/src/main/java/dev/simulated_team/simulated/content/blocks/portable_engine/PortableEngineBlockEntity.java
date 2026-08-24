@@ -342,7 +342,7 @@ public class PortableEngineBlockEntity extends GeneratingKineticBlockEntity impl
             dir = -dir * 5;
         }
         this.lastHatchOpenTime = this.hatchOpenTime;
-        this.hatchOpenTime = Math.clamp(this.hatchOpenTime + dir * speed, 0, 10);
+        this.hatchOpenTime = Mth.clamp(this.hatchOpenTime + dir * speed, 0, 10);
     }
 
     private boolean canOpenHatch(final Player player) {

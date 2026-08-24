@@ -104,7 +104,7 @@ public class SpringBlockEntity extends SmartBlockEntity implements BlockEntitySu
         if (delta < 0 && this.desiredLength <= 1) {
             return "min_length";
         }
-        double newDesiredLength = Math.clamp(this.desiredLength + delta, 1, SpringItemHandler.MAX_LENGTH);
+        double newDesiredLength = Mth.clamp(this.desiredLength + delta, 1, SpringItemHandler.MAX_LENGTH);
         newDesiredLength = Math.round(newDesiredLength / 0.25) * 0.25;
 
         final double currentLength = Sable.HELPER.distanceSquaredWithSubLevels(level, this.worldPosition.getCenter(), this.partnerPos.getCenter()) + 1;

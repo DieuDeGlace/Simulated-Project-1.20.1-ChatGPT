@@ -104,7 +104,7 @@ public class RopeStrandRenderer {
             }
             ps.popPose();
 
-            final RopeRenderPoint last = ropeRenderPoints.getLast();
+            final RopeRenderPoint last = ropeRenderPoints.get(ropeRenderPoints.size() - 1);
             if (containingPose != null) {
                 final Vector3d renderPos = last.position();
                 final Quaternionf orientation = last.orientation();
@@ -166,8 +166,8 @@ public class RopeStrandRenderer {
         final ObjectArrayList<RopeRenderPoint> ropeRenderPoints = new ObjectArrayList<>();
         final ObjectArrayList<ClientRopePoint> points = new ObjectArrayList<>(inputPoints);
 
-        while (points.size() >= 2 && points.getFirst().position().distanceSquared(points.get(1).position()) < 1e-3) {
-            points.removeFirst();
+        while (points.size() >= 2 && points.get(0).position().distanceSquared(points.get(1).position()) < 1e-3) {
+            points.remove(0);
         }
 
         if (points.size() <= 1) {
@@ -213,7 +213,7 @@ public class RopeStrandRenderer {
             normal.set(runningNormal);
         }
 
-        ropeRenderPoints.add(new RopeRenderPoint(new Quaternionf(runningRotation), points.getLast().renderPos(partialTick, new Vector3d())));
+        ropeRenderPoints.add(new RopeRenderPoint(new Quaternionf(runningRotation), points.get(points.size() - 1).renderPos(partialTick, new Vector3d())));
         return ropeRenderPoints;
     }
 }

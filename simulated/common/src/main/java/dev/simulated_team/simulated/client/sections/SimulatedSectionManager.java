@@ -45,8 +45,8 @@ public class SimulatedSectionManager {
 			for (final Map.Entry<ResourceLocation, JsonElement> entry : map.entrySet()) {
 				final DataResult<SimulatedSection> result = SimulatedSection.CODEC.parse(JsonOps.INSTANCE, entry.getValue());
 
-				if(result.isSuccess()) {
-					final SimulatedSection tab = result.getOrThrow();
+				if(result.result().isPresent()) {
+					final SimulatedSection tab = result.result().get();
 					SECTIONS.put(entry.getKey(), tab);
 					BY_SECTION.put(tab, entry.getKey());
 				}

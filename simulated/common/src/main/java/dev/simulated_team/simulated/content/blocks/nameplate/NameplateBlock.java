@@ -317,7 +317,7 @@ public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<Na
             if (directions.isEmpty())
                 return PlacementOffset.fail();
             else {
-                return PlacementOffset.success(blockPos.relative(directions.getFirst()),
+                return PlacementOffset.success(blockPos.relative(directions.get(0)),
                         s -> s.setValue(FACING, blockState.getValue(FACING)));
             }
         }

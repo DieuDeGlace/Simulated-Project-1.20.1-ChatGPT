@@ -13,6 +13,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -186,7 +187,7 @@ public class NameplateBlockEntity extends SmartBlockEntity implements ClipboardC
         }
         final Vec3 v = B.subtract(A);
         final Vec3 u = A.subtract(point);
-        final double t = Math.clamp(-v.dot(u) / v.dot(v), 0, 1);
+        final double t = Mth.clamp(-v.dot(u) / v.dot(v), 0, 1);
         final Vec3 closest = A.add(v.scale(t));
         return point.distanceTo(closest);
     }

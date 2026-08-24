@@ -12,6 +12,7 @@ import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -184,7 +185,7 @@ public class ClientHandleHandler extends BlockHoldInteraction {
     }
 
     public void deltaRange(final Player player, final float delta) {
-        this.desiredRange = (float) Math.clamp(this.desiredRange + delta, 1, Math.min(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue(), HandleBlockEntity.MAX_HANDLE_RANGE));
+        this.desiredRange = (float) Mth.clamp(this.desiredRange + delta, 1, Math.min(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue(), HandleBlockEntity.MAX_HANDLE_RANGE));
     }
 
     @Override

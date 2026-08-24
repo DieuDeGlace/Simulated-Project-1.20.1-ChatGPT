@@ -93,7 +93,7 @@ public class VelocitySensorBlockEntity extends SmartBlockEntity implements IHave
                 }
 
                 // int cast rounds towards 0
-                this.signedRedstoneStrength = (int) Math.clamp((this.getAdjustedVelocity() / this.maxSpeed.getValue()) * 15f, -15, 15);
+                this.signedRedstoneStrength = (int) Mth.clamp((this.getAdjustedVelocity() / this.maxSpeed.getValue()) * 15f, -15, 15);
             } else { // sublevel is null, aka on stationary ground
                 this.adjustedVelocity = 0;
                 this.signedRedstoneStrength = 0;

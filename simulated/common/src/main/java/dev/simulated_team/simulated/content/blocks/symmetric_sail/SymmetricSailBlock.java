@@ -101,7 +101,7 @@ public class SymmetricSailBlock extends RotatedPillarBlock implements IWrenchabl
             if (timeout-- < 0)
                 break;
 
-            final BlockPos currentPos = frontier.removeFirst();
+            final BlockPos currentPos = frontier.remove(0);
             visited.add(currentPos);
 
             for (final Direction d : Iterate.directions) {

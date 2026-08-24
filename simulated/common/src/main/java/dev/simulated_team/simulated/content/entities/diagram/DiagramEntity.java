@@ -200,7 +200,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
         tag.putInt("Size", this.size);
 
         if (this.config != null) {
-            tag.put("Config", DiagramConfig.CODEC.encodeStart(NbtOps.INSTANCE, this.config).getOrThrow());
+            tag.put("Config", DiagramConfig.CODEC.encodeStart(NbtOps.INSTANCE, this.config).getOrThrow(false, IllegalStateException::new));
         }
 
         super.addAdditionalSaveData(tag);
@@ -220,7 +220,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
         if (tag.contains("Config", Tag.TAG_COMPOUND)) {
             final CompoundTag configTag = tag.getCompound("Config");
-            this.config = DiagramConfig.CODEC.parse(NbtOps.INSTANCE, configTag).getOrThrow();
+            this.config = DiagramConfig.CODEC.parse(NbtOps.INSTANCE, configTag).getOrThrow(false, IllegalStateException::new);
         } else {
             this.config = DiagramConfig.makeDefault(this);
         }

@@ -497,11 +497,11 @@ public class RopeStrandHolderBehavior extends BlockEntityBehaviour {
 
         while (points.size() < incomingPoints.size()) {
             final Vector3dc position = incomingPoints.get(incomingPoints.size() - points.size() - 1);
-            points.addFirst(new ClientRopePoint(new Vector3d(position), new Vector3d(position), new ObjectArrayList<>()));
+            points.add(0, new ClientRopePoint(new Vector3d(position), new Vector3d(position), new ObjectArrayList<>()));
         }
 
         while (points.size() > incomingPoints.size()) {
-            points.removeFirst();
+            points.remove(0);
         }
 
         for (int i = 0; i < incomingPoints.size(); i++) {

@@ -58,12 +58,12 @@ public class NewPonderTooltipManager {
 
 	public static void save() {
 		final DataResult<JsonElement> result = CODEC.encode(WATCHED_PONDER_SCENES, JsonOps.INSTANCE, new JsonArray());
-		if(result.isError()) {
+		if(result.error().isPresent()) {
 			return;
 		}
 
 		try {
-			final String data = result.getOrThrow().toString();
+			final String data = result.getOrThrow(false, IllegalStateException::new).toString();
 			Files.writeString(filePath(), data, StandardCharsets.UTF_8);
 		} catch (final IOException ignored) {
 

@@ -5,6 +5,7 @@ import dev.simulated_team.simulated.content.blocks.redstone.AbstractLinkedReceiv
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -40,7 +41,7 @@ public class DirectionalLinkedReceiverBlockEntity extends AbstractLinkedReceiver
         final double angle = Math.asin(dot);
         this.angleToClosestLink = Math.acos(dot);
 
-        final double strengthScalar = Math.clamp((angle / Math.PI) * 2, 0, 1);
+        final double strengthScalar = Mth.clamp((angle / Math.PI) * 2, 0, 1);
         return new Tuple<>((int) Math.ceil(strengthScalar * transmittedStrength), Math.toDegrees(angle));
     }
 

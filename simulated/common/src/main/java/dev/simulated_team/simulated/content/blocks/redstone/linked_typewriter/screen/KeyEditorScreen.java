@@ -18,6 +18,7 @@ import net.createmod.catnip.gui.element.ScreenElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 public class KeyEditorScreen {
@@ -165,7 +166,7 @@ public class KeyEditorScreen {
         final int maxScroll = Math.max(0,
                 (this.parentScreen.getNewEntries().getSize() - 4) * (SimGUITextures.LINKED_TYPEWRITER_KEY_ENTRY.height + ENTRY_HEIGHT_PADDING_PIXELS)
         );
-        this.scroll = Math.clamp(this.scroll, 0, maxScroll);
+        this.scroll = Mth.clamp(this.scroll, 0, maxScroll);
     }
 
     /**

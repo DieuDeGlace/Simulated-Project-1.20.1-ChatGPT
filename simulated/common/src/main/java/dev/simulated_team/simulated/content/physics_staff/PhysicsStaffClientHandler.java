@@ -422,7 +422,7 @@ public class PhysicsStaffClientHandler {
     }
 
     private double clampDistance(final double distance) {
-        return Math.clamp(distance, 2.0, PhysicsStaffItem.RANGE);
+        return Mth.clamp(distance, 2.0, PhysicsStaffItem.RANGE);
     }
 
     private boolean isRotating() {
