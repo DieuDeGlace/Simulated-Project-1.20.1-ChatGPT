@@ -71,10 +71,13 @@ public final class SubLevelRenderClientValidation {
     private static volatile UUID fixtureId;
     private static volatile UUID localPlayerId;
     private static volatile boolean fixtureReady;
+    private static volatile boolean fixtureRemoved;
+    private static volatile boolean playerRestored;
     private static volatile boolean staleCleanupReady;
     private static volatile boolean serverMaintenanceScheduled;
     private static AndesitePropellerBlockEntity clientPropeller;
     private static WheelMountBlockEntity clientWheel;
+    private static Vec3 originalPlayerPosition;
 
     private SubLevelRenderClientValidation() {
     }
@@ -116,6 +119,7 @@ public final class SubLevelRenderClientValidation {
 
         if (phase == Phase.WAITING_FOR_WORLD) {
             localPlayerId = minecraft.player.getUUID();
+            originalPlayerPosition = minecraft.player.position();
             phase = Phase.WAITING_FOR_STALE_CLEANUP;
             phaseTicks = 0;
             server.execute(() -> removeStaleValidationFixtures(server));
@@ -219,6 +223,20 @@ public final class SubLevelRenderClientValidation {
 
         if (phase == Phase.DRAINING_NETWORK && ++exitTicks >= 20) {
             server.execute(() -> removeFixture(server, fixtureId));
+            phase = Phase.WAITING_FOR_REMOVAL;
+            phaseTicks = 0;
+            exitTicks = 0;
+            return;
+        }
+
+        if (phase == Phase.WAITING_FOR_REMOVAL && fixtureRemoved) {
+            server.execute(() -> restorePlayerPosition(server, localPlayerId));
+            phase = Phase.WAITING_FOR_RESTORE;
+            phaseTicks = 0;
+            return;
+        }
+
+        if (phase == Phase.WAITING_FOR_RESTORE && playerRestored) {
             phase = Phase.EXITING;
             phaseTicks = 0;
             exitTicks = 0;
@@ -264,6 +282,8 @@ public final class SubLevelRenderClientValidation {
                         wheelPos.getX() + 1, propellerPos.getY() + 1, anchor.getZ() + 1));
         fixtureId = subLevel.getUniqueId();
         fixtureReady = true;
+        fixtureRemoved = false;
+        playerRestored = false;
         stabilizeFixture(subLevel);
         LOGGER.info("SIMULATED-SUBLEVEL-RENDER-FIXTURE: id={}, anchor={}, player={}",
                 fixtureId, anchor, player.getGameProfile().getName());
@@ -316,11 +336,13 @@ public final class SubLevelRenderClientValidation {
             for (final ServerSubLevel subLevel : new ArrayList<>(container.getAllSubLevels())) {
                 if (subLevel.getUniqueId().equals(id)) {
                     container.removeSubLevel(subLevel, SubLevelRemovalReason.REMOVED);
+                    fixtureRemoved = true;
                     LOGGER.info("SIMULATED-SUBLEVEL-RENDER-CLEANUP: id={}", id);
                     return;
                 }
             }
         }
+        fail("server fixture was unavailable for cleanup: " + id);
     }
 
     private static void movePlayerOutOfTrackingRange(final MinecraftServer server, final UUID playerId) {
@@ -328,7 +350,17 @@ public final class SubLevelRenderClientValidation {
         if (player == null) {
             fail("local server player was not available for fixture untracking");
         }
-        player.teleportTo(player.getX() + 1024.0, player.getY(), player.getZ());
+        player.teleportTo(player.getX(), player.getY() + 1024.0, player.getZ());
+    }
+
+    private static void restorePlayerPosition(final MinecraftServer server, final UUID playerId) {
+        final ServerPlayer player = server.getPlayerList().getPlayer(playerId);
+        if (player == null || originalPlayerPosition == null) {
+            fail("local server player or original position was unavailable for fixture cleanup");
+        }
+        player.teleportTo(originalPlayerPosition.x, originalPlayerPosition.y, originalPlayerPosition.z);
+        playerRestored = true;
+        LOGGER.info("SIMULATED-SUBLEVEL-RENDER-PLAYER-RESTORED: position={}", originalPlayerPosition);
     }
 
     private static void removeStaleValidationFixtures(final MinecraftServer server) {
@@ -422,6 +454,8 @@ public final class SubLevelRenderClientValidation {
         VERIFYING_RENDER,
         WAITING_FOR_UNTRACK,
         DRAINING_NETWORK,
+        WAITING_FOR_REMOVAL,
+        WAITING_FOR_RESTORE,
         EXITING,
         DONE
     }

@@ -102,6 +102,8 @@ $RECYCLE.BIN/
 *.lnk
 
 .gradle
+.build-tools/
+dist/
 build/
 
 # Ignore Gradle GUI config

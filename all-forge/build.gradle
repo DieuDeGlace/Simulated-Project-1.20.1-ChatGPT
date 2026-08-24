@@ -61,6 +61,10 @@ legacyForge {
             server()
             gameDirectory = project.file('runs/server')
             programArgument 'nogui'
+
+            if (providers.gradleProperty('dedicatedServerValidation').map(Boolean::parseBoolean).getOrElse(false)) {
+                systemProperty 'simulated.validation.dedicatedServer', 'true'
+            }
         }
 
         gameTest {
