@@ -2,20 +2,20 @@ package dev.simulated_team.simulated.index;
 
 import com.simibubi.create.AllBlocks;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
+import com.tterrag.registrate.util.entry.RegistryEntry;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.data.SimBlockStateGen;
 import dev.simulated_team.simulated.ponder.new_ponder_tooltip.NewPonderTooltipManager;
 import dev.simulated_team.simulated.ponder.scenes.*;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class SimPonderScenes {
     public static void register(final PonderSceneRegistrationHelper<ResourceLocation> registry) {
-        final PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> helper = registry.withKeyFunction(DeferredHolder::getId);
+        final PonderSceneRegistrationHelper<ItemProviderEntry<?>> helper = registry.withKeyFunction(RegistryEntry::getId);
 
         //PHYSICS
         helper.forComponents(SimBlocks.PHYSICS_ASSEMBLER)
@@ -37,7 +37,7 @@ public class SimPonderScenes {
         helper.forComponents(SimBlocks.WHITE_SYMMETRIC_SAIL)
                 .addStoryBoard("symmetric_sail/main", SymmetricSailScenes::symmetricSailMain)
                 .addStoryBoard("symmetric_sail/windmill", SymmetricSailScenes::symmetricSailWindmill);
-        NewPonderTooltipManager.forItems(AllBlocks.SAIL.asItem())
+        NewPonderTooltipManager.forItems(AllBlocks.SAIL.get().asItem())
                 .addScenes(Simulated.path("symmetric_sail"));
 
         helper.forComponents(SimBlocks.ROPE_CONNECTOR, SimBlocks.ROPE_WINCH, SimItems.ROPE_COUPLING)
@@ -46,7 +46,7 @@ public class SimPonderScenes {
 
         helper.forComponents(AllBlocks.NOZZLE, AllBlocks.ENCASED_FAN)
                         .addStoryBoard("nozzle", KineticScenes::nozzle);
-        NewPonderTooltipManager.forItems(AllBlocks.NOZZLE.asItem(), AllBlocks.ENCASED_FAN.asItem())
+        NewPonderTooltipManager.forItems(AllBlocks.NOZZLE.get().asItem(), AllBlocks.ENCASED_FAN.get().asItem())
                 .addScenes(Simulated.path("nozzle"));
         helper.forComponents(SimBlocks.DOCKING_CONNECTOR)
                         .addStoryBoard("docking_connector",DockingConnectorScenes::DockingConnector);
@@ -102,10 +102,10 @@ public class SimPonderScenes {
 
     }
 
-    private static ItemProviderEntry<Item, Item> vanillaItemProvider(final String id) {
+    private static ItemProviderEntry<Item> vanillaItemProvider(final String id) {
         return new ItemProviderEntry<>(
                 Simulated.getRegistrate(),
-                DeferredHolder.create(ResourceKey.create(Registries.ITEM, ResourceLocation.withDefaultNamespace(id)))
+                RegistryObject.create(ResourceLocation.withDefaultNamespace(id), ForgeRegistries.ITEMS)
         );
     }
 }

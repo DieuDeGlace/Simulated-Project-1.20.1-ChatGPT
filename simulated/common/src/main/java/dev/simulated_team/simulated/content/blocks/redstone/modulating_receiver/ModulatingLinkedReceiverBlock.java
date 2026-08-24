@@ -136,7 +136,7 @@ public class ModulatingLinkedReceiverBlock extends WrenchableDirectionalBlock im
 
     @Override
     protected ItemInteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
-        if (!player.getMainHandItem().is(SimBlocks.LINKED_TYPEWRITER.asItem())) { //TODO: make this more generalized
+        if (!player.getMainHandItem().is(SimBlocks.LINKED_TYPEWRITER.get().asItem())) { //TODO: make this more generalized
 	        if (level.isClientSide()) {
                 this.withBlockEntityDo(level, blockPos, ModulatingLinkedReceiverScreen::open);
 	        }

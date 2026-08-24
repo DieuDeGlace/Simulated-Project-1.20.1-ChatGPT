@@ -169,7 +169,7 @@ public class LinkedTypewriterItemBindHandler {
 
     private static InteractionHand getHand() {
         final LocalPlayer player = Minecraft.getInstance().player;
-        final Item item = SimBlocks.LINKED_TYPEWRITER.asItem();
+        final Item item = SimBlocks.LINKED_TYPEWRITER.get().asItem();
         if (player.getMainHandItem().is(item)) {
             return InteractionHand.MAIN_HAND;
         } else if (player.getOffhandItem().is(item)) {

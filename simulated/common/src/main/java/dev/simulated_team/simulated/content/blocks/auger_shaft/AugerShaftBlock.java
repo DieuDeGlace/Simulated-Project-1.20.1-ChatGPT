@@ -125,7 +125,7 @@ public class AugerShaftBlock extends RotatedPillarKineticBlock implements IBE<Au
                 level.setBlockAndUpdate(blockPos, blockState.cycle(ENCASED));
                 level.levelEvent(2001, blockPos, Block.getId(AllBlocks.INDUSTRIAL_IRON_BLOCK.getDefaultState()));
                 return ItemInteractionResult.SUCCESS;
-            } else if (!encased && player.getItemInHand(interactionHand).is(AllBlocks.INDUSTRIAL_IRON_BLOCK.asItem())) {
+            } else if (!encased && player.getItemInHand(interactionHand).is(AllBlocks.INDUSTRIAL_IRON_BLOCK.get().asItem())) {
                 if (level.isClientSide)
                     return ItemInteractionResult.SUCCESS;
 

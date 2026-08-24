@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * An abstract container that inventories can extend from. Used for multiloader compatibility through wrappers that each loader creates. <p>
- * Inspired by {@link net.neoforged.neoforge.items.ItemStackHandler ItemStackHandler} In <b>Porting lib</b> by the <b>fabricators of create</b> team
+ * Inspired by {@link net.minecraftforge.items.ItemStackHandler ItemStackHandler} In <b>Porting lib</b> by the <b>fabricators of create</b> team
  */
 public interface AbstractContainer extends NBTSerializable, Container {
 

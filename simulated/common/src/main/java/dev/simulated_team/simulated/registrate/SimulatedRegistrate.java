@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -52,7 +52,7 @@ public class SimulatedRegistrate extends CreateRegistrate {
     public <T> Codec<T> byNameCodecExpanded(final ResourceKey<? extends Registry<T>> key) {
         return ResourceLocation.CODEC.flatXmap((resourceLoc) -> {
             T gatheredEntry = null;
-            for (final RegistryEntry<T, T> entry : this.getAll(key)) {
+            for (final RegistryEntry<T> entry : this.getAll(key)) {
                 if (entry.getId().equals(resourceLoc)) {
                     gatheredEntry = entry.get();
                     break;
@@ -66,7 +66,7 @@ public class SimulatedRegistrate extends CreateRegistrate {
             }
         }, (T) -> {
             ResourceLocation id = null;
-            for (final RegistryEntry<T, T> entry : this.getAll(key)) {
+            for (final RegistryEntry<T> entry : this.getAll(key)) {
                 if (entry.is(T)) {
                     id = entry.getId();
                     break;
@@ -86,12 +86,11 @@ public class SimulatedRegistrate extends CreateRegistrate {
     }
 
     @Override
-    protected <R, T extends R> @NotNull RegistryEntry<R, T> accept(final String name, final ResourceKey<? extends Registry<R>> type, final Builder<R, T, ?, ?> builder, final NonNullSupplier<? extends T> creator, final NonNullFunction<DeferredHolder<R, T>, ? extends RegistryEntry<R, T>> entryFactory) {
-        final RegistryEntry<R, T> entry = super.accept(name, type, builder, creator, entryFactory);
+    protected <R, T extends R> @NotNull RegistryEntry<T> accept(final String name, final ResourceKey<? extends Registry<R>> type, final Builder<R, T, ?, ?> builder, final NonNullSupplier<? extends T> creator, final NonNullFunction<RegistryObject<T>, ? extends RegistryEntry<T>> entryFactory) {
+        final RegistryEntry<T> entry = super.accept(name, type, builder, creator, entryFactory);
 
         if (type.equals(Registries.ITEM)) {
-            final RegistryEntry<Item, ? extends Item> itemEntry = (RegistryEntry<Item, ? extends Item>) entry;
-            TAB_ITEMS.add(itemEntry::get);
+            TAB_ITEMS.add(() -> (Item) entry.get());
             ITEM_TO_SECTION.put(entry.getId(), this.currentSection);
         }
 
@@ -103,17 +102,17 @@ public class SimulatedRegistrate extends CreateRegistrate {
         ITEM_TO_SECTION.put(item, this.currentSection);
     }
 
-    public <T extends NavigationTarget> RegistryEntry<NavigationTarget, T> navTarget(final String name, final NonNullSupplier<T> navTableItem, Supplier<ItemLike> itemSupplier) {
-        RegistryEntry<NavigationTarget, T> entry = this.simple(this.self(), name, SimRegistries.Keys.NAVIGATION_TARGET, navTableItem);
+    public <T extends NavigationTarget> RegistryEntry<T> navTarget(final String name, final NonNullSupplier<T> navTableItem, Supplier<ItemLike> itemSupplier) {
+        RegistryEntry<T> entry = this.simple(this.self(), name, SimRegistries.Keys.NAVIGATION_TARGET, navTableItem);
         NAVIGATION_TARGET_ITEMS.put(entry.getId(), itemSupplier);
         return entry;
     }
 
-    public <T extends NavigationTarget> RegistryEntry<NavigationTarget, T> navTarget(final String name, final NonNullSupplier<T> navTableItem, ItemLike item) {
+    public <T extends NavigationTarget> RegistryEntry<T> navTarget(final String name, final NonNullSupplier<T> navTableItem, ItemLike item) {
         return navTarget(name, navTableItem, () -> item);
     }
 
-    public <T extends BlockPropertiesTooltip.Entry> RegistryEntry<BlockPropertiesTooltip.Entry, T>
+    public <T extends BlockPropertiesTooltip.Entry> RegistryEntry<T>
             propertyTooltip(final String name, final NonNullSupplier<T> tooltipFunction) {
         return this.simple(this.self(), name, SimRegistries.Keys.PROPERTY_TOOLTIP, tooltipFunction);
     }

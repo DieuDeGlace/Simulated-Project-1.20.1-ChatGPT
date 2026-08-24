@@ -20,11 +20,10 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 public class SimItems {
     public static final SimulatedRegistrate REGISTRATE = Simulated.getRegistrate();
@@ -58,9 +57,9 @@ public class SimItems {
                     .pattern(" S ")
                     .pattern("NSN")
                     .pattern(" S ")
-                    .define('S', Tags.Items.STRINGS)
+                    .define('S', Tags.Items.STRING)
                     .define('N', Tags.Items.NUGGETS_IRON)
-                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(Tags.Items.STRINGS))
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(Tags.Items.STRING))
                     .save(prov))
             .register();
 
@@ -84,7 +83,6 @@ public class SimItems {
             REGISTRATE.item("honey_glue", HoneyGlueItem::new)
                     .properties(p -> p.stacksTo(1)
                             .durability(100))
-                    .tag(ItemTags.DURABILITY_ENCHANTABLE)
                     .register();
 
     public static final ItemEntry<PhysicsStaffItem> PHYSICS_STAFF =
@@ -97,7 +95,6 @@ public class SimItems {
             REGISTRATE.item("plunger_launcher", PlungerLauncherItem::new)
                     .properties(p -> p.stacksTo(1).durability(200))
                     .model(AssetLookup.itemModelWithPartials())
-                    .tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE)
                     .register();
 
     private static ItemEntry<Item> ingredient(final String name) {
