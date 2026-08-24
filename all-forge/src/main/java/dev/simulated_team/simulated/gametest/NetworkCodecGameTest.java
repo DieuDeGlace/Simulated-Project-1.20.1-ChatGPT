@@ -3,10 +3,16 @@ package dev.simulated_team.simulated.gametest;
 import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationPacket;
 import dev.eriksonn.aeronautics.content.blocks.propeller.small.andesite.AndesitePropellerBlockEntity;
 import dev.eriksonn.aeronautics.index.AeroBlocks;
+import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlock;
+import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlockEntity;
+import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
+import dev.ryanhcode.offroad.index.OffroadBlocks;
+import dev.ryanhcode.offroad.index.OffroadDataComponents;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.physics.force.ForceGroups;
+import dev.ryanhcode.sable.api.physics.force.ForceTotal;
 import dev.ryanhcode.sable.api.physics.force.QueuedForceGroup;
 import dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
@@ -23,6 +29,7 @@ import dev.simulated_team.simulated.content.end_sea.EndSeaPhysics;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.content.physics_staff.PhysicsStaffAction;
 import dev.simulated_team.simulated.index.SimBlocks;
+import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.network.SimNetwork;
 import dev.simulated_team.simulated.network.codec.StreamCodec;
 import dev.simulated_team.simulated.network.context.ServerPacketContext;
@@ -54,6 +61,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayerFactory;
@@ -268,6 +276,85 @@ public final class NetworkCodecGameTest {
                 .thenSucceed();
     }
 
+    @GameTest(template = "extrakineticstest.swivelbearing", timeoutTicks = 120)
+    public static void offroadWheelMountAppliesSubLevelImpulse(final GameTestHelper helper) {
+        helper.startSequence()
+                .thenIdle(20)
+                .thenExecute(() -> {
+                    final SubLevel subLevel = requireSingleSubLevel(helper);
+                    final ServerLevel level = helper.getLevel();
+                    final BlockPos storagePos = subLevel.getPlot().getCenterBlock().offset(1, 0, 0);
+                    level.setBlockAndUpdate(storagePos, OffroadBlocks.WHEEL_MOUNT.getDefaultState());
+
+                    final WheelMountBlockEntity wheelMount = requireBlockEntity(
+                            level, storagePos, WheelMountBlockEntity.class);
+                    wheelMount.getInventory().setItem(0, new ItemStack(OffroadBlocks.ROCK_CUTTER_BLOCK.get()));
+                })
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    final SubLevel subLevel = requireSingleSubLevel(helper);
+                    if (!(subLevel instanceof final ServerSubLevel serverSubLevel)) {
+                        throw new GameTestAssertException("Expected server sub-level, got " + subLevel.getClass().getName());
+                    }
+
+                    final ServerLevel level = helper.getLevel();
+                    final BlockPos storagePos = subLevel.getPlot().getCenterBlock().offset(1, 0, 0);
+                    final WheelMountBlockEntity wheelMount = requireBlockEntity(
+                            level, storagePos, WheelMountBlockEntity.class);
+                    final TireLike tire = ItemComponentCompat.get(wheelMount.getHeldItem(), OffroadDataComponents.TIRE);
+                    if (tire == null) {
+                        throw new GameTestAssertException("Offroad rock-cutting wheel lost its tire component");
+                    }
+
+                    boolean registeredActor = false;
+                    for (final Object actor : subLevel.getPlot().getBlockEntityActors()) {
+                        registeredActor |= actor == wheelMount;
+                    }
+                    if (!registeredActor) {
+                        throw new GameTestAssertException("Offroad wheel mount was not admitted to the Sable actor registry");
+                    }
+
+                    final RigidBodyHandle handle = Objects.requireNonNull(
+                            RigidBodyHandle.of(serverSubLevel), "Missing Sable rigid-body handle");
+                    handle.addLinearAndAngularVelocity(
+                            handle.getLinearVelocity(new Vector3d()).negate(),
+                            handle.getAngularVelocity(new Vector3d()).negate());
+                    handle.teleport(serverSubLevel.logicalPose().position(), new Quaterniond());
+                    serverSubLevel.logicalPose().orientation().identity();
+
+                    final Direction facing = wheelMount.getBlockState().getValue(WheelMountBlock.HORIZONTAL_FACING);
+                    final Vec3 physicalWheelCenter = Sable.HELPER.projectOutOfSubLevel(
+                            level, wheelMount.getBlockPos().relative(facing).getCenter());
+                    final BlockPos surfaceCenter = BlockPos.containing(physicalWheelCenter).below();
+                    for (int x = -2; x <= 2; x++) {
+                        for (int z = -2; z <= 2; z++) {
+                            level.setBlockAndUpdate(surfaceCenter.offset(x, 0, z), Blocks.STONE.defaultBlockState());
+                        }
+                    }
+
+                    wheelMount.setSpeed(64.0f);
+                    wheelMount.sable$physicsTick(serverSubLevel, handle, 1.0 / 20.0);
+                    final ForceTotal forceTotal = requirePrivateField(
+                            wheelMount, WheelMountBlockEntity.class, "forceTotal", ForceTotal.class);
+                    if (forceTotal.getLocalForce().lengthSquared() <= 1.0e-12) {
+                        final double extension = requirePrivateField(
+                                wheelMount, WheelMountBlockEntity.class, "extension", Double.class);
+                        throw new GameTestAssertException("Offroad wheel mount did not queue a non-zero rigid-body impulse; "
+                                + "extension=" + extension + ", tireRadius=" + tire.radius()
+                                + ", physicalWheelCenter=" + physicalWheelCenter
+                                + ", surfaceCenter=" + surfaceCenter
+                                + ", surfaceState=" + level.getBlockState(surfaceCenter)
+                                + ", orientation=" + serverSubLevel.logicalPose().orientation());
+                    }
+                    WheelMountBlockEntity.applyAllBatchedForces(level, 1.0 / 20.0);
+                    if (forceTotal.getLocalForce().lengthSquared() > 1.0e-12
+                            || forceTotal.getLocalTorque().lengthSquared() > 1.0e-12) {
+                        throw new GameTestAssertException("Offroad wheel force batch was not submitted and reset");
+                    }
+                })
+                .thenSucceed();
+    }
+
     private static SubLevel requireSingleSubLevel(final GameTestHelper helper) {
         final double[] bounds = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
@@ -300,6 +387,23 @@ public final class NetworkCodecGameTest {
             throw new GameTestAssertException("Expected " + type.getSimpleName() + " at " + pos + ", got " + blockEntity);
         }
         return type.cast(blockEntity);
+    }
+
+    private static <T> T requirePrivateField(final Object owner, final Class<?> declaringType,
+                                             final String fieldName, final Class<T> fieldType) {
+        try {
+            final Field field = declaringType.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            final Object value = field.get(owner);
+            if (!fieldType.isInstance(value)) {
+                throw new GameTestAssertException("Expected " + fieldType.getSimpleName() + " in " + fieldName
+                        + ", got " + value);
+            }
+            return fieldType.cast(value);
+        } catch (ReflectiveOperationException exception) {
+            throw new GameTestAssertException("Unable to inspect " + declaringType.getSimpleName() + "." + fieldName
+                    + ": " + exception);
+        }
     }
 
     private static void assertClose(final String label, final float expected, final float actual) {
