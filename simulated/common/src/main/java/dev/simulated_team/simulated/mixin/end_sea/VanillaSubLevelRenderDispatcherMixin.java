@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(VanillaSubLevelRenderDispatcher.class)
 public class VanillaSubLevelRenderDispatcherMixin {
 
-    @Inject(method = "setupDynamicEffects", at = @At("TAIL"))
+    @Inject(method = "setupDynamicEffects", at = @At("TAIL"), remap = false)
     private static void setupDynamicEffects(final ShaderInstance shader, final boolean onSubLevel, final boolean upload, final CallbackInfo ci) {
         final Uniform cameraY = shader.getUniform("EndSeaCameraY");
 

@@ -17,9 +17,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 // todo: delete this when updating create
 @Mixin(SchematicPrinter.class)
 public class SchematicPrinterMixin {
-    @Shadow private SchematicLevel blockReader;
+    @Shadow(remap = false) private SchematicLevel blockReader;
 
-    @Redirect(method = "getCurrentRequirement", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/foundation/utility/BlockHelper;prepareBlockEntityData(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/nbt/CompoundTag;"))
+    @Redirect(method = "getCurrentRequirement", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/foundation/utility/BlockHelper;prepareBlockEntityData(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/nbt/CompoundTag;"), remap = false)
     private CompoundTag fixBlockRequirements(final Level level, final BlockState block, final BlockEntity _blockEntity, @Local(name = "target") final BlockPos target) {
         return BlockHelper.prepareBlockEntityData(level, block, this.blockReader.getBlockEntity(target));
     }

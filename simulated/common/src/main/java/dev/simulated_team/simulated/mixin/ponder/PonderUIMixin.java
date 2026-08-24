@@ -19,9 +19,9 @@ import java.util.List;
 
 @Mixin(PonderUI.class)
 public class PonderUIMixin {
-    @Shadow private List<PonderScene> scenes;
+    @Shadow(remap = false) private List<PonderScene> scenes;
 
-    @ModifyConstant(method = "renderScene", constant = @Constant(intValue = 0x66_000000, ordinal = 0))
+    @ModifyConstant(method = "renderScene", constant = @Constant(intValue = 0x66_000000, ordinal = 0), remap = false)
     private int customShadowFade(final int constant, final GuiGraphics graphics, final int mouseX, final int mouseY, final int i, final float partialTicks) {
         final int alpha = (int)((constant >> 24) * ((PonderSceneExtension) this.scenes.get(i)).simulated$getBasePlateAnimationTimer(partialTicks));
         return (alpha << 24) | (constant & 0x00_FFFFFF);

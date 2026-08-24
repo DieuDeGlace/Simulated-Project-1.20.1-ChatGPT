@@ -19,8 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PonderScene.class)
 public class PonderSceneMixin implements PonderSceneExtension {
 
-    @Shadow float scaleFactor;
-    @Shadow float yOffset;
+    @Shadow(remap = false) float scaleFactor;
+    @Shadow(remap = false) float yOffset;
     @Unique
     LerpedFloat simulated$shadowAlpha = LerpedFloat.linear();
     @Unique
@@ -95,14 +95,14 @@ public class PonderSceneMixin implements PonderSceneExtension {
         return Mth.lerp(pt, this.simulated$oldYOffset, this.yOffset);
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"), remap = false)
     private void recordOldValues(final CallbackInfo ci) {
         this.simulated$oldYOffset = this.yOffset;
         this.simulated$oldScaleFactor = this.scaleFactor;
     }
 
     //todo: pr this to ponder
-    @Shadow
+    @Shadow(remap = false)
     private PonderScene.SceneTransform transform;
     @Redirect(remap=false,method="renderScene",at = @At(value="INVOKE",target="Lnet/createmod/ponder/foundation/PonderScene$SceneCamera;set(FF)V"))
     public void onCameraSet(PonderScene.SceneCamera instance, float xRotation, float yRotation, SuperRenderTypeBuffer buffer, GuiGraphics graphics, float pt)

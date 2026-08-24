@@ -10,7 +10,6 @@ import dev.simulated_team.simulated.mixin_interface.SpriteContentsExtension;
 import dev.simulated_team.simulated.mixin_interface.TickerExtension;
 import dev.simulated_team.simulated.registrate.SimulatedRegistrate;
 import foundry.veil.api.client.color.Color;
-import foundry.veil.api.client.color.Colorc;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -76,16 +75,20 @@ public class SimulatedCreativeTab {
 			Component text = section.title().text();
 			int textWidth = font.width(text);
 
-			Colorc background = section.title().background();
-			graphics.fill(x + 2, y + 2, x + textWidth + 8, y + h - 2, background.argb());
+			Color background = section.title().background();
+			graphics.fill(x + 2, y + 2, x + textWidth + 8, y + h - 2, argb(background));
 
-			Colorc light = section.title().color();
-			Colorc dark = section.title().secondaryColor()
-					.orElse(light.darken(0.2f, new Color()));
-			drawAuraText(graphics, text, dark.argb(), light.argb(), x + 5, y + 5);
+			Color light = section.title().color();
+			Color dark = section.title().secondaryColor()
+					.orElseGet(() -> light.darkenCopy(0.2f));
+			drawAuraText(graphics, text, argb(dark), argb(light), x + 5, y + 5);
 		}
 		ps.popPose();
 		RenderSystem.disableDepthTest();
+	}
+
+	private static int argb(final Color color) {
+		return color.getAlphaInt() << 24 | color.getRGB();
 	}
 
 	public static void drawAuraText(GuiGraphics graphics, Component text, int color1, int color2, int x, int y) {

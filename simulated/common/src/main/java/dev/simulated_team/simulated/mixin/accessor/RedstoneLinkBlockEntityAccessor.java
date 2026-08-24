@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(RedstoneLinkBlockEntity.class)
 public interface RedstoneLinkBlockEntityAccessor {
 
-    @Accessor("link")
+    @Accessor(value = "link", remap = false)
     LinkBehaviour getLink();
 
 

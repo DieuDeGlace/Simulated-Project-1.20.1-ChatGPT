@@ -15,14 +15,14 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ItemStackListFactory.class)
 public class ItemStackListFactoryMixin {
 
-	@WrapOperation(method = "create", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 0))
+	@WrapOperation(method = "create", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 0), remap = false)
 	private static void simulated$error(final Logger instance, final String string, final Object o, final Object o1, final Operation<Void> original, @Local final CreativeModeTab tab) {
 		if(tab != SimTabService.INSTANCE.getCreativeTab()) {
 			original.call(instance, string, o, o1);
 		}
 	}
 
-	@WrapOperation(method = "addFromTab", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 0))
+	@WrapOperation(method = "addFromTab", at = @At(value = "INVOKE", target = "Lorg/apache/logging/log4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V", ordinal = 0), remap = false)
 	private static void simulated$error(final Logger instance, final String string, final Object o, final Object o1, final Object o2, final Operation<Void> original, @Local(argsOnly = true) final CreativeModeTab tab) {
 		if(tab != SimTabService.INSTANCE.getCreativeTab()) {
 			original.call(instance, string, o, o1, o2);

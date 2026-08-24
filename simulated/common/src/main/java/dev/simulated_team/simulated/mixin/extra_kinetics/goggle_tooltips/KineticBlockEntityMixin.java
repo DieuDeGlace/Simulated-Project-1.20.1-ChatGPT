@@ -16,7 +16,7 @@ import java.util.List;
 @Mixin(KineticBlockEntity.class)
 public class KineticBlockEntityMixin {
 
-    @Inject(method = "addToGoggleTooltip", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "addToGoggleTooltip", at = @At("RETURN"), cancellable = true, remap = false)
     public void simulated$addExtraKineticsInfo(final List<Component> tooltip, final boolean isPlayerSneaking, final CallbackInfoReturnable<Boolean> cir) {
             if (this instanceof final ExtraKinetics ek) {
                 final KineticBlockEntity extraKinetics = ek.getExtraKinetics();

@@ -43,7 +43,6 @@
     "sounds.SoundEngineMixin",
     "sounds.SoundManagerMixin",
     "throttle_lever.GameRendererMixin",
-    "tooltip_flag.SessionSearchTreesMixin",
     "world_presets.CreateWorldScreenMixin",
     "world_presets.WorldTabMixin"
   ],
@@ -90,7 +89,6 @@
     "schematicannon_fix.SchematicPrinterMixin",
     "silence_jei.ItemStackListFactoryMixin",
     "spring_item_bounce.EntityMixin",
-    "tooltip_flag.TooltipFlagDefaultMixin",
     "torsion_spring.ComparatorBlockMixin",
     "torsion_spring.MechanicalBearingBlockEntityMixin",
     "world_presets.PrimaryLevelDataMixin"

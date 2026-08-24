@@ -29,16 +29,16 @@ public abstract class KineticBlockEntityMixin extends SmartBlockEntity implement
         super(type, pos, state);
     }
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract boolean hasSource();
 
-    @Shadow
+    @Shadow(remap = false)
     protected float speed;
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract void initialize();
 
-    @Shadow private int validationCountdown;
+    @Shadow(remap = false) private int validationCountdown;
     @Unique
     private boolean simulated$extraKineticsConnected = false;
 
@@ -52,7 +52,7 @@ public abstract class KineticBlockEntityMixin extends SmartBlockEntity implement
         return this.simulated$extraKineticsConnected;
     }
 
-    @Inject(method = "switchToBlockState", at = @At("TAIL"))
+    @Inject(method = "switchToBlockState", at = @At("TAIL"), remap = false)
     private static void simulated$switchExtraKinetics(final Level world, final BlockPos pos, final BlockState state, final CallbackInfo ci, @Local final BlockEntity be) {
         if (be instanceof final ExtraKinetics ek) {
             final KineticBlockEntity extraKinetics = ek.getExtraKinetics();

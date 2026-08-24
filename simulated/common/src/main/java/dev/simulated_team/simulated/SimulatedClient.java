@@ -30,7 +30,7 @@ public class SimulatedClient {
 
         PonderIndex.addPlugin(new SimPonderPlugin());
 
-        VeilEventPlatform.INSTANCE.onVeilRenderLevelStage(EndSeaShadowRenderer::renderShadowMap);
+        VeilEventPlatform.INSTANCE.onVeilRenderTypeStageRender(EndSeaShadowRenderer::renderShadowMap);
 
         VeilEventPlatform.INSTANCE.onVeilAddShaderProcessors((provider, registry) -> {
             registry.addPreprocessor(new EndSeaFadeTransformer(), false);
@@ -41,7 +41,7 @@ public class SimulatedClient {
             registry.registerFixedBuffer(VeilRenderLevelStageEvent.Stage.AFTER_LEVEL, SimRenderTypes.staffOverlay());
         });
 
-        VeilEventPlatform.INSTANCE.onVeilRenderLevelStage(SimulatedCommonClientEvents::onRenderLevelStage);
+        VeilEventPlatform.INSTANCE.onVeilRenderTypeStageRender(SimulatedCommonClientEvents::onRenderLevelStage);
 
         SuperByteBufferCache.getInstance().registerCompartment(SteeringWheelRenderer.STEERING_WHEEL);
     }

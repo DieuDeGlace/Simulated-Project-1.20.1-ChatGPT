@@ -2,6 +2,7 @@ package dev.simulated_team.simulated.content.navigation_targets;
 
 import dev.simulated_team.simulated.content.blocks.nav_table.NavTableBlockEntity;
 import dev.simulated_team.simulated.content.blocks.nav_table.navigation_target.NavigationTarget;
+import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -37,9 +38,7 @@ public class MapNavigationTarget implements NavigationTarget {
 			for (int i = 0; i < decorations.size(); i++) {
 				final CompoundTag decoration = decorations.getCompound(i);
 				final MapDecoration.Type type = MapDecoration.Type.byIcon(decoration.getByte("type"));
-				if(type != MapDecoration.Type.MANSION
-						&& type != MapDecoration.Type.MONUMENT
-						&& type != MapDecoration.Type.RED_X)
+				if(!SimTags.Misc.NAV_TABLE_FINDABLE.contains(type))
 					continue;
 
 				final double x = decoration.getDouble("x");

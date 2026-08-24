@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(targets = "net.minecraft.client.renderer.texture.SpriteContents$Ticker")
+@Mixin(SpriteContents.Ticker.class)
 public class SpriteContentsTickerMixin implements TickerExtension {
 
     @Unique

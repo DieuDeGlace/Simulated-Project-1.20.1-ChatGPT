@@ -108,8 +108,43 @@ if (project.path.endsWith(":common")) {
 
         // Mod compat: only mods with verified 1.20.1 Forge coordinates are kept.
         compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-common-api:$computercraft_tweaked_version")
-        // DEFERRED (no verified 1.20.1 Forge target artifact frozen yet; not installed in PJ):
-        // natures-compass, explorers-compass, sodium, iris
+        compileOnly("maven.modrinth:natures-compass:$minecraft_version-$natures_compass_version-forge")
+        compileOnly("maven.modrinth:explorers-compass:$minecraft_version-$explorers_compass_version-forge")
+        compileOnly("maven.modrinth:GchcoXML:$oculus_version_id")
+    }
+
+    // ModDevGradle produces the authoritative named -> SRG mapping used by the
+    // target Forge runtime, but it does not wire that file into Mixin 0.8's
+    // annotation processor. Without these inputs every valid @Inject/@Shadow is
+    // reported as unmapped and no production refmap can be generated.
+    def mixinOutputDirectory = layout.buildDirectory.dir('generated/mixin')
+    def mixinRefmapFile = layout.buildDirectory.file("generated/mixin/${mod_id}.refmap.json")
+    tasks.withType(JavaCompile).configureEach { compileTask ->
+        if (compileTask.name == 'compileJava') {
+            compileTask.dependsOn tasks.matching { it.name == 'createMinecraftArtifacts' }
+            compileTask.doFirst {
+                def namedToIntermediate = layout.buildDirectory
+                        .file('moddev/artifacts/namedToIntermediate.tsrg').get().asFile
+                if (!namedToIntermediate.isFile()) {
+                    throw new GradleException("Missing ModDevGradle named-to-SRG mappings: ${namedToIntermediate}")
+                }
+
+                def outputDirectory = mixinOutputDirectory.get().asFile
+                outputDirectory.mkdirs()
+                compileTask.options.compilerArgs.addAll([
+                        '-AmappingTypes=tsrg',
+                        "-AreobfTsrgFile=${namedToIntermediate.absolutePath}",
+                        "-AoutTsrgFile=${new File(outputDirectory, "${mod_id}-mixin.srg").absolutePath}",
+                        "-AoutRefMapFile=${mixinRefmapFile.get().asFile.absolutePath}",
+                        '-AdefaultObfuscationEnv=searge'
+                ])
+            }
+        }
+    }
+
+    tasks.named('processResources') {
+        dependsOn tasks.named('compileJava')
+        from(mixinRefmapFile)
     }
 }
 

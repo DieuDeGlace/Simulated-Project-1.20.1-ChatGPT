@@ -13,7 +13,7 @@ import java.util.List;
 
 @Mixin(PonderSceneRegistry.class)
 public class PonderSceneRegistryMixin {
-	@Inject(method = "compile(Lnet/minecraft/resources/ResourceLocation;)Ljava/util/List;", at = @At("RETURN"))
+	@Inject(method = "compile(Lnet/minecraft/resources/ResourceLocation;)Ljava/util/List;", at = @At("RETURN"), remap = false)
 	private void simulated$compile(final ResourceLocation id, final CallbackInfoReturnable<List<PonderScene>> cir) {
 		NewPonderTooltipManager.setSceneWatched(cir.getReturnValue().get(0).getId());
 	}

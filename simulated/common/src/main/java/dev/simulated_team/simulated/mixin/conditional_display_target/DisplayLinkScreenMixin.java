@@ -18,11 +18,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DisplayLinkScreen.class)
 public class DisplayLinkScreenMixin {
-    @Shadow private DisplayLinkBlockEntity blockEntity;
+    @Shadow(remap = false) private DisplayLinkBlockEntity blockEntity;
 
-    @Shadow private Label targetLineLabel;
+    @Shadow(remap = false) private Label targetLineLabel;
 
-    @WrapOperation(method = "initGathererOptions", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/api/behaviour/display/DisplayTarget;getLineOptionText(I)Lnet/minecraft/network/chat/Component;"))
+    @WrapOperation(method = "initGathererOptions", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/api/behaviour/display/DisplayTarget;getLineOptionText(I)Lnet/minecraft/network/chat/Component;"), remap = false)
     private Component simulated$displayConditionalError(final DisplayTarget instance, final int line, final Operation<Component> original, @Local(name = "level") final ClientLevel level) {
         final DisplayLinkContext context = new DisplayLinkContext(level, this.blockEntity);
         if (instance instanceof final ConditionalDisplayTarget cdt && !cdt.allowsWriting(context)) {

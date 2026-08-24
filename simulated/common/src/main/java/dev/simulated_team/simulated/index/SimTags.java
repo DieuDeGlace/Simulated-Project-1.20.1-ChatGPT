@@ -14,9 +14,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.saveddata.maps.MapDecorationType;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Map;
 
 import static net.minecraft.world.item.Items.*;
@@ -110,8 +111,11 @@ public class SimTags {
     }
 
     public static class Misc {
-        public static final TagKey<MapDecorationType> NAV_TABLE_FINDABLE = TagKey.create(
-                Registries.MAP_DECORATION_TYPE, Simulated.path("nav_table_findable"));
+        public static final Set<MapDecoration.Type> NAV_TABLE_FINDABLE = Set.of(
+                MapDecoration.Type.MANSION,
+                MapDecoration.Type.MONUMENT,
+                MapDecoration.Type.RED_X
+        );
 
         // entities which won't block the placement of an armor stand
         public static final TagKey<EntityType<?>> ARMOR_STAND_IGNORE = TagKey.create(

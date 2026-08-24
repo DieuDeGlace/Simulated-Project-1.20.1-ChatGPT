@@ -17,7 +17,6 @@ import foundry.veil.api.client.render.MatrixStack;
 import foundry.veil.api.event.VeilRenderLevelStageEvent;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -32,7 +31,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4fc;
+import org.joml.Matrix4f;
 import org.joml.Vector3dc;
 
 import java.util.List;
@@ -46,16 +45,18 @@ public class PhysicsStaffRenderHandler {
     /**
      * Renders the selection / hovering box for the staff
      */
-    public static void renderSelectionBox(final VeilRenderLevelStageEvent.Stage stage, final LevelRenderer renderer, final MultiBufferSource.BufferSource bufferSource, final MatrixStack ps, final Matrix4fc frustrumMat, final Matrix4fc projectionMat, final int renderTick, final DeltaTracker tracker, final Camera camera, final Frustum frustrum) {
+    public static void renderSelectionBox(final VeilRenderLevelStageEvent.Stage stage, final LevelRenderer renderer, final MultiBufferSource.BufferSource bufferSource, final PoseStack poseStack, final Matrix4f projectionMatrix, final int renderTick, final float partialTick, final Camera camera, final Frustum frustrum) {
         if (stage != VeilRenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
 
         if (Minecraft.getInstance().options.hideGui) {
             return;
         }
 
-        ps.matrixPush();
-        SimulatedClient.PHYSICS_STAFF_CLIENT_HANDLER.onRender(ps.toPoseStack());
-        ps.matrixPop();
+        poseStack.pushPose();
+        SimulatedClient.PHYSICS_STAFF_CLIENT_HANDLER.onRender(poseStack);
+        poseStack.popPose();
+
+        final MatrixStack ps = (MatrixStack) (Object) poseStack;
 
         final Minecraft minecraft = Minecraft.getInstance();
         final LocalPlayer player = minecraft.player;
