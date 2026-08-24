@@ -1,16 +1,11 @@
 package dev.simulated_team.simulated.content.item_attributes;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
 import dev.ryanhcode.sable.mixinterface.block_properties.BlockStateExtension;
 import dev.ryanhcode.sable.physics.config.block_properties.PhysicsBlockPropertyTypes;
 import dev.simulated_team.simulated.index.SimItemAttributeTypes;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -18,13 +13,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public record BlockBouncinessItemAttribute(double bounciness) implements ItemAttribute {
-	public static final MapCodec<BlockBouncinessItemAttribute> CODEC = Codec.DOUBLE
-			.xmap(BlockBouncinessItemAttribute::new, BlockBouncinessItemAttribute::bounciness)
-			.fieldOf("value");
+public final class BlockBouncinessItemAttribute implements ItemAttribute {
+	private double bounciness;
 
-	public static final StreamCodec<ByteBuf, BlockBouncinessItemAttribute> STREAM_CODEC = ByteBufCodecs.DOUBLE
-			.map(BlockBouncinessItemAttribute::new, BlockBouncinessItemAttribute::bounciness);
+	public BlockBouncinessItemAttribute(final double bounciness) {
+		this.bounciness = bounciness;
+	}
+
+	public double bounciness() {
+		return this.bounciness;
+	}
 
 	@Override
 	public boolean appliesTo(final ItemStack stack, final Level world) {
@@ -38,6 +36,16 @@ public record BlockBouncinessItemAttribute(double bounciness) implements ItemAtt
 	@Override
 	public ItemAttributeType getType() {
 		return SimItemAttributeTypes.BLOCK_BOUNCINESS.get();
+	}
+
+	@Override
+	public void save(final CompoundTag nbt) {
+		nbt.putDouble("value", this.bounciness);
+	}
+
+	@Override
+	public void load(final CompoundTag nbt) {
+		this.bounciness = nbt.getDouble("value");
 	}
 
 	@Override
@@ -67,14 +75,5 @@ public record BlockBouncinessItemAttribute(double bounciness) implements ItemAtt
 			return List.of();
 		}
 
-		@Override
-		public MapCodec<? extends ItemAttribute> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<? super FriendlyByteBuf, ? extends ItemAttribute> streamCodec() {
-			return STREAM_CODEC;
-		}
 	}
 }

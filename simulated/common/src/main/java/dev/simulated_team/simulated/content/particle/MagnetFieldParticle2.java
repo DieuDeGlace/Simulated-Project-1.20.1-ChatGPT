@@ -60,15 +60,8 @@ public class MagnetFieldParticle2 extends SimpleAnimatedParticle {
     @Override
     public void render(final VertexConsumer buffer, final Camera renderInfo, final float partialTicks) {
         final Quaternionf quaternionf = new Quaternionf();
-        this.getFacingCameraMode().setRotation(quaternionf, renderInfo, partialTicks);
-        if (this.roll != 0.0F) {
-            quaternionf.rotateZ(Mth.lerp(partialTicks, this.oRoll, this.roll));
-        }
-        final Vector3f v = new Vector3f(1,1,1);
         float t = (Minecraft.getInstance().level.getGameTime()%1000)+partialTicks;
         t*=0.2;
-
-        final Vector3f v2 = new Vector3f();
 
 
         //quaternionf.rotateZ((float)(Math.PI/2.0)+t);
@@ -95,6 +88,39 @@ public class MagnetFieldParticle2 extends SimpleAnimatedParticle {
         quaternionf.rotateX((float)(Math.PI/2.0));
 
         this.renderRotatedQuad(buffer, quaternionf, x+offsetX, y+offsetY, z+offsetZ, partialTicks);
+    }
+
+    private void renderRotatedQuad(final VertexConsumer buffer, final Quaternionf rotation,
+                                   final float x, final float y, final float z, final float partialTicks) {
+        final Vector3f[] corners = {
+                new Vector3f(-1.0f, -1.0f, 0.0f),
+                new Vector3f(-1.0f, 1.0f, 0.0f),
+                new Vector3f(1.0f, 1.0f, 0.0f),
+                new Vector3f(1.0f, -1.0f, 0.0f)
+        };
+        final float size = this.getQuadSize(partialTicks);
+        for (final Vector3f corner : corners) {
+            corner.rotate(rotation).mul(size).add(x, y, z);
+        }
+
+        final float u0 = this.getU0();
+        final float u1 = this.getU1();
+        final float v0 = this.getV0();
+        final float v1 = this.getV1();
+        final int light = this.getLightColor(partialTicks);
+        this.addVertex(buffer, corners[0], u1, v1, light);
+        this.addVertex(buffer, corners[1], u1, v0, light);
+        this.addVertex(buffer, corners[2], u0, v0, light);
+        this.addVertex(buffer, corners[3], u0, v1, light);
+    }
+
+    private void addVertex(final VertexConsumer buffer, final Vector3f position,
+                           final float u, final float v, final int light) {
+        buffer.vertex(position.x, position.y, position.z)
+                .uv(u, v)
+                .color(this.rCol, this.gCol, this.bCol, this.alpha)
+                .uv2(light)
+                .endVertex();
     }
 
     @Override

@@ -1,17 +1,17 @@
 package dev.simulated_team.simulated.content.particle;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import dev.simulated_team.simulated.index.SimParticleTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
 
 public class MagnetFieldParticleData implements ParticleOptions, ICustomParticleDataWithSprite<MagnetFieldParticleData> {
     public static final MapCodec<MagnetFieldParticleData> CODEC = RecordCodecBuilder.mapCodec((i) -> {
@@ -19,7 +19,20 @@ public class MagnetFieldParticleData implements ParticleOptions, ICustomParticle
             return p.negative;
         })).apply(i, MagnetFieldParticleData::new);
     });
-    public static final StreamCodec<ByteBuf, MagnetFieldParticleData> STREAM_CODEC;
+    public static final ParticleOptions.Deserializer<MagnetFieldParticleData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+        @Override
+        public MagnetFieldParticleData fromCommand(final ParticleType<MagnetFieldParticleData> type,
+                                                    final StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            return new MagnetFieldParticleData(reader.readBoolean());
+        }
+
+        @Override
+        public MagnetFieldParticleData fromNetwork(final ParticleType<MagnetFieldParticleData> type,
+                                                    final FriendlyByteBuf buffer) {
+            return new MagnetFieldParticleData(buffer.readBoolean());
+        }
+    };
     private boolean negative;
 
     public MagnetFieldParticleData(final boolean negative) {
@@ -34,20 +47,24 @@ public class MagnetFieldParticleData implements ParticleOptions, ICustomParticle
         return SimParticleTypes.MAGNET_FIELD.get();
     }
 
-    public MapCodec<MagnetFieldParticleData> getCodec(final ParticleType<MagnetFieldParticleData> type) {
-        return CODEC;
+    public void writeToNetwork(final FriendlyByteBuf buffer) {
+        buffer.writeBoolean(this.negative);
     }
 
     public ParticleEngine.SpriteParticleRegistration<MagnetFieldParticleData> getMetaFactory() {
         return MagnetFieldParticle.Factory::new;
     }
 
-    public StreamCodec<? super FriendlyByteBuf, MagnetFieldParticleData> getStreamCodec() {
-        return STREAM_CODEC;
+    public String writeToString() {
+        return String.format(java.util.Locale.ROOT, "%s %s", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.negative);
     }
 
-    static {
-        STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BOOL, (p) -> p.negative, MagnetFieldParticleData::new);
+    public ParticleOptions.Deserializer<MagnetFieldParticleData> getDeserializer() {
+        return DESERIALIZER;
+    }
+
+    public Codec<MagnetFieldParticleData> getCodec(final ParticleType<MagnetFieldParticleData> type) {
+        return CODEC.codec();
     }
 
     public boolean isNegative() {
@@ -58,4 +75,3 @@ public class MagnetFieldParticleData implements ParticleOptions, ICustomParticle
         this.negative = negative;
     }
 }
-

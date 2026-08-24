@@ -1,16 +1,11 @@
 package dev.simulated_team.simulated.content.item_attributes;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
 import dev.ryanhcode.sable.mixinterface.block_properties.BlockStateExtension;
 import dev.ryanhcode.sable.physics.config.block_properties.PhysicsBlockPropertyTypes;
 import dev.simulated_team.simulated.index.SimItemAttributeTypes;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -18,13 +13,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public record BlockMassItemAttribute(double mass) implements ItemAttribute {
-	public static final MapCodec<BlockMassItemAttribute> CODEC = Codec.DOUBLE
-			.xmap(BlockMassItemAttribute::new, BlockMassItemAttribute::mass)
-			.fieldOf("value");
+public final class BlockMassItemAttribute implements ItemAttribute {
+	private double mass;
 
-	public static final StreamCodec<ByteBuf, BlockMassItemAttribute> STREAM_CODEC = ByteBufCodecs.DOUBLE
-			.map(BlockMassItemAttribute::new, BlockMassItemAttribute::mass);
+	public BlockMassItemAttribute(final double mass) {
+		this.mass = mass;
+	}
+
+	public double mass() {
+		return this.mass;
+	}
 
 	@Override
 	public boolean appliesTo(final ItemStack stack, final Level world) {
@@ -38,6 +36,16 @@ public record BlockMassItemAttribute(double mass) implements ItemAttribute {
 	@Override
 	public ItemAttributeType getType() {
 		return SimItemAttributeTypes.BLOCK_MASS.get();
+	}
+
+	@Override
+	public void save(final CompoundTag nbt) {
+		nbt.putDouble("value", this.mass);
+	}
+
+	@Override
+	public void load(final CompoundTag nbt) {
+		this.mass = nbt.getDouble("value");
 	}
 
 	@Override
@@ -67,14 +75,5 @@ public record BlockMassItemAttribute(double mass) implements ItemAttribute {
 			return List.of();
 		}
 
-		@Override
-		public MapCodec<? extends ItemAttribute> codec() {
-			return CODEC;
-		}
-
-		@Override
-		public StreamCodec<? super FriendlyByteBuf, ? extends ItemAttribute> streamCodec() {
-			return STREAM_CODEC;
-		}
 	}
 }

@@ -1,17 +1,17 @@
 package dev.simulated_team.simulated.content.particle;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import dev.simulated_team.simulated.index.SimParticleTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public class MagnetFieldParticleData2 implements ParticleOptions, ICustomParticleDataWithSprite<MagnetFieldParticleData2> {
@@ -28,7 +28,34 @@ public class MagnetFieldParticleData2 implements ParticleOptions, ICustomParticl
             Codec.INT.fieldOf("timeUntilEnd").forGetter(p -> p.timeUntilEnd)
     ).apply(instance, MagnetFieldParticleData2::new));
 
-    public static final StreamCodec<ByteBuf, MagnetFieldParticleData2> STREAM_CODEC;
+    public static final ParticleOptions.Deserializer<MagnetFieldParticleData2> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+        @Override
+        public MagnetFieldParticleData2 fromCommand(final ParticleType<MagnetFieldParticleData2> type,
+                                                     final StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            final Vec3 previousOffset = new Vec3(reader.readDouble(), readSpacedDouble(reader), readSpacedDouble(reader));
+            final Vec3 nextOffset = new Vec3(readSpacedDouble(reader), readSpacedDouble(reader), readSpacedDouble(reader));
+            reader.expect(' ');
+            final boolean negative = reader.readBoolean();
+            reader.expect(' ');
+            final int timeUntilEnd = reader.readInt();
+            return new MagnetFieldParticleData2(previousOffset, nextOffset, negative, timeUntilEnd);
+        }
+
+        private double readSpacedDouble(final StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            return reader.readDouble();
+        }
+
+        @Override
+        public MagnetFieldParticleData2 fromNetwork(final ParticleType<MagnetFieldParticleData2> type,
+                                                     final FriendlyByteBuf buffer) {
+            return new MagnetFieldParticleData2(
+                    new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble()),
+                    new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble()),
+                    buffer.readBoolean(), buffer.readVarInt());
+        }
+    };
     Vec3 previousOffset;
     Vec3 nextOffset;
     private boolean negative;
@@ -49,25 +76,33 @@ public class MagnetFieldParticleData2 implements ParticleOptions, ICustomParticl
         return SimParticleTypes.MAGNET_FIELD2.get();
     }
 
-    public MapCodec<MagnetFieldParticleData2> getCodec(final ParticleType<MagnetFieldParticleData2> type) {
-        return CODEC;
+    public void writeToNetwork(final FriendlyByteBuf buffer) {
+        buffer.writeDouble(this.previousOffset.x);
+        buffer.writeDouble(this.previousOffset.y);
+        buffer.writeDouble(this.previousOffset.z);
+        buffer.writeDouble(this.nextOffset.x);
+        buffer.writeDouble(this.nextOffset.y);
+        buffer.writeDouble(this.nextOffset.z);
+        buffer.writeBoolean(this.negative);
+        buffer.writeVarInt(this.timeUntilEnd);
     }
 
     public ParticleEngine.SpriteParticleRegistration<MagnetFieldParticleData2> getMetaFactory() {
         return MagnetFieldParticle2.Factory::new;
     }
 
-    public StreamCodec<? super FriendlyByteBuf, MagnetFieldParticleData2> getStreamCodec() {
-        return STREAM_CODEC;
+    public String writeToString() {
+        return String.format(java.util.Locale.ROOT, "%s %f %f %f %f %f %f %s %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
+                this.previousOffset.x, this.previousOffset.y, this.previousOffset.z,
+                this.nextOffset.x, this.nextOffset.y, this.nextOffset.z, this.negative, this.timeUntilEnd);
     }
 
-    static {
-        STREAM_CODEC = StreamCodec.composite(
-                dev.simulated_team.simulated.network.codec.SimVanillaCodecs.VEC3, p -> p.previousOffset,
-                dev.simulated_team.simulated.network.codec.SimVanillaCodecs.VEC3, p -> p.nextOffset,
-                ByteBufCodecs.BOOL, p -> p.negative,
-                ByteBufCodecs.INT,p -> p.timeUntilEnd,
-                MagnetFieldParticleData2::new);
+    public ParticleOptions.Deserializer<MagnetFieldParticleData2> getDeserializer() {
+        return DESERIALIZER;
+    }
+
+    public Codec<MagnetFieldParticleData2> getCodec(final ParticleType<MagnetFieldParticleData2> type) {
+        return CODEC.codec();
     }
 
     public boolean isNegative() {

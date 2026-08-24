@@ -1,18 +1,18 @@
 package dev.simulated_team.simulated.content.particle;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import dev.simulated_team.simulated.index.SimParticleTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -37,8 +37,34 @@ public class AugerIndicatorParticleData implements ParticleOptions, ICustomParti
                             .forGetter(p -> p.direction))
             .apply(i, AugerIndicatorParticleData::new));
 
-    // lazy way but its past the maximum number of fields for the composite constructor and i cant be bothered figuring out how to solve it
-    public static final StreamCodec<ByteBuf, AugerIndicatorParticleData> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC.codec());
+    public static final ParticleOptions.Deserializer<AugerIndicatorParticleData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+        @Override
+        public AugerIndicatorParticleData fromCommand(final ParticleType<AugerIndicatorParticleData> type,
+                                                       final StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            final int color = reader.readInt();
+            reader.expect(' ');
+            final float speed = reader.readFloat();
+            reader.expect(' ');
+            final float radius1 = reader.readFloat();
+            reader.expect(' ');
+            final float radius2 = reader.readFloat();
+            reader.expect(' ');
+            final float angleOffset = reader.readFloat();
+            reader.expect(' ');
+            final int lifeSpan = reader.readInt();
+            reader.expect(' ');
+            final Direction direction = Direction.from3DDataValue(reader.readInt());
+            return new AugerIndicatorParticleData(color, speed, radius1, radius2, angleOffset, lifeSpan, direction);
+        }
+
+        @Override
+        public AugerIndicatorParticleData fromNetwork(final ParticleType<AugerIndicatorParticleData> type,
+                                                       final FriendlyByteBuf buffer) {
+            return new AugerIndicatorParticleData(buffer.readInt(), buffer.readFloat(), buffer.readFloat(),
+                    buffer.readFloat(), buffer.readFloat(), buffer.readVarInt(), buffer.readEnum(Direction.class));
+        }
+    };
 
     public final int color;
     public final float speed;
@@ -71,13 +97,30 @@ public class AugerIndicatorParticleData implements ParticleOptions, ICustomParti
     }
 
     @Override
-    public MapCodec<AugerIndicatorParticleData> getCodec(final ParticleType<AugerIndicatorParticleData> type) {
-        return CODEC;
+    public void writeToNetwork(final FriendlyByteBuf buffer) {
+        buffer.writeInt(this.color);
+        buffer.writeFloat(this.speed);
+        buffer.writeFloat(this.radius1);
+        buffer.writeFloat(this.radius2);
+        buffer.writeFloat(this.angleOffset);
+        buffer.writeVarInt(this.lifeSpan);
+        buffer.writeEnum(this.direction);
     }
 
     @Override
-    public StreamCodec<? super FriendlyByteBuf, AugerIndicatorParticleData> getStreamCodec() {
-        return STREAM_CODEC;
+    public String writeToString() {
+        return String.format(java.util.Locale.ROOT, "%s %d %f %f %f %f %d %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.color,
+                this.speed, this.radius1, this.radius2, this.angleOffset, this.lifeSpan, this.direction.get3DDataValue());
+    }
+
+    @Override
+    public ParticleOptions.Deserializer<AugerIndicatorParticleData> getDeserializer() {
+        return DESERIALIZER;
+    }
+
+    @Override
+    public Codec<AugerIndicatorParticleData> getCodec(final ParticleType<AugerIndicatorParticleData> type) {
+        return CODEC.codec();
     }
 
     @Override
