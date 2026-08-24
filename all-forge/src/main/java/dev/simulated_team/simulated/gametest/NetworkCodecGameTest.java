@@ -3,9 +3,11 @@ package dev.simulated_team.simulated.gametest;
 import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationPacket;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
+import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.physics.force.ForceGroups;
 import dev.ryanhcode.sable.api.physics.force.QueuedForceGroup;
 import dev.ryanhcode.sable.companion.math.BoundingBox3d;
+import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.altitude_sensor.AltitudeSensorBlockEntity;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterEntries.KeyboardEntry;
@@ -47,6 +49,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -180,6 +183,58 @@ public final class NetworkCodecGameTest {
         }
 
         helper.succeed();
+    }
+
+    @GameTest(template = "extrakineticstest.swivelbearing", timeoutTicks = 100)
+    public static void serverboundConfigurationHandlerTargetsSubLevel(final GameTestHelper helper) {
+        helper.startSequence()
+                .thenIdle(20)
+                .thenExecute(() -> {
+                    final SubLevel subLevel = requireSingleSubLevel(helper);
+                    final ServerLevel level = helper.getLevel();
+                    final BlockPos storagePos = subLevel.getPlot().getCenterBlock().offset(1, 0, 0);
+                    level.setBlockAndUpdate(storagePos, SimBlocks.ALTITUDE_SENSOR.getDefaultState());
+                    final AltitudeSensorBlockEntity altitude = requireBlockEntity(level, storagePos, AltitudeSensorBlockEntity.class);
+                    final Vec3 physicalPos = Sable.HELPER.projectOutOfSubLevel(level, Vec3.atBottomCenterOf(storagePos));
+
+                    if (physicalPos.distanceToSqr(Vec3.atBottomCenterOf(storagePos)) <= 20.0) {
+                        throw new GameTestAssertException("Sub-level packet regression did not separate storage and physical coordinates");
+                    }
+
+                    final ServerPlayer player = FakePlayerFactory.getMinecraft(level);
+                    player.setPos(physicalPos.x, physicalPos.y, physicalPos.z);
+                    transfer(ConfigureAltitudeSensorPacket.CODEC,
+                            new ConfigureAltitudeSensorPacket(storagePos, 0.65f, 0.35f)).handle(new ServerPacketContext(player));
+                    assertClose("sub-level packet-applied altitude high signal", 0.65f, altitude.highSignal);
+                    assertClose("sub-level packet-applied altitude low signal", 0.35f, altitude.lowSignal);
+                })
+                .thenSucceed();
+    }
+
+    private static SubLevel requireSingleSubLevel(final GameTestHelper helper) {
+        final double[] bounds = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+                Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+        helper.forEveryBlockInStructure(relative -> {
+            final BlockPos absolute = helper.absolutePos(relative);
+            bounds[0] = Math.min(bounds[0], absolute.getX());
+            bounds[1] = Math.min(bounds[1], absolute.getY());
+            bounds[2] = Math.min(bounds[2], absolute.getZ());
+            bounds[3] = Math.max(bounds[3], absolute.getX() + 1);
+            bounds[4] = Math.max(bounds[4], absolute.getY() + 1);
+            bounds[5] = Math.max(bounds[5], absolute.getZ() + 1);
+        });
+
+        SubLevel found = null;
+        int count = 0;
+        for (final SubLevel candidate : Sable.HELPER.getAllIntersecting(helper.getLevel(),
+                new BoundingBox3d(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]))) {
+            found = candidate;
+            count++;
+        }
+        if (count != 1) {
+            throw new GameTestAssertException("Expected 1 sub-level, found " + count);
+        }
+        return found;
     }
 
     private static <T> T requireBlockEntity(final ServerLevel level, final BlockPos pos, final Class<T> type) {
