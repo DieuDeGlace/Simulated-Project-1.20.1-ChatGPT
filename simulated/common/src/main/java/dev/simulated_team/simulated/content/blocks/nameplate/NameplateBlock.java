@@ -1,7 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.nameplate;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -56,8 +54,6 @@ import java.util.function.Predicate;
 public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<NameplateBlockEntity>, IWrenchable, BlockSubLevelAssemblyListener {
 
     public static final EnumProperty<Position> POSITION = EnumProperty.create("position", Position.class);
-    public static final MapCodec<NameplateBlock> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(propertiesCodec(), DyeColor.CODEC.fieldOf("DyeColor").forGetter(NameplateBlock::getColor)).apply(instance, NameplateBlock::new));
-
     private static final int placementHelperId = PlacementHelpers.register(new PlacementHelper());
 
     protected final DyeColor color;
@@ -250,11 +246,6 @@ public class NameplateBlock extends HorizontalDirectionalBlock implements IBE<Na
 
     public DyeColor getColor() {
         return this.color;
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override

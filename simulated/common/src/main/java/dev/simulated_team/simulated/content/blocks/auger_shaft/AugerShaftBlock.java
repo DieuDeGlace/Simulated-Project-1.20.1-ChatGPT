@@ -235,7 +235,7 @@ public class AugerShaftBlock extends RotatedPillarKineticBlock implements IBE<Au
     }
 
     @Override
-    protected void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block neighborBlock, final BlockPos neighborPos, final boolean movedByPiston) {
+    public void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block neighborBlock, final BlockPos neighborPos, final boolean movedByPiston) {
 //        this.withBlockEntityDo(level, pos, (be) -> be.stopped = false);
 
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);

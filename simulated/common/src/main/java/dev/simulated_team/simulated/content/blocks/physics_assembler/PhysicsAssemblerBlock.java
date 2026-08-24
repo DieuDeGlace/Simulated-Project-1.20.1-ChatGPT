@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.physics_assembler;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.deployer.DeployerFakePlayer;
 import com.simibubi.create.foundation.block.IBE;
@@ -29,25 +28,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public class PhysicsAssemblerBlock extends FaceAttachedHorizontalDirectionalBlock implements IBE<PhysicsAssemblerBlockEntity>, IWrenchable, BlockSubLevelAssemblyListener {
-    public static final MapCodec<PhysicsAssemblerBlock> CODEC = simpleCodec(PhysicsAssemblerBlock::new);
-
     public PhysicsAssemblerBlock(final Properties properties) {
         super(properties);
     }
 
     @Override
-    protected boolean canSurvive(final BlockState state, final LevelReader level, final BlockPos pos) {
+    public boolean canSurvive(final BlockState state, final LevelReader level, final BlockPos pos) {
         return canAttach(level, pos, getConnectedDirection(state).getOpposite());
     }
 
     public static boolean canAttach(final LevelReader reader, final BlockPos pos, final Direction direction) {
         final BlockPos blockpos = pos.relative(direction);
         return !reader.getBlockState(blockpos).getBlockSupportShape(reader, pos).getFaceShape(direction.getOpposite()).isEmpty();
-    }
-
-    @Override
-    protected MapCodec<? extends FaceAttachedHorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -74,7 +66,7 @@ public class PhysicsAssemblerBlock extends FaceAttachedHorizontalDirectionalBloc
     }
 
     @Override
-    protected VoxelShape getCollisionShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
+    public VoxelShape getCollisionShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
         final Direction facing = state.getValue(FACING);
         return switch (state.getValue(FACE)) {
             case CEILING -> SimBlockShapes.PHYSICS_ASSEMBLER_CEILING_COLLISION.get(facing);

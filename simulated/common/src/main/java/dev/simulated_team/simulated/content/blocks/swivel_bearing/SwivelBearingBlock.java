@@ -138,7 +138,7 @@ public class SwivelBearingBlock extends DirectionalKineticBlock implements IBE<S
     }
 
     @Override
-    protected VoxelShape getShape(final BlockState blockState, final BlockGetter blockGetter, final BlockPos blockPos, final CollisionContext collisionContext) {
+    public VoxelShape getShape(final BlockState blockState, final BlockGetter blockGetter, final BlockPos blockPos, final CollisionContext collisionContext) {
         return blockState.getValue(ASSEMBLED) ? SimBlockShapes.SWIVEL_BEARING_ASSEMBLED.get(blockState.getValue(FACING)) : Shapes.block();
     }
 

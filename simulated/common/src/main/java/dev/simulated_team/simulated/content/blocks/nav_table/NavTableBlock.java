@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.nav_table;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.api.schematic.requirement.SpecialBlockItemRequirement;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
@@ -39,15 +38,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class NavTableBlock extends DirectionalBlock implements IBE<NavTableBlockEntity>, IWrenchable, CommonRedstoneBlock, SpecialBlockItemRequirement {
-    public static final MapCodec<NavTableBlock> CODEC = simpleCodec(NavTableBlock::new);
-
     public NavTableBlock(final Properties pProperties) {
         super(pProperties);
-    }
-
-    @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.handle;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.api.contraption.BlockMovementChecks;
@@ -38,12 +36,6 @@ import java.util.Locale;
 import static net.minecraft.core.Direction.Axis.Y;
 
 public class HandleBlock extends AbstractDirectionalAxisBlock implements IBE<HandleBlockEntity>, IWrenchable {
-
-    public static final MapCodec<HandleBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            propertiesCodec(),
-            DyeColor.CODEC.fieldOf("color").forGetter(HandleBlock::getColor),
-            StringRepresentable.fromValues(Variant::values).fieldOf("variant").forGetter(HandleBlock::getVariant)
-    ).apply(instance, HandleBlock::new));
 
     private static final HandleShaper SHAPER = HandleShaper.make();
 
@@ -127,12 +119,12 @@ public class HandleBlock extends AbstractDirectionalAxisBlock implements IBE<Han
     }
 
     @Override
-    protected boolean hasAnalogOutputSignal(final BlockState state) {
+    public boolean hasAnalogOutputSignal(final BlockState state) {
         return true;
     }
 
     @Override
-    protected int getAnalogOutputSignal(final BlockState state, final Level level, final BlockPos pos) {
+    public int getAnalogOutputSignal(final BlockState state, final Level level, final BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof final HandleBlockEntity be) {
             return be.hasPlayer() ? 15 : 0;
         }
@@ -146,11 +138,6 @@ public class HandleBlock extends AbstractDirectionalAxisBlock implements IBE<Han
     @Override
     public Class<HandleBlockEntity> getBlockEntityClass() {
         return HandleBlockEntity.class;
-    }
-
-    @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
-        return CODEC;
     }
 
     public @Nullable DyeColor getColor() {

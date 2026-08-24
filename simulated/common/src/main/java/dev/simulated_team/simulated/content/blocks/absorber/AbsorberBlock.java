@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.absorber;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import dev.simulated_team.simulated.index.SimBlockShapes;
@@ -37,7 +36,6 @@ public class AbsorberBlock extends HorizontalDirectionalBlock implements IBE<Abs
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WET = BooleanProperty.create("wet");
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final MapCodec<AbsorberBlock> CODEC = simpleCodec(AbsorberBlock::new);
 
     public AbsorberBlock(final Properties properties) {
         super(properties);
@@ -45,12 +43,7 @@ public class AbsorberBlock extends HorizontalDirectionalBlock implements IBE<Abs
     }
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block block, final BlockPos fromPos, final boolean isMoving) {
+    public void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block block, final BlockPos fromPos, final boolean isMoving) {
         if (!level.isClientSide) {
             final boolean flag = state.getValue(POWERED);
             if (flag != level.hasNeighborSignal(pos)) {
@@ -60,7 +53,7 @@ public class AbsorberBlock extends HorizontalDirectionalBlock implements IBE<Abs
     }
 
     @Override
-    protected VoxelShape getShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
+    public VoxelShape getShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
         return SimBlockShapes.EVAPORATOR;
     }
 

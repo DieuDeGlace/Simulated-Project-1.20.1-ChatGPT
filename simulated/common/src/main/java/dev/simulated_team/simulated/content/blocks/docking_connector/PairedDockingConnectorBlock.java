@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.docking_connector;
 
-import com.mojang.serialization.MapCodec;
 import dev.simulated_team.simulated.index.SimBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class PairedDockingConnectorBlock extends DirectionalBlock {
 
-    public static final MapCodec<PairedDockingConnectorBlock> CODEC = simpleCodec(PairedDockingConnectorBlock::new);
-
     private static final VoxelShape[] SHAPES = {
             box(0.0, -16.0, 0.0, 16.0, 16.0, 16.0),
             box(0.0, 0.0, 0.0, 16.0, 32.0, 16.0),
@@ -41,22 +38,22 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter level, final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter level, final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
         return SHAPES[state.getValue(FACING).get3DDataValue()];
     }
 
     @Override
-    protected VoxelShape getBlockSupportShape(final BlockState state, final BlockGetter level, final BlockPos pos) {
+    public VoxelShape getBlockSupportShape(final BlockState state, final BlockGetter level, final BlockPos pos) {
         return Shapes.empty();
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(final @NotNull BlockState state) {
+    public @NotNull RenderShape getRenderShape(final @NotNull BlockState state) {
         return RenderShape.INVISIBLE;
     }
 
     @Override
-    protected @NotNull BlockState updateShape(final BlockState state, final @NotNull Direction direction, final @NotNull BlockState neighborState, final @NotNull LevelAccessor level, final @NotNull BlockPos pos, final @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(final BlockState state, final @NotNull Direction direction, final @NotNull BlockState neighborState, final @NotNull LevelAccessor level, final @NotNull BlockPos pos, final @NotNull BlockPos neighborPos) {
         final Direction facing = state.getValue(FACING);
         if (facing != direction) {
             return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
@@ -92,7 +89,7 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
     }
 
     @Override
-    protected boolean canSurvive(final BlockState state, final LevelReader level, final BlockPos pos) {
+    public boolean canSurvive(final BlockState state, final LevelReader level, final BlockPos pos) {
         final Direction facing = state.getValue(FACING);
         final BlockState connectorBlock = level.getBlockState(pos.relative(facing));
         return connectorBlock.is(SimBlocks.DOCKING_CONNECTOR) && connectorBlock.getValue(BlockStateProperties.FACING) == facing.getOpposite() && connectorBlock.getValue(DockingConnectorBlock.POWERED);
@@ -123,8 +120,4 @@ public class PairedDockingConnectorBlock extends DirectionalBlock {
         return SimBlocks.DOCKING_CONNECTOR.asStack();
     }
 
-    @Override
-    protected @NotNull MapCodec<? extends DirectionalBlock> codec() {
-        return CODEC;
-    }
 }

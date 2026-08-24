@@ -123,7 +123,7 @@ public class DockingConnectorBlock extends WrenchableDirectionalBlock implements
     }
 
     @Override
-    protected boolean triggerEvent(final @NotNull BlockState state, final @NotNull Level level, final @NotNull BlockPos pos, final int id, final int param) {
+    public boolean triggerEvent(final @NotNull BlockState state, final @NotNull Level level, final @NotNull BlockPos pos, final int id, final int param) {
         super.triggerEvent(state, level, pos, id, param);
         final BlockEntity be = level.getBlockEntity(pos);
         return be != null && be.triggerEvent(id, param);

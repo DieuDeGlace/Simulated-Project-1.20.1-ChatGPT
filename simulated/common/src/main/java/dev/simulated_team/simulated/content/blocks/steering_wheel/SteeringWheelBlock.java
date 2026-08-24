@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.steering_wheel;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.IHaveBigOutline;
@@ -49,16 +48,9 @@ public class SteeringWheelBlock extends HorizontalDirectionalBlock
         implements IBE<SteeringWheelBlockEntity>, ProperWaterloggedBlock, IRotate, IHaveBigOutline, QuietUse, IDirectionalAnalogOutput {
 
     public static final BooleanProperty ON_FLOOR = BooleanProperty.create("on_floor");
-    public static final MapCodec<SteeringWheelBlock> CODEC = simpleCodec(SteeringWheelBlock::new);
-
     public SteeringWheelBlock(final Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false).setValue(ON_FLOOR, true));
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -122,7 +114,7 @@ public class SteeringWheelBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected VoxelShape getInteractionShape(final BlockState state, final BlockGetter level, final BlockPos pos) {
+    public VoxelShape getInteractionShape(final BlockState state, final BlockGetter level, final BlockPos pos) {
         if (state.getValue(ON_FLOOR)) {
             return SimBlockShapes.STEERING_WHEEL_FULL_FLOOR.get(state.getValue(FACING));
         } else {
@@ -200,7 +192,7 @@ public class SteeringWheelBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected boolean hasAnalogOutputSignal(final BlockState blockState) {
+    public boolean hasAnalogOutputSignal(final BlockState blockState) {
         return true;
     }
 

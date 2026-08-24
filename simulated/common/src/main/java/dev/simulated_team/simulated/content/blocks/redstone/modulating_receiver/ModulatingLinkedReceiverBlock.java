@@ -1,6 +1,5 @@
 package dev.simulated_team.simulated.content.blocks.redstone.modulating_receiver;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.api.contraption.BlockMovementChecks;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
@@ -32,7 +31,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class ModulatingLinkedReceiverBlock extends WrenchableDirectionalBlock implements IBE<ModulatingLinkedReceiverBlockEntity>, IWrenchable, CommonRedstoneBlock {
-    public static final MapCodec<ModulatingLinkedReceiverBlock> CODEC = simpleCodec(ModulatingLinkedReceiverBlock::new);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     static {
@@ -52,11 +50,6 @@ public class ModulatingLinkedReceiverBlock extends WrenchableDirectionalBlock im
     public ModulatingLinkedReceiverBlock(final Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(POWERED, false));
-    }
-
-    @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override
