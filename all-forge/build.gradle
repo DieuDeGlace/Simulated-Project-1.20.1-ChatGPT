@@ -68,6 +68,10 @@ legacyForge {
                 sourceSet forgeProject.sourceSets.main
             }
         }
+
+        simulated {
+            sourceSet sourceSets.main
+        }
     }
 }
 
@@ -87,6 +91,15 @@ tasks.named('runGameTest') {
 }
 
 dependencies {
+    // Aggregate-only GameTests exercise public packet payload types whose
+    // signatures include Sable and Create classes. Reuse the exact same named
+    // development artifacts as the component modules; none are packaged here.
+    compileOnly files(project(':simulated:forge').tasks.named('patchSableForNamedDev'))
+    compileOnly files(project(':simulated:forge').tasks.named('patchVeilForNamedDev'))
+    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modCompileOnly("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
+    modCompileOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+
     forgeProjects.forEach {
         def parentName = it.parent.name
         implementation(it) {
