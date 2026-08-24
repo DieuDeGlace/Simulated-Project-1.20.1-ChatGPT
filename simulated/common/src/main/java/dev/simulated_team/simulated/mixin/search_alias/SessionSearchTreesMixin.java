@@ -16,7 +16,7 @@ import java.util.List;
 @Mixin(Minecraft.class)
 public class SessionSearchTreesMixin {
 
-    @WrapOperation(method = "createSearchTrees", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getTooltipLines(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;)Ljava/util/List;"))
+    @WrapOperation(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getTooltipLines(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;)Ljava/util/List;"))
     private static List<Component> simulated$getTooltipLines(final ItemStack instance, final Player player, final TooltipFlag flag, final Operation<List<Component>> original) {
         final List<Component> tooltipLines = original.call(instance, player, flag);
         tooltipLines.addAll(SearchAlias.getAliases(instance).stream().map(Component::literal).toList());

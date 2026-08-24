@@ -28,6 +28,17 @@ legacyForge {
             ideName = "Simulated Forge ${it.name.capitalize()} (${project.path})"
         }
 
+        client {
+            client()
+            gameDirectory = project.file('build/client')
+        }
+
+        server {
+            server()
+            gameDirectory = project.file('build/server')
+            programArgument('--nogui')
+        }
+
         data {
             data()
             gameDirectory = project.file('runs/data')

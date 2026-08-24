@@ -96,7 +96,7 @@ public class SimPonderTags {
 
         itemHelper.addToTag(AllCreatePonderTags.KINETIC_SOURCES)
                 .add(SimBlocks.STEERING_WHEEL.get())
-                .add(SimBlocks.RED_PORTABLE_ENGINE);
+                .add(SimBlocks.RED_PORTABLE_ENGINE.asItem());
 
         itemHelper.addToTag(AllCreatePonderTags.KINETIC_APPLIANCES)
                 .add(SimBlocks.SWIVEL_BEARING.get())
@@ -126,13 +126,13 @@ public class SimPonderTags {
                 .add(SimBlocks.WHITE_SYMMETRIC_SAIL.get());
 
         itemHelper.addToTag(AllCreatePonderTags.ARM_TARGETS)
-                .add(SimBlocks.RED_PORTABLE_ENGINE)
+                .add(SimBlocks.RED_PORTABLE_ENGINE.asItem())
                 .add(SimBlocks.NAVIGATION_TABLE.get());
 
         itemHelper.addToTag(AllCreatePonderTags.DISPLAY_SOURCES)
                 .add(SimBlocks.AUGER_SHAFT.get())
                 .add(SimBlocks.AUGER_COG.get())
-                .add(SimBlocks.RED_PORTABLE_ENGINE)
+                .add(SimBlocks.RED_PORTABLE_ENGINE.asItem())
                 .add(SimBlocks.ALTITUDE_SENSOR.get())
                 .add(SimBlocks.VELOCITY_SENSOR.get())
                 .add(SimBlocks.GIMBAL_SENSOR.get())

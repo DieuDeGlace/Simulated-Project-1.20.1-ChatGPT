@@ -32,5 +32,7 @@ configurations {
 
 artifacts {
     commonJava sourceSets.main.java.sourceDirectories.singleFile
-    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+    commonResources(layout.buildDirectory.dir('resources/main')) {
+        builtBy tasks.named('processResources')
+    }
 }

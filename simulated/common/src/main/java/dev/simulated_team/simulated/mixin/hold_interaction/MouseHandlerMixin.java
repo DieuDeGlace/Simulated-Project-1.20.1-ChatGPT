@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.simulated_team.simulated.events.SimulatedCommonClientEvents;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.click_interactions.InteractCallback;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,11 +16,12 @@ public class MouseHandlerMixin {
 
     @Inject(method = "turnPlayer", cancellable = true,
             at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
-    private void simulated$turnPlayer(final double d, final CallbackInfo ci,
-                                      @Local(ordinal = 4) final double j, @Local(ordinal = 5) final double k,
-                                      @Local(ordinal = 0) final int l) {
+    private void simulated$turnPlayer(final CallbackInfo ci,
+                                      @Local(name = "d2") final double horizontalDelta,
+                                      @Local(name = "d3") final double verticalDelta,
+                                      @Local(name = "i") final int invertY) {
         if (SimDistUtil.getClientPlayer() != null && !SimDistUtil.getClientPlayer().isSpectator()) {
-            final InteractCallback.Result status = SimulatedCommonClientEvents.onMouseMove(j, k * l);
+            final InteractCallback.Result status = SimulatedCommonClientEvents.onMouseMove(horizontalDelta, verticalDelta * invertY);
             if (status.cancelled()) {
                 ci.cancel();
             }
@@ -41,8 +43,12 @@ public class MouseHandlerMixin {
     @Inject(method = "onScroll",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getOverlay()Lnet/minecraft/client/gui/screens/Overlay;", ordinal = 0),
             cancellable = true)
-    private void simulated$preOnScroll(final long l, final double d, final double e, final CallbackInfo ci, @Local(ordinal = 3) final double deltaX, @Local(ordinal = 4) final double deltaY) {
+    private void simulated$preOnScroll(final long windowPointer, final double xOffset, final double yOffset, final CallbackInfo ci) {
         if (SimDistUtil.getClientPlayer() != null && !SimDistUtil.getClientPlayer().isSpectator()) {
+            final boolean discreteScroll = Minecraft.getInstance().options.discreteMouseScroll().get();
+            final double sensitivity = Minecraft.getInstance().options.mouseWheelSensitivity().get();
+            final double deltaX = (discreteScroll ? Math.signum(xOffset) : xOffset) * sensitivity;
+            final double deltaY = (discreteScroll ? Math.signum(yOffset) : yOffset) * sensitivity;
             final InteractCallback.Result status = SimulatedCommonClientEvents.onMouseScroll(deltaX, deltaY);
             if (status.cancelled()) {
                 ci.cancel();
