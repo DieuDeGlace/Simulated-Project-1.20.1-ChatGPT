@@ -16,7 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -75,7 +75,7 @@ public class EnvelopeBlock extends CasingBlock implements Envelope, SpecialBlock
             if (timeout-- < 0.0F)
                 break;
 
-            final BlockPos currentPos = frontier.removeFirst();
+            final BlockPos currentPos = frontier.remove(0);
             visited.add(currentPos);
 
             for (final BlockPos d : DIRECTION_OFFSETS) {
@@ -130,12 +130,13 @@ public class EnvelopeBlock extends CasingBlock implements Envelope, SpecialBlock
     }
 
     @Override
-    protected int getLightBlock(final BlockState state, final BlockGetter level, final BlockPos pos) {
+    public int getLightBlock(final BlockState state, final BlockGetter level, final BlockPos pos) {
         return 1;
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack itemStack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+    public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        final ItemStack itemStack = player.getItemInHand(interactionHand);
         final DyeColor color = SimItemService.getDyeColor(itemStack);
 
         if (color != null) {
@@ -143,14 +144,14 @@ public class EnvelopeBlock extends CasingBlock implements Envelope, SpecialBlock
                 level.playSound(null, blockPos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.1f - level.random.nextFloat() * .2f);
 
             EnvelopeBlock.applyDye(blockState, level, blockPos, color);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public ItemStack getCloneItemStack(final LevelReader levelReader, final BlockPos blockPos, final BlockState blockState) {
+    public ItemStack getCloneItemStack(final BlockGetter levelReader, final BlockPos blockPos, final BlockState blockState) {
         return AeroBlocks.DYED_ENVELOPE_BLOCKS.get(this.color).asStack();
     }
 

@@ -23,14 +23,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaterniond;
 import org.joml.Quaterniondc;
 import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
-public class GustEntity extends Entity implements IEntityWithComplexSpawn {
+public class GustEntity extends Entity implements IEntityAdditionalSpawnData {
     private final Quaterniond orientation = new Quaterniond();
     private boolean spawnedInitialBurst = false;
 
@@ -143,7 +143,7 @@ public class GustEntity extends Entity implements IEntityWithComplexSpawn {
     }
 
     @Override
-    protected void defineSynchedData(final @NotNull SynchedEntityData.Builder builder) {
+    protected void defineSynchedData() {
 
     }
 

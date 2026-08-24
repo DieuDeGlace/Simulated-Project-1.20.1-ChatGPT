@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
@@ -335,7 +336,7 @@ public class ServerBalloon extends Balloon {
     @Override
     public boolean shouldSpawnGust(final BlockPos pos) {
         final float percentHeight = (pos.getY() + 0.5f - this.bounds.minY) / this.getHeight();
-        return percentHeight > 1.0 - Math.clamp(this.totalFilledVolume / this.getCapacity(), 0, 1);
+        return percentHeight > 1.0 - Mth.clamp(this.totalFilledVolume / this.getCapacity(), 0, 1);
     }
 
     @Override

@@ -41,7 +41,7 @@ public record LevititeCatalystCrystallizationPacket(BlockPos pos, InteractionHan
 		if (!item.is(AeroTags.ItemTags.LEVITITE_CATALYZER_NO_CONSUME)) {
 			if (item.isDamageableItem()) {
 				item.hurtAndBreak(1, player, this.hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-			} else if (item.isStackable() && !context.player().hasInfiniteMaterials()) {
+			} else if (item.isStackable() && !context.player().getAbilities().instabuild) {
 				item.shrink(1);
 			}
 		}

@@ -38,7 +38,7 @@ public abstract class ItemEntityMixin extends Entity {
     private void aeronautics$levitatingDragAndSparkles(final CallbackInfo ci) {
         final Levitating component = ItemComponentCompat.get(this.getItem(), AeroDataComponents.LEVITATING);
         if (component != null) {
-            final float dragFraction = Math.clamp(component.dragFraction(), 0, 1);
+            final float dragFraction = Mth.clamp(component.dragFraction(), 0, 1);
             this.setDeltaMovement(this.getDeltaMovement().scale(dragFraction));
 
             if (this.level().isClientSide && component.particle().isPresent()) {

@@ -29,7 +29,7 @@ public class BalloonLevelSavedData extends SavedData {
             final DataResult<Pair<List<SavedBalloon>, Tag>> result = CODEC.decode(NbtOps.INSTANCE, tag.getList(ID, Tag.TAG_COMPOUND));
 
             final BalloonMap map = BalloonMap.MAP.get(level);
-            result.ifSuccess(x -> map.getUnloadedBalloons().addAll(x.getFirst()));
+            result.result().ifPresent(x -> map.getUnloadedBalloons().addAll(x.getFirst()));
         }
         return sd;
     }
@@ -54,7 +54,7 @@ public class BalloonLevelSavedData extends SavedData {
         }
 
         final DataResult<Tag> result = CODEC.encodeStart(NbtOps.INSTANCE, list);
-        result.ifSuccess(data -> tag.put(ID, data));
+        result.result().ifPresent(data -> tag.put(ID, data));
 
         return tag;
     }

@@ -8,7 +8,6 @@ import dev.simulated_team.simulated.network.SimNetwork;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -18,6 +17,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import net.minecraftforge.common.ForgeMod;
 
 import static com.simibubi.create.foundation.utility.RaycastHelper.getTraceTarget;
 
@@ -25,7 +25,7 @@ public class LevititeClientCatalyzerHandler implements InteractCallback {
     @NotNull
     private static ClipContext gatherContext(final Player player) {
         final Vec3 origin = player.getEyePosition();
-        final Vec3 target = getTraceTarget(player, player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE), origin);
+        final Vec3 target = getTraceTarget(player, player.getAttributeValue(ForgeMod.BLOCK_REACH.get()), origin);
         return new ClipContext(
                 origin,
                 target,

@@ -9,7 +9,7 @@ import dev.simulated_team.simulated.multiloader.inventory.ItemInfoWrapper;
 import dev.simulated_team.simulated.util.DirectionalAxisShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -45,11 +45,12 @@ public class MountedPotatoCannonBlock extends DirectionalAxisKineticBlock implem
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(final ItemStack heldItem, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+	public InteractionResult use(final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+		final ItemStack heldItem = player.getItemInHand(interactionHand);
 		if (level.getBlockEntity(blockPos) instanceof final MountedPotatoCannonBlockEntity be) {
 			final ContainerSlot slot = be.getInventory().slot;
 			if (heldItem.isEmpty() && slot.isEmpty()) {
-				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				return InteractionResult.PASS;
 			}
 
 			//either we were able to add more to the current stack, or we added a new stack
@@ -61,10 +62,10 @@ public class MountedPotatoCannonBlock extends DirectionalAxisKineticBlock implem
 						slot.insertStack(info, Math.min(heldItem.getCount(), 16), false);
 					}
 
-					if (!player.hasInfiniteMaterials()) {
+					if (!player.getAbilities().instabuild) {
 						heldItem.shrink((int) inserted);
 					}
-					return ItemInteractionResult.sidedSuccess(level.isClientSide());
+					return InteractionResult.sidedSuccess(level.isClientSide());
 				}
 			}
 
@@ -79,11 +80,11 @@ public class MountedPotatoCannonBlock extends DirectionalAxisKineticBlock implem
 					heldItem.shrink((int) inserted);
 				}
 
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 		}
 
-		return super.useItemOn(heldItem, blockState, level, blockPos, player, interactionHand, blockHitResult);
+		return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
 	}
 
 	@Override

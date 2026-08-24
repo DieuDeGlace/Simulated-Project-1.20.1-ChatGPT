@@ -7,6 +7,8 @@ import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaterniondc;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -37,11 +39,14 @@ public class GustParticle extends TextureSheetParticle implements ParticleSubLev
 			final Quaterniondc orientation1 = subLevel.renderPose().orientation();
             this.renderOrientation.premul(this.subLevelOrientation.set(orientation1));
 		}
-		this.renderRotatedQuad(buffer, renderInfo, this.renderOrientation, partialTicks);
+		final Vec3 cameraPosition = renderInfo.getPosition();
+		final float x = (float) (Mth.lerp(partialTicks, this.xo, this.x) - cameraPosition.x());
+		final float y = (float) (Mth.lerp(partialTicks, this.yo, this.y) - cameraPosition.y());
+		final float z = (float) (Mth.lerp(partialTicks, this.zo, this.z) - cameraPosition.z());
+		this.renderRotatedQuad(buffer, this.renderOrientation, x, y, z, partialTicks);
 	}
 
-	@Override
-	protected void renderRotatedQuad(final VertexConsumer buffer, final Quaternionf quaternion, final float x, final float y, final float z, final float partialTicks) {
+	private void renderRotatedQuad(final VertexConsumer buffer, final Quaternionf quaternion, final float x, final float y, final float z, final float partialTicks) {
 		final float f = this.getQuadSize(partialTicks);
 		final float f1 = this.getU0();
 		final float f2 = this.getU1();
@@ -61,7 +66,11 @@ public class GustParticle extends TextureSheetParticle implements ParticleSubLev
 
 	private void renderVertex(final VertexConsumer buffer, final Quaternionf quaternion, final float x, final float y, final float z, final float xOffset, final float yOffset, final float quadSize, final float u, final float v, final int packedLight) {
 		final Vector3f vector3f = (new Vector3f(xOffset, yOffset, 0.0F)).rotate(quaternion).mul(quadSize).add(x, y, z);
-		buffer.addVertex(vector3f.x(), vector3f.y(), vector3f.z()).setUv(u, v).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(packedLight);
+		buffer.vertex(vector3f.x(), vector3f.y(), vector3f.z())
+				.uv(u, v)
+				.color(this.rCol, this.gCol, this.bCol, this.alpha)
+				.uv2(packedLight)
+				.endVertex();
 	}
 
 	@Override

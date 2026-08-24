@@ -6,20 +6,12 @@ import dev.eriksonn.aeronautics.Aeronautics;
 import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.eriksonn.aeronautics.index.AeroTags;
 import dev.eriksonn.aeronautics.service.AeroLevititeService;
-import net.createmod.catnip.registry.RegisteredObjectsHelper;
+import net.createmod.catnip.platform.CatnipServices;
 import net.createmod.ponder.api.registration.MultiTagBuilder;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.DataProvider;
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class AeroPonderTags {
 
@@ -28,7 +20,7 @@ public class AeroPonderTags {
 
     public static void register(final PonderTagRegistrationHelper<ResourceLocation> helper) {
         final PonderTagRegistrationHelper<ItemLike> itemHelper = helper.withKeyFunction(
-                RegisteredObjectsHelper::getKeyOrThrow);
+                CatnipServices.REGISTRIES::getKeyOrThrow);
 
         // Aero Tags
 

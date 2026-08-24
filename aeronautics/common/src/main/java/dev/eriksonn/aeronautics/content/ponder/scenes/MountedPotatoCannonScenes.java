@@ -139,7 +139,7 @@ public class MountedPotatoCannonScenes {
 		//todo fix snapping to fully inflated in one tick, maybe fix removing current kinetic speed too that'd be nice
 		scene.world().modifyBlockEntityNBT(cannon, MountedPotatoCannonBlockEntity.class, tag -> {
 			final CompoundTag inventory = new CompoundTag();
-			inventory.put("item", ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, new ItemStack(Items.POTATO)).result().orElseThrow());
+			inventory.put("item", new ItemStack(Items.POTATO).save(new CompoundTag()));
 			tag.put("inventory", inventory);
 			tag.putInt("ItemTimer", 20);
 			NBTHelper.writeEnum(tag, "State", MountedPotatoCannonBlockEntity.State.CHARGING);

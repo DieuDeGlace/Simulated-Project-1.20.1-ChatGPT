@@ -43,7 +43,7 @@ public class AeroArmInteractionPoints {
         }
 
         @Override
-        public ItemStack insert(final ArmBlockEntity armBlockEntity, final ItemStack stack, final boolean simulate) {
+        public ItemStack insert(final ItemStack stack, final boolean simulate) {
             if (this.cachedState.hasBlockEntity()) {
                 final BlockEntity be = this.level.getBlockEntity(this.pos);
                 if (be instanceof final MountedPotatoCannonBlockEntity sbe) {
@@ -51,7 +51,7 @@ public class AeroArmInteractionPoints {
                 }
             }
 
-            return super.insert(armBlockEntity, stack, simulate);
+            return super.insert(stack, simulate);
         }
     }
 

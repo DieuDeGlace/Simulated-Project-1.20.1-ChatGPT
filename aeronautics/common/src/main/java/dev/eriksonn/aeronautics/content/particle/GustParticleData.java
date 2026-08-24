@@ -1,15 +1,17 @@
 package dev.eriksonn.aeronautics.content.particle;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.foundation.particle.ICustomParticleDataWithSprite;
 import dev.eriksonn.aeronautics.index.AeroParticleTypes;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import dev.simulated_team.simulated.network.codec.ByteBufCodecs;
-import dev.simulated_team.simulated.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import org.joml.Quaternionf;
 
@@ -20,10 +22,24 @@ public record GustParticleData(
             ExtraCodecs.QUATERNIONF.fieldOf("orientation").forGetter(o -> o.orientation)
     ).apply(instance, GustParticleData::new));
 
-    private static final StreamCodec<FriendlyByteBuf, GustParticleData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.QUATERNIONF, (o -> o.orientation),
-            GustParticleData::new
-    );
+    private static final ParticleOptions.Deserializer<GustParticleData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+        @Override
+        public GustParticleData fromCommand(final ParticleType<GustParticleData> type, final StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            final float x = reader.readFloat();
+            reader.expect(' ');
+            final float y = reader.readFloat();
+            reader.expect(' ');
+            final float z = reader.readFloat();
+            reader.expect(' ');
+            return new GustParticleData(new Quaternionf(x, y, z, reader.readFloat()));
+        }
+
+        @Override
+        public GustParticleData fromNetwork(final ParticleType<GustParticleData> type, final FriendlyByteBuf buffer) {
+            return new GustParticleData(new Quaternionf(buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
+        }
+    };
 
     public GustParticleData() {
         this(new Quaternionf());
@@ -36,13 +52,27 @@ public record GustParticleData(
     }
 
     @Override
-    public MapCodec<GustParticleData> getCodec(final ParticleType<GustParticleData> type) {
-        return CODEC;
+    public Codec<GustParticleData> getCodec(final ParticleType<GustParticleData> type) {
+        return CODEC.codec();
     }
 
     @Override
-    public StreamCodec<? super FriendlyByteBuf, GustParticleData> getStreamCodec() {
-        return STREAM_CODEC;
+    public ParticleOptions.Deserializer<GustParticleData> getDeserializer() {
+        return DESERIALIZER;
+    }
+
+    @Override
+    public void writeToNetwork(final FriendlyByteBuf buffer) {
+        buffer.writeFloat(this.orientation.x());
+        buffer.writeFloat(this.orientation.y());
+        buffer.writeFloat(this.orientation.z());
+        buffer.writeFloat(this.orientation.w());
+    }
+
+    @Override
+    public String writeToString() {
+        return String.format(java.util.Locale.ROOT, "%s %f %f %f %f", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
+                this.orientation.x(), this.orientation.y(), this.orientation.z(), this.orientation.w());
     }
 
     @Override

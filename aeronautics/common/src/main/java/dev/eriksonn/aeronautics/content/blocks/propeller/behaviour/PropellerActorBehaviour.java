@@ -25,6 +25,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -200,7 +201,7 @@ public class PropellerActorBehaviour extends BlockEntityBehaviour implements IHa
                             mojEnd,
                             ClipContext.Block.COLLIDER,
                             ClipContext.Fluid.ANY,
-                            CollisionContext.empty()
+                            null
                     );
 
                     if (this.getWorld().clip(ctx).getType() == HitResult.Type.MISS) {
@@ -237,7 +238,7 @@ public class PropellerActorBehaviour extends BlockEntityBehaviour implements IHa
 
     public float getParticleSpeed() {
         final float speed = this.getAirflowTickSpeed();
-        return Math.clamp(speed, -5, 5);
+        return Mth.clamp(speed, -5, 5);
     }
 
     /**
@@ -322,7 +323,7 @@ public class PropellerActorBehaviour extends BlockEntityBehaviour implements IHa
             if (other != null)
                 other.logicalPose().orientation().transformInverse(particleVelocity);
 
-            this.getWorld().addParticle(ParticleTypes.DUST_PLUME, hitPos.x, hitPos.y, hitPos.z, particleVelocity.x, particleVelocity.y, particleVelocity.z);
+            this.getWorld().addParticle(ParticleTypes.POOF, hitPos.x, hitPos.y, hitPos.z, particleVelocity.x, particleVelocity.y, particleVelocity.z);
             if (hitState.is(BlockTags.MINEABLE_WITH_SHOVEL)) {
                 this.getWorld().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, hitState), hitPos.x, hitPos.y, hitPos.z, particleVelocity.x, particleVelocity.y, particleVelocity.z);
             } else if (fluid.isSame(Fluids.WATER)) {
