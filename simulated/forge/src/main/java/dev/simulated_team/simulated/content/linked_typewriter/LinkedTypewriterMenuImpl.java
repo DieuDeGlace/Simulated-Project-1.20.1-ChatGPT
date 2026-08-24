@@ -5,9 +5,9 @@ import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.sc
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 //TODO:figure out where items are rendered and change it
 public class LinkedTypewriterMenuImpl extends LinkedTypewriterMenuCommon {
@@ -38,11 +38,6 @@ public class LinkedTypewriterMenuImpl extends LinkedTypewriterMenuCommon {
 
         public GhostSlotHandler(final IItemHandler itemHandler, final int index, final int xPosition, final int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
-        }
-
-        @Override
-        public boolean isFake() {
-            return true;
         }
 
         @Override

@@ -49,8 +49,8 @@ dependencies {
     compileOnly("maven.modrinth:explorers-compass:$minecraft_version-$explorers_compass_version-forge")
     compileOnly("maven.modrinth:GchcoXML:$oculus_version_id")
 
-    api("top.theillusivec4.curios:curios-forge:${curios_version}+${minecraft_version}")
-    api("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+    compileOnly("top.theillusivec4.curios:curios-forge:${curios_version}+${minecraft_version}")
+    compileOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
     // Veil dev jar is remapped SRG -> named by patchVeilForNamedDev (from multiloader-common).
     implementation files(tasks.named('patchVeilForNamedDev'))
@@ -58,7 +58,6 @@ dependencies {
     // Mod compat: only mods with verified 1.20.1 Forge coordinates are kept.
     compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-core-api:$computercraft_tweaked_version")
     compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge-api:$computercraft_tweaked_version")
-    runtimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$computercraft_tweaked_version")
     // DEFERRED (no verified 1.20.1 Forge target artifact frozen yet; not installed in PJ):
     // natures-compass, explorers-compass, sodium, iris
 }
@@ -72,6 +71,9 @@ plugins.withId('net.neoforged.moddev.legacyforge') {
         modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}")
         modImplementation("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
         modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
+        modImplementation("top.theillusivec4.curios:curios-forge:${curios_version}+${minecraft_version}")
+        modImplementation("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+        modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$computercraft_tweaked_version")
 
         // MixinExtras aligned with the Sable port's bundled version.
         implementation(jarJar('io.github.llamalad7:mixinextras-forge:0.5.3'))

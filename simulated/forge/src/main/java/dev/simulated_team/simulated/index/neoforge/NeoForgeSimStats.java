@@ -6,13 +6,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 
 public class NeoForgeSimStats extends SimStats {
-    public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(BuiltInRegistries.CUSTOM_STAT, Simulated.MOD_ID);
+    public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(net.minecraft.core.registries.Registries.CUSTOM_STAT, Simulated.MOD_ID);
     private static final ArrayList<SimStats.Stat> STATS_TO_LOAD = new ArrayList<>();
 
     // makes the statistics appear in the menu for a game session even before being awarded for the fist time :p

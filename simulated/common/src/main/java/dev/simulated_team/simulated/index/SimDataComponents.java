@@ -28,6 +28,10 @@ public class SimDataComponents {
     }
 
     public static void register() {
+        // NBT-backed 1.20.1 component types require no registry entry.
+    }
+
+    public static void registerDefaults() {
         dev.simulated_team.simulated.registrate.SimulatedRegistrate.registerDefaultComponents();
     }
 }

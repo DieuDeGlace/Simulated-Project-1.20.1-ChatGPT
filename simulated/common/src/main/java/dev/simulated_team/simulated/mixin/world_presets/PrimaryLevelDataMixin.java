@@ -1,6 +1,7 @@
 package dev.simulated_team.simulated.mixin.world_presets;
 
 import com.mojang.serialization.DataResult;
+import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import dev.simulated_team.simulated.mixin_interface.PrimaryLevelDataExtension;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.PrimaryLevelData;
+import net.minecraft.world.level.storage.LevelVersion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,7 +34,10 @@ public class PrimaryLevelDataMixin implements PrimaryLevelDataExtension {
 	private ResourceLocation simulated$worldPresetKey = WorldPresets.NORMAL.location();
 
 	@Inject(method = "parse", at = @At("RETURN"), remap = false)
-	private static <T> void simulated$parse(final Dynamic<T> dynamic, final LevelSettings levelSettings, final PrimaryLevelData.SpecialWorldProperty specialWorldProperty, final WorldOptions worldOptions, final Lifecycle lifecycle, final CallbackInfoReturnable<PrimaryLevelData> cir) {
+	private static <T> void simulated$parse(final Dynamic<T> dynamic, final DataFixer dataFixer, final int dataVersion,
+			final CompoundTag playerData, final LevelSettings levelSettings, final LevelVersion levelVersion,
+			final PrimaryLevelData.SpecialWorldProperty specialWorldProperty, final WorldOptions worldOptions,
+			final Lifecycle lifecycle, final CallbackInfoReturnable<PrimaryLevelData> cir) {
 		final DataResult<String> string = dynamic.get(simulated$WORLD_PRESET_KEY).asString();
 		final Optional<String> preset = string.result();
 		if(preset.isPresent()) {

@@ -11,9 +11,8 @@ import dev.simulated_team.simulated.mixin.accessor.CreateBlockEntityBuilderAcces
 import dev.simulated_team.simulated.registrate.SimBlockEntityBuilder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-import java.util.function.Predicate;
 
 @SuppressWarnings("unchecked")
 public class SimBlockEntityBuilderImpl<T extends BlockEntity, P> extends SimBlockEntityBuilder<T, P> {
@@ -31,7 +30,7 @@ public class SimBlockEntityBuilderImpl<T extends BlockEntity, P> extends SimBloc
         OneTimeEventReceiver.addModListener(Simulated.getRegistrate(), FMLClientSetupEvent.class, ($) -> {
             final NonNullSupplier<SimpleBlockEntityVisualizer.Factory<T>> visualFactory = ((CreateBlockEntityBuilderAccessor<T, P>) this).getVisualFactory();
             if (visualFactory != null) {
-                final Predicate<T> renderNormally = ((CreateBlockEntityBuilderAccessor<T, P>)this).getRenderNormally();
+                final var renderNormally = ((CreateBlockEntityBuilderAccessor<T, P>)this).getRenderNormally();
                 SimpleBlockEntityVisualizer.builder((BlockEntityType) this.getEntry()).factory(visualFactory.get()).skipVanillaRender((be) -> {
                     return !renderNormally.test((T) be);
                 }).apply();

@@ -6,10 +6,9 @@ import dev.simulated_team.simulated.config.client.SimClient;
 import dev.simulated_team.simulated.config.server.SimServer;
 import dev.simulated_team.simulated.service.SimConfigService;
 import net.createmod.catnip.config.ConfigBase;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.EnumMap;
@@ -55,7 +54,7 @@ public class NeoForgeSimConfigService implements SimConfigService {
 
 
     private static <T extends ConfigBase> T register(final Supplier<T> factory, final ModConfig.Type side) {
-        final Pair<T, ModConfigSpec> specPair = (new ModConfigSpec.Builder()).configure((builder) -> {
+        final Pair<T, ForgeConfigSpec> specPair = (new ForgeConfigSpec.Builder()).configure((builder) -> {
             final T config = factory.get();
             config.registerAll(builder);
             return config;
@@ -67,12 +66,12 @@ public class NeoForgeSimConfigService implements SimConfigService {
     }
 
 
-    public static void register(final ModLoadingContext context, final ModContainer container) {
+    public static void register() {
         server = register(SimServer::new, ModConfig.Type.SERVER);
         client = register(SimClient::new, ModConfig.Type.CLIENT);
 
         for (final Map.Entry<ModConfig.Type, ConfigBase> typeConfigBaseEntry : CONFIGS.entrySet()) {
-            container.registerConfig(typeConfigBaseEntry.getKey(), typeConfigBaseEntry.getValue().specification);
+            ModLoadingContext.get().registerConfig(typeConfigBaseEntry.getKey(), typeConfigBaseEntry.getValue().specification);
         }
 
         final CStress stress = SimConfigService.INSTANCE.server().kinetics.stressValues;

@@ -6,7 +6,7 @@
   "client": [
     "diagram.VisualizationManagerImplMixin",
     "diagram.VisualManagerImplMixin",
-    "tooltip_flag.ClientTooltipFlagMixin"
+    "merging_glue.MergingGlueUseMixin"
   ],
   "mixins": [
     "harvesters.BlockBreakingTileEntityMixin",

@@ -13,12 +13,14 @@ import dev.simulated_team.simulated.content.blocks.torsion_spring.TorsionSpringB
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.*;
 import net.minecraft.world.level.block.LeverBlock;
-import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestHolder;
 import org.joml.Vector3d;
 
 import java.util.Objects;
 
 import static dev.simulated_team.simulated.gametest.SimulatedGameTestHelper.assertExtraKineticsSpeed;
+import static dev.simulated_team.simulated.gametest.SimulatedGameTestHelper.assertBlockEntityData;
+import static dev.simulated_team.simulated.gametest.SimulatedGameTestHelper.getBlockEntity;
 import static dev.simulated_team.simulated.gametest.SimulatedGameTestHelper.assertKineticsSpeed;
 
 @GameTestHolder(Simulated.MOD_ID)
@@ -26,7 +28,7 @@ public class ExtraKineticsTest {
 
     @GameTest
     public static void analogTransmission(final GameTestHelper helper) {
-        final AnalogLeverBlockEntity leverBE = helper.getBlockEntity(new BlockPos(1, 2, 1));
+        final AnalogLeverBlockEntity leverBE = getBlockEntity(helper, new BlockPos(1, 2, 1));
         final GameTestSequence sequence = helper.startSequence();
         for (int i = 0; i < 16; i++) {
             sequence.thenExecuteAfter(1, () -> {
@@ -43,7 +45,7 @@ public class ExtraKineticsTest {
 
     @GameTest
     public static void analogTransmissionReverse(final GameTestHelper helper) {
-        final AnalogLeverBlockEntity leverBE = helper.getBlockEntity(new BlockPos(1, 2, 1));
+        final AnalogLeverBlockEntity leverBE = getBlockEntity(helper, new BlockPos(1, 2, 1));
         final GameTestSequence sequence = helper.startSequence();
         for (int i = 0; i < 16; i++) {
             sequence.thenExecuteAfter(1, () -> {
@@ -66,7 +68,19 @@ public class ExtraKineticsTest {
                 .thenExecute(() -> {
                     int count = 0;
                     SubLevel subLevel = null;
-                    for (final SubLevel l : Sable.HELPER.getAllIntersecting(helper.getLevel(), new BoundingBox3d(helper.getBounds()))) {
+                    final double[] bounds = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+                            Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+                    helper.forEveryBlockInStructure(relative -> {
+                        final BlockPos absolute = helper.absolutePos(relative);
+                        bounds[0] = Math.min(bounds[0], absolute.getX());
+                        bounds[1] = Math.min(bounds[1], absolute.getY());
+                        bounds[2] = Math.min(bounds[2], absolute.getZ());
+                        bounds[3] = Math.max(bounds[3], absolute.getX() + 1);
+                        bounds[4] = Math.max(bounds[4], absolute.getY() + 1);
+                        bounds[5] = Math.max(bounds[5], absolute.getZ() + 1);
+                    });
+                    for (final SubLevel l : Sable.HELPER.getAllIntersecting(helper.getLevel(),
+                            new BoundingBox3d(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]))) {
                         count++;
                         subLevel = l;
                     }
@@ -88,9 +102,9 @@ public class ExtraKineticsTest {
     public static void torsionSpring(final GameTestHelper helper) {
         helper.startSequence()
                 .thenExecuteAfter(1, () -> assertKineticsSpeed(helper, new BlockPos(2, 2, 3), 32))
-                .thenExecuteAfter(15, () -> helper.<TorsionSpringBlockEntity>assertBlockEntityData(new BlockPos(2, 2, 3), be -> Math.abs(be.getAngle()) == 90, () -> "Expected 90 degrees, got %.0f".formatted(Math.abs(helper.<TorsionSpringBlockEntity>getBlockEntity(new BlockPos(2, 2, 3)).getAngle()))))
+                .thenExecuteAfter(15, () -> SimulatedGameTestHelper.<TorsionSpringBlockEntity>assertBlockEntityData(helper, new BlockPos(2, 2, 3), be -> Math.abs(be.getAngle()) == 90, () -> "Expected 90 degrees, got %.0f".formatted(Math.abs(SimulatedGameTestHelper.<TorsionSpringBlockEntity>getBlockEntity(helper, new BlockPos(2, 2, 3)).getAngle()))))
                 .thenExecuteAfter(1, () -> helper.setBlock(1, 2, 2, helper.getBlockState(new BlockPos(1, 2, 2)).setValue(LeverBlock.POWERED, true)))
-                .thenExecuteAfter(15, () -> helper.<TorsionSpringBlockEntity>assertBlockEntityData(new BlockPos(2, 2, 3), be -> be.getAngle() == 0, () -> "Expected 0 degrees, got %.0f".formatted(Math.abs(helper.<TorsionSpringBlockEntity>getBlockEntity(new BlockPos(2, 2, 3)).getAngle()))))
+                .thenExecuteAfter(15, () -> SimulatedGameTestHelper.<TorsionSpringBlockEntity>assertBlockEntityData(helper, new BlockPos(2, 2, 3), be -> be.getAngle() == 0, () -> "Expected 0 degrees, got %.0f".formatted(Math.abs(SimulatedGameTestHelper.<TorsionSpringBlockEntity>getBlockEntity(helper, new BlockPos(2, 2, 3)).getAngle()))))
                 .thenSucceed();
     }
 }

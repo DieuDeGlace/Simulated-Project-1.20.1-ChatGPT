@@ -45,7 +45,7 @@ public class SimSequencedAssemblyRecipes extends SequencedAssemblyRecipeGen {
     );
 
     public SimSequencedAssemblyRecipes(final PackOutput output, final CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, Simulated.MOD_ID);
+        super(output, Simulated.MOD_ID);
     }
 
     @Override

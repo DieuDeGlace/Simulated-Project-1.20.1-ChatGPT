@@ -56,6 +56,7 @@
     "accessor.RedstoneLinkBlockEntityAccessor",
     "accessor.WorldSectionElementAccessor",
     "assembly_preventer.ServerSubLevelMixin",
+    "arm_interactions.CreateBuiltInRegistriesMixin",
     "auger_shaft.GirderBlockMixin",
     "conditional_display_target.DisplayLinkBlockEntityMixin",
     "create_assembly.ClockworkBearingBlockEntityMixin",

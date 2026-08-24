@@ -6,15 +6,14 @@ import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
 
 // advancements are written to use the traditional datagen entrypoint, and only need to be ran on one side
 public class SimDatagen {
     public static void gatherDataHighPriority(final GatherDataEvent event) {
-        if (event.getMods().contains(Simulated.MOD_ID))
-            SimTags.addGenerators();
+        SimTags.addGenerators();
     }
     public static void gatherData(final GatherDataEvent event) {
         final DataGenerator generator = event.getGenerator();

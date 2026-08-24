@@ -12,7 +12,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -39,7 +39,7 @@ public class SimMechanicalCraftingRecipes extends MechanicalCraftingRecipeGen {
                     .key('R', SimItems.ROPE_COUPLING)
                     .key('A', AllItems.ANDESITE_ALLOY)
                     .key('M', AllItems.PRECISION_MECHANISM)
-                    .key('P', Tags.Items.SLIME_BALLS)
+                    .key('P', Tags.Items.SLIMEBALLS)
                     .key('F', AllBlocks.FLUID_PIPE)
             );
 
@@ -60,7 +60,7 @@ public class SimMechanicalCraftingRecipes extends MechanicalCraftingRecipeGen {
 
 
     public SimMechanicalCraftingRecipes(final PackOutput output, final CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, Simulated.MOD_ID);
+        super(output, Simulated.MOD_ID);
     }
 
 
