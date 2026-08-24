@@ -40,6 +40,15 @@ dependencies {
     })
     implementation sablePortJar
 
+    // The loader task compiles the shared Java sources directly. Mirror the
+    // shared source-set's compile-only contracts so loader compilation sees the
+    // same optional integration and Mixin APIs as :common:compileJava.
+    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.3'
+    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.5.3'
+    compileOnly("maven.modrinth:natures-compass:$minecraft_version-$natures_compass_version-forge")
+    compileOnly("maven.modrinth:explorers-compass:$minecraft_version-$explorers_compass_version-forge")
+    compileOnly("maven.modrinth:GchcoXML:$oculus_version_id")
+
     api("top.theillusivec4.curios:curios-forge:${curios_version}+${minecraft_version}")
     api("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
