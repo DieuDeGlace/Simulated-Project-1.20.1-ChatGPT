@@ -24,6 +24,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -101,7 +102,7 @@ public interface BlockEntityLiftingGasProvider {
         final BlockPos castPos = this.getCastPosition();
 
         if (castPos != null) {
-            final Balloon existingBalloon = BalloonMap.MAP.get(this.getLevel()).getBalloon(castPos);
+            final Balloon existingBalloon = BalloonMap.MAP.get(this.getProviderLevel()).getBalloon(castPos);
 
             if (existingBalloon != null) {
                 // Yip yip!
@@ -118,7 +119,7 @@ public interface BlockEntityLiftingGasProvider {
         if (this.getBalloon() != null)
             return;
 
-        final Level level = this.getLevel();
+        final Level level = this.getProviderLevel();
         final BlockPos castPos = this.getCastPosition();
 
         final BalloonMap balloonMap = BalloonMap.MAP.get(level);
@@ -168,7 +169,7 @@ public interface BlockEntityLiftingGasProvider {
             // it's just like the scorpion and the frog
 
             if (this.isChunkUnloaded() && balloon.getHeaters().isEmpty()) {
-                final Level level = this.getLevel();
+                final Level level = this.getProviderLevel();
                 assert level != null;
 
                 BalloonMap.MAP.get(level).unloadBalloon(serverBalloon);
@@ -246,9 +247,18 @@ public interface BlockEntityLiftingGasProvider {
 
     double getClientPredictedVolume();
 
-    BlockPos getBlockPos();
+    default BlockPos getProviderBlockPos() {
+        return ((BlockEntity) this).getBlockPos();
+    }
 
-    Level getLevel();
+    /**
+     * The contract requires implementors to be block entities. Keep Minecraft accessor calls behind
+     * uniquely named bridges so Forge cannot remap an API method declaration and its interface call
+     * sites inconsistently in the production JAR.
+     */
+    default Level getProviderLevel() {
+        return ((BlockEntity) this).getLevel();
+    }
 
     boolean isChunkUnloaded();
 
@@ -262,7 +272,7 @@ public interface BlockEntityLiftingGasProvider {
             this.tryCreateBalloon();
 
         if (this.getBalloon() instanceof final ServerBalloon balloon && balloon.getTotalFilledVolume() > 1) {
-            AeroAdvancements.HEAD_IN_THE_CLOUDS.awardToNearby(this.getBlockPos(), this.getLevel());
+            AeroAdvancements.HEAD_IN_THE_CLOUDS.awardToNearby(this.getProviderBlockPos(), this.getProviderLevel());
         }
     }
 

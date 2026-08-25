@@ -9,6 +9,7 @@ import dev.eriksonn.aeronautics.content.blocks.hot_air.balloon.map.BalloonMap;
 import dev.eriksonn.aeronautics.content.blocks.hot_air.balloon.ClientBalloon;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
+import foundry.veil.api.client.render.framebuffer.FramebufferAttachmentDefinition;
 import foundry.veil.api.client.render.post.PostPipeline;
 import foundry.veil.api.client.render.post.PostProcessingManager;
 import foundry.veil.api.client.render.shader.program.ShaderProgram;
@@ -63,6 +64,9 @@ public class ClientBalloonEffectRenderer {
             freeFbo();
             overlayFbo = AdvancedFbo.withSize(window.getWidth(), window.getHeight())
                     .addColorTextureBuffer()
+                    // Veil 1.20.1 does not switch away from the preceding RGBA color format
+                    // automatically when constructing a depth texture attachment.
+                    .setFormat(FramebufferAttachmentDefinition.Format.DEPTH_COMPONENT)
                     .setDepthTextureBuffer()
                     .build(true);
         }

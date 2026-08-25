@@ -200,6 +200,17 @@ function Assert-ProductionJar {
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
                 MappingChecks = @()
                 ClassMarkerChecks = @()
+                JavapChecks = @(
+                    @{
+                        Class = 'dev.eriksonn.aeronautics.content.blocks.hot_air.BlockEntityLiftingGasProvider'
+                        Patterns = @(
+                            '(?m)^  public default net\.minecraft\.core\.BlockPos getProviderBlockPos\(\);\r?$',
+                            '(?m)^  public default net\.minecraft\.world\.level\.Level getProviderLevel\(\);\r?$',
+                            'BlockEntity\.m_58899_:\(\)Lnet/minecraft/core/BlockPos;',
+                            'BlockEntity\.m_58904_:\(\)Lnet/minecraft/world/level/Level;'
+                        )
+                    }
+                )
             },
             @{
                 Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar'
@@ -207,6 +218,7 @@ function Assert-ProductionJar {
                 Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
                 MappingChecks = @()
                 ClassMarkerChecks = @()
+                JavapChecks = @()
             }
         )
 
@@ -221,6 +233,38 @@ function Assert-ProductionJar {
                 [System.IO.Compression.ZipArchiveMode]::Read,
                 $false)
             try {
+                if (@($module.JavapChecks).Count -gt 0) {
+                    $temporaryJar = Join-Path ([System.IO.Path]::GetTempPath()) ("simulated-production-audit-$([Guid]::NewGuid().ToString('N')).jar")
+                    try {
+                        [System.IO.File]::WriteAllBytes($temporaryJar, $memory.ToArray())
+                        $javap = Join-Path $env:JAVA_HOME 'bin\javap.exe'
+                        foreach ($check in $module.JavapChecks) {
+                            $previousErrorAction = $ErrorActionPreference
+                            try {
+                                $ErrorActionPreference = 'Continue'
+                                $javapText = (& $javap -classpath $temporaryJar -c -p $check.Class 2>&1 | Out-String)
+                                $javapExitCode = $LASTEXITCODE
+                            }
+                            finally {
+                                $ErrorActionPreference = $previousErrorAction
+                            }
+                            if ($javapExitCode -ne 0) {
+                                throw "$($module.Jar) could not inspect $($check.Class) with javap"
+                            }
+                            foreach ($pattern in $check.Patterns) {
+                                if ($javapText -notmatch $pattern) {
+                                    throw "$($module.Jar) class $($check.Class) failed production bytecode check: $pattern"
+                                }
+                            }
+                        }
+                    }
+                    finally {
+                        if (Test-Path -LiteralPath $temporaryJar) {
+                            [System.IO.File]::Delete($temporaryJar)
+                        }
+                    }
+                }
+
                 $nestedPackEntry = $nested.GetEntry('pack.mcmeta')
                 if ($null -eq $nestedPackEntry) {
                     throw "$($module.Jar) is missing pack.mcmeta"

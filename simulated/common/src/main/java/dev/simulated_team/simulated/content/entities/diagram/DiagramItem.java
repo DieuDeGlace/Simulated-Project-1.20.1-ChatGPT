@@ -1,5 +1,8 @@
 package dev.simulated_team.simulated.content.entities.diagram;
 
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.SubLevel;
+import dev.simulated_team.simulated.Simulated;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -31,7 +34,13 @@ public class DiagramItem extends Item {
         final DiagramEntity diagram = new DiagramEntity(world, pos, face, face.getAxis()
                 .isHorizontal() ? Direction.DOWN : ctx.getHorizontalDirection());
 
-        if (!diagram.survives()) {
+        final boolean survives = diagram.survives();
+        final SubLevel subLevel = Sable.HELPER.getContaining(world, pos);
+        Simulated.LOGGER.info("SIMULATED-DIAGRAM-PLACE: side={}, dimension={}, pos={}, face={}, entityPos={}, subLevel={}, survives={}",
+                world.isClientSide ? "client" : "server", world.dimension().location(), pos, face,
+                diagram.position(), subLevel == null ? null : subLevel.getUniqueId(), survives);
+
+        if (!survives) {
             return InteractionResult.CONSUME;
         }
 

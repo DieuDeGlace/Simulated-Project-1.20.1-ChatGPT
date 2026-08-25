@@ -10,6 +10,7 @@ import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimSoundEvents;
 import dev.simulated_team.simulated.util.SimDistUtil;
+import dev.simulated_team.simulated.util.AdvancedFboCompat;
 import foundry.veil.api.client.render.VeilLevelPerspectiveRenderer;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
 import net.minecraft.client.Minecraft;
@@ -93,7 +94,7 @@ public class DiagramStickyNote extends DiagramButton {
     }
 
     public void create(final DiagramConfig.NoteConfigs noteConfigs) {
-        this.fbo = AdvancedFbo.withSize(SUBLEVEL_RENDER_WIDTH_PIXELS, SUBLEVEL_RENDER_HEIGHT_PIXELS).addColorTextureBuffer().setDepthTextureBuffer().build(true);
+        this.fbo = AdvancedFboCompat.createColorDepthTexture(SUBLEVEL_RENDER_WIDTH_PIXELS, SUBLEVEL_RENDER_HEIGHT_PIXELS);
         this.outlineFbo = AdvancedFbo.withSize(SUBLEVEL_RENDER_WIDTH_PIXELS, SUBLEVEL_RENDER_HEIGHT_PIXELS).addColorTextureBuffer().build(true);
         this.finalFbo = AdvancedFbo.withSize(SUBLEVEL_RENDER_WIDTH_PIXELS, SUBLEVEL_RENDER_HEIGHT_PIXELS).addColorTextureBuffer().build(true);
 

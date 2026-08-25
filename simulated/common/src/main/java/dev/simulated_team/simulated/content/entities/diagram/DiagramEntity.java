@@ -14,6 +14,7 @@ import dev.ryanhcode.sable.physics.config.dimension_physics.DimensionPhysicsData
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
+import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.data.advancements.SimAdvancements;
 import dev.simulated_team.simulated.index.SimEntityTypes;
@@ -33,6 +34,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -151,7 +153,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
     private static DiagramDataPacket makeDiagramDataPacket(final ServerSubLevel serverSubLevel) {
         final MassData massTracker = serverSubLevel.getMassTracker();
-        final Object2ObjectMap<ForceGroup, List<QueuedForceGroup.PointForce>> sentForces = new Object2ObjectOpenHashMap<>();
+        final Object2ObjectMap<ResourceLocation, List<QueuedForceGroup.PointForce>> sentForces = new Object2ObjectOpenHashMap<>();
 
         final Object2ObjectMap<ForceGroup, QueuedForceGroup> queuedForceGroups = serverSubLevel.getQueuedForceGroups();
 
@@ -163,6 +165,13 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
             for (final Map.Entry<ForceGroup, QueuedForceGroup> entry : queuedForceGroups.entrySet()) {
                 final ForceGroup key = entry.getKey();
                 final QueuedForceGroup value = entry.getValue();
+                final ResourceLocation groupId = getRegisteredForceGroupId(key);
+                if (groupId == null) {
+                    Simulated.LOGGER.error("SIMULATED-DIAGRAM-UNREGISTERED-FORCE-GROUP: name={}, color={}, defaultDisplayed={}",
+                            key == null ? null : key.name(), key == null ? null : key.color(),
+                            key == null ? null : key.defaultDisplayed());
+                    continue;
+                }
                 final List<QueuedForceGroup.PointForce> pointForces = new ObjectArrayList<>();
 
                 for (final QueuedForceGroup.PointForce pointForce : value.getRecordedPointForces()) {
@@ -174,7 +183,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
                     continue;
                 }
 
-                sentForces.put(key, pointForces);
+                sentForces.put(groupId, pointForces);
             }
         }
 
@@ -182,14 +191,44 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
         final Pose3d pose = serverSubLevel.logicalPose();
         final Vector3d localGravity = pose.transformNormalInverse(DimensionPhysicsData.getGravity(level)).mul(serverSubLevel.getMassTracker().getMass());
 
-        sentForces.put(ForceGroups.GRAVITY.get(), List.of(new QueuedForceGroup.PointForce(new Vector3d(centerOfMass), localGravity)));
+        sentForces.put(ForceGroups.GRAVITY.getId(), List.of(new QueuedForceGroup.PointForce(new Vector3d(centerOfMass), localGravity)));
 
         return new DiagramDataPacket(sentForces, massTracker.getMass());
+    }
+
+    @Nullable
+    private static ResourceLocation getRegisteredForceGroupId(final ForceGroup forceGroup) {
+        if (forceGroup == null) {
+            return null;
+        }
+
+        for (final Map.Entry<ResourceKey<ForceGroup>, ForceGroup> entry : ForceGroups.REGISTRY.entrySet()) {
+            if (entry.getValue() == forceGroup || Objects.equals(entry.getValue(), forceGroup)) {
+                return entry.getKey().location();
+            }
+        }
+        return null;
     }
 
     @Override
     public void remove(final RemovalReason reason) {
         super.remove(reason);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Vanilla hanging entities only validate their support every 100 ticks. On a moving
+        // sub-level that leaves the diagram visibly floating for several seconds, so check at
+        // a low fixed rate while keeping the per-tick cost negligible.
+        if (!this.level().isClientSide && !this.isRemoved() && this.tickCount % 5 == 0 && !this.survives()) {
+            final SubLevel subLevel = Sable.HELPER.getContaining(this);
+            Simulated.LOGGER.info("SIMULATED-DIAGRAM-SUPPORT: entity={}, tick={}, pos={}, subLevel={}, action=drop",
+                    this.getId(), this.tickCount, this.position(), subLevel == null ? null : subLevel.getUniqueId());
+            this.discard();
+            this.dropItem(null);
+        }
     }
 
     @Override
@@ -417,16 +456,17 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
 
     @Override
     public InteractionResult interactAt(final Player player, final Vec3 vec, final InteractionHand hand) {
+        final SubLevel subLevel = Sable.HELPER.getContaining(this);
+        Simulated.LOGGER.info("SIMULATED-DIAGRAM-INTERACT: side={}, entity={}, dimension={}, pos={}, click={}, hand={}, player={}, subLevel={}",
+                this.level().isClientSide ? "client" : "server", this.getId(), this.level().dimension().location(),
+                this.position(), vec, hand, player.getGameProfile().getName(),
+                subLevel == null ? null : subLevel.getUniqueId());
 
         if (this.level().isClientSide) {
-            final SubLevel subLevel = Sable.HELPER.getContaining(this);
-
             if (subLevel == null) {
                 player.displayClientMessage(SimLang.translate("contraption_diagram.cannot_use").color(SimColors.NUH_UH_RED).component(), true);
             }
         } else {
-            final SubLevel subLevel = Sable.HELPER.getContaining(this);
-
             if (subLevel != null) {
                 DiagramEntity.queueDiagramDataFor(subLevel, ((ServerPlayer) player));
                 SimNetwork.player((ServerPlayer) player).sendPacket(new DiagramOpenPacket(this.getId(), this.config));

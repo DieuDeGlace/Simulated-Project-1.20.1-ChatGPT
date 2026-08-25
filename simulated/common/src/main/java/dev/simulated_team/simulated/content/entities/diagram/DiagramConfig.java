@@ -60,7 +60,15 @@ public class DiagramConfig {
                          final double yaw,
                          final double pitch,
                          final NoteConfigs noteConfig) {
-        this.enabledForceGroups = enabledForceGroups;
+        final ObjectList<ResourceLocation> validForceGroups = new ObjectArrayList<>();
+        if (enabledForceGroups != null) {
+            for (final ResourceLocation groupId : enabledForceGroups) {
+                if (groupId != null && ForceGroups.REGISTRY.containsKey(groupId) && !validForceGroups.contains(groupId)) {
+                    validForceGroups.add(groupId);
+                }
+            }
+        }
+        this.enabledForceGroups = validForceGroups;
         this.displayCenterOfMass = displayCenterOfMass;
         this.mergeForces = mergeForces;
         this.yaw = yaw;

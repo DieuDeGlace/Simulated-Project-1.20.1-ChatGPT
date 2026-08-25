@@ -11,10 +11,8 @@ import dev.ryanhcode.sable.util.SableDistUtil;
 import dev.simulated_team.simulated.index.SimRenderTypes;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -117,11 +115,11 @@ public abstract class AbstractLaserRenderer<T extends AbstractLaserBlockEntity> 
         for (int i = 0; i < 4; i++) {
             final Matrix4f matrix = pose.last().pose();
 
-            builder.vertex(matrix, 0, 0f, 0).color(red, green, blue, alpha).uv(0, endU).uv2(LightTexture.FULL_BRIGHT).overlayCoords(OverlayTexture.NO_OVERLAY).normal(0.0f, 1.0f, 0.0f).endVertex();
-            builder.vertex(matrix, 1, 0f, 0).color(red, green, blue, alpha).uv(0, endU).uv2(LightTexture.FULL_BRIGHT).overlayCoords(OverlayTexture.NO_OVERLAY).normal(0.0f, 1.0f, 0.0f).endVertex();
+            builder.vertex(matrix, 0, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
+            builder.vertex(matrix, 1, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
             // offset makes the end of the laser spread out, helping reduce z-fighting
-            builder.vertex(matrix, 1 + offset, -offset, length + 0.5f).color(red, green, blue, endAlpha).uv(endU, endU).uv2(LightTexture.FULL_BRIGHT).overlayCoords(OverlayTexture.NO_OVERLAY).normal(0.0f, 1.0f, 0.0f).endVertex();
-            builder.vertex(matrix, -offset, -offset, length + 0.5f).color(red, green, blue, endAlpha).uv(endU, endU).uv2(LightTexture.FULL_BRIGHT).overlayCoords(OverlayTexture.NO_OVERLAY).normal(0.0f, 1.0f, 0.0f).endVertex();
+            builder.vertex(matrix, 1 + offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
+            builder.vertex(matrix, -offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
 
             pose.translate(0.5, 0.5, 0.5);
             pose.mulPose(rotationQuat);

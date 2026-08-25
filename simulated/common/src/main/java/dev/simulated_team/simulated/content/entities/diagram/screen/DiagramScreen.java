@@ -24,6 +24,7 @@ import dev.simulated_team.simulated.network.packets.contraption_diagram.RequestD
 import dev.simulated_team.simulated.util.SimpleSubLevelGroupRenderer;
 import dev.simulated_team.simulated.util.SimDistUtil;
 import dev.simulated_team.simulated.util.BufferBuilderCompat;
+import dev.simulated_team.simulated.util.AdvancedFboCompat;
 import foundry.veil.api.client.render.VeilLevelPerspectiveRenderer;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.framebuffer.AdvancedFbo;
@@ -175,7 +176,7 @@ public class DiagramScreen extends AbstractSimiScreen {
     protected void init() {
         super.init();
         this.freeFramebuffers();
-        this.fbo = AdvancedFbo.withSize(DIAGRAM_TEXTURE.width, DIAGRAM_TEXTURE.height).addColorTextureBuffer().setDepthTextureBuffer().build(true);
+        this.fbo = AdvancedFboCompat.createColorDepthTexture(DIAGRAM_TEXTURE.width, DIAGRAM_TEXTURE.height);
         this.outlineFbo = AdvancedFbo.withSize(DIAGRAM_TEXTURE.width, DIAGRAM_TEXTURE.height).addColorTextureBuffer().build(true);
         this.finalFbo = AdvancedFbo.withSize(DIAGRAM_TEXTURE.width, DIAGRAM_TEXTURE.height).addColorTextureBuffer().build(true);
 
@@ -185,6 +186,9 @@ public class DiagramScreen extends AbstractSimiScreen {
         this.note = new DiagramStickyNote(this, diagramX, diagramY, Component.empty(), () -> {
         });
         this.note.create(this.config.getNoteConfigs());
+        Simulated.LOGGER.info("SIMULATED-DIAGRAM-SCREEN-INIT: entity={}, mainFbo={}, outlineFbo={}, finalFbo={}, noteActive={}",
+                this.diagram.getId(), this.fbo.getId(), this.outlineFbo.getId(), this.finalFbo.getId(),
+                this.config.getNoteConfigs().isActive());
 
         if (this.subLevel.isRemoved()) {
             this.onClose();
@@ -275,15 +279,15 @@ public class DiagramScreen extends AbstractSimiScreen {
     }
 
     private void addForceToggleWidgets(final int diagramX, final int diagramY) {
-        final Iterable<ForceGroup> forceGroups = ForceGroups.REGISTRY;
-
         this.forceToggleWidgets.clear();
 
         int i = 0;
-        for (final ForceGroup forceGroup : forceGroups) {
+        for (final var entry : ForceGroups.REGISTRY.entrySet()) {
+            final ResourceLocation groupId = entry.getKey().location();
+            final ForceGroup forceGroup = entry.getValue();
             final int yOffset = 11 * (i + 1) - 1;
             final int xOffset = -MAX_PAPER_OFFSET - 6;
-            final DiagramForceGroupToggle widget = new DiagramForceGroupToggle(this, forceGroup, diagramX + xOffset, diagramY + yOffset);
+            final DiagramForceGroupToggle widget = new DiagramForceGroupToggle(this, groupId, forceGroup, diagramX + xOffset, diagramY + yOffset);
             this.addWidget(widget);
 
             this.forceToggleWidgets.add(widget);
@@ -775,18 +779,18 @@ public class DiagramScreen extends AbstractSimiScreen {
             // Record max arrow length
             double maxArrowLengthSquared = 0.0;
 
-            final Map<ForceGroup, List<ForceClusterFinder.Cluster>> clusters = new HashMap<>();
+            final Map<ResourceLocation, List<ForceClusterFinder.Cluster>> clusters = new HashMap<>();
 
             for (final ResourceLocation groupId : this.config.enabledForceGroups()) {
                 final ForceGroup group = ForceGroups.REGISTRY.get(groupId);
-                assert group != null;
+                if (group == null) continue;
 
-                final List<QueuedForceGroup.PointForce> forces = this.serverData.forces().get(group);
+                final List<QueuedForceGroup.PointForce> forces = this.serverData.forces().get(groupId);
 
                 if (forces == null) continue;
                 final List<ForceClusterFinder.Cluster> cluster = this.config.mergeForces() ? ForceClusterFinder.getMergedClusters(forces) : ForceClusterFinder.passThrough(forces);
 
-                clusters.put(group, cluster);
+                clusters.put(groupId, cluster);
 
                 for (final ForceClusterFinder.Cluster force : cluster) {
                     maxArrowLengthSquared = Math.max(maxArrowLengthSquared, force.force().lengthSquared());
@@ -795,9 +799,9 @@ public class DiagramScreen extends AbstractSimiScreen {
 
             for (final ResourceLocation groupId : this.config.enabledForceGroups()) {
                 final ForceGroup group = ForceGroups.REGISTRY.get(groupId);
-                assert group != null;
+                if (group == null) continue;
 
-                final List<ForceClusterFinder.Cluster> cluster = clusters.get(group);
+                final List<ForceClusterFinder.Cluster> cluster = clusters.get(groupId);
 
                 if (cluster == null) continue;
 

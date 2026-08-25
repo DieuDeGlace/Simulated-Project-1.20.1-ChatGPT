@@ -2,7 +2,6 @@ package dev.simulated_team.simulated.content.entities.diagram.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ryanhcode.sable.api.physics.force.ForceGroup;
-import dev.ryanhcode.sable.api.physics.force.ForceGroups;
 import dev.ryanhcode.sable.api.physics.force.QueuedForceGroup;
 import dev.simulated_team.simulated.index.SimGUITextures;
 import dev.simulated_team.simulated.index.SimSoundEvents;
@@ -29,10 +28,10 @@ public class DiagramForceGroupToggle extends AbstractWidget {
     private final DiagramScreen diagramScreen;
     private int forceCount;
 
-    public DiagramForceGroupToggle(final DiagramScreen diagramScreen, final ForceGroup forceGroup, final int x, final int y) {
+    public DiagramForceGroupToggle(final DiagramScreen diagramScreen, final ResourceLocation groupId, final ForceGroup forceGroup, final int x, final int y) {
         super(x, y, 90, 10, forceGroup.name());
 
-        this.groupId = ForceGroups.REGISTRY.getKey(forceGroup);
+        this.groupId = groupId;
         this.diagramScreen = diagramScreen;
         this.group = forceGroup;
     }
@@ -55,7 +54,7 @@ public class DiagramForceGroupToggle extends AbstractWidget {
             this.forceCount = 0;
             return;
         }
-        final List<QueuedForceGroup.PointForce> forces = serverData.forces().get(this.group);
+        final List<QueuedForceGroup.PointForce> forces = serverData.forces().get(this.groupId);
         this.forceCount = forces != null ? forces.size() : 0;
     }
 

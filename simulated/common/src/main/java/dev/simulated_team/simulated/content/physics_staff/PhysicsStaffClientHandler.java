@@ -85,10 +85,7 @@ public class PhysicsStaffClientHandler {
         final Camera camera = minecraft.gameRenderer.getMainCamera();
 
         if (player.isLocalPlayer() && !camera.isDetached()) {
-            final Vec3 savedPos = PhysicsStaffItemRenderer.getFirstPersonFocusPos(pt)
-                    .add(player.getPosition(pt)).add(0, Mth.lerp(pt, camera.eyeHeightOld, camera.eyeHeight), 0);
-
-            return savedPos;
+            return PhysicsStaffItemRenderer.getFirstPersonFocusPos(pt).add(camera.getPosition());
         }
 
         final float bodyRotation = Mth.lerp(pt, player.yBodyRotO, player.yBodyRot);
@@ -372,7 +369,12 @@ public class PhysicsStaffClientHandler {
                     }
                 }
 
-                final Vec3 focusPos = getStaffFocusPos(player, mainHand, pt);
+                final boolean exactFirstPerson = player.isLocalPlayer()
+                        && !client.gameRenderer.getMainCamera().isDetached();
+                final Vec3 focusPos = exactFirstPerson
+                        ? PhysicsStaffItemRenderer.getFirstPersonFocusPos(
+                                pt, RenderSystem.getProjectionMatrix(), ms.last().pose()).add(camera)
+                        : getStaffFocusPos(player, mainHand, pt);
                 Vec3 interpolatedBeamEnd = beam.previousEnd.lerp(beam.end, pt);
 
                 final ClientSubLevel subLevel = Sable.HELPER.getContainingClient(interpolatedBeamEnd);

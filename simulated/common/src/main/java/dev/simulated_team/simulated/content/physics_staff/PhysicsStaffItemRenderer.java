@@ -8,6 +8,7 @@ import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRendere
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
+import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.SimulatedClient;
 import dev.simulated_team.simulated.index.SimPartialModels;
 import dev.simulated_team.simulated.index.SimRenderTypes;
@@ -30,31 +31,80 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 import java.lang.Math;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
     private static final Vector3d focusPos = new Vector3d();
     private static final Matrix4f itemProjMat = new Matrix4f();
+    private static final AtomicInteger FOCUS_TRACES = new AtomicInteger();
 
     public static Vec3 getFirstPersonFocusPos(final float pt) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         final Camera camera = gameRenderer.getMainCamera();
 
+        final Matrix4f worldProjection = gameRenderer.getProjectionMatrix(gameRenderer.getFov(camera, pt, true));
+        return getFirstPersonFocusPos(pt, worldProjection, null);
+    }
+
+    public static Vec3 getFirstPersonFocusPos(final float pt, final Matrix4fc worldProjection,
+                                               final Matrix4fc worldViewPose) {
+        final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+        final Camera camera = gameRenderer.getMainCamera();
+
         final Vector3d focusPoint = new Vector3d(PhysicsStaffItemRenderer.focusPos);
-        final Quaternionf orientation = camera.rotation();
-        orientation.transformInverse(focusPoint);
-        final Vector4f v4 = new Vector4f((float) focusPoint.x, (float) focusPoint.y, (float) focusPoint.z, 1.0f);
+        final Vector4f itemClip = new Vector4f((float) focusPoint.x, (float) focusPoint.y, (float) focusPoint.z, 1.0f);
 
+        itemProjMat.transform(itemClip);
+        final Vector4f worldView = new Matrix4f(worldProjection).invert()
+                .transform(new Vector4f(itemClip));
+        if (Math.abs(worldView.w) > 1.0e-6f) {
+            worldView.div(worldView.w);
+        }
 
-        final Matrix4f actualProjMat = gameRenderer.getProjectionMatrix(gameRenderer.getFov(camera, AnimationTickHolder.getPartialTicks(), true));
-        actualProjMat.invert(new Matrix4f()).transform(v4);
-        itemProjMat.transform(v4);
-        focusPoint.set(v4.x, v4.y, v4.z);
-        orientation.transform(focusPoint);
+        final Vector4f output = new Vector4f(worldView.x, worldView.y, worldView.z, 1.0f);
+        if (worldViewPose != null) {
+            new Matrix4f(worldViewPose).invert().transform(output);
+            if (Math.abs(output.w) > 1.0e-6f) {
+                output.div(output.w);
+            }
+        } else {
+            camera.rotation().transform(new Vector3d(output.x, output.y, output.z), focusPoint);
+            output.set((float) focusPoint.x, (float) focusPoint.y, (float) focusPoint.z, 1.0f);
+        }
 
-        final double fov = gameRenderer.getFov(camera, pt, true);
-        focusPoint.mul(100 / fov);
+        if (FOCUS_TRACES.getAndIncrement() < 12) {
+            final Vector4f checkView = new Vector4f(output);
+            if (worldViewPose != null) {
+                worldViewPose.transform(checkView);
+            } else {
+                camera.rotation().transformInverse(checkView);
+            }
+            final Vector4f checkClip = worldProjection.transform(checkView, new Vector4f());
+            final double screenError = ndcDistance(itemClip, checkClip);
+            Simulated.LOGGER.info("SIMULATED-STAFF-FOCUS: partialTick={}, exactPose={}, itemView={}, "
+                            + "itemNdc=[{},{}], worldView=[{},{},{}], outputRelative=[{},{},{}], "
+                            + "checkNdc=[{},{}], screenError={}, itemProjection=[{},{},{},{}], "
+                            + "worldProjection=[{},{},{},{}]",
+                    pt, worldViewPose != null, focusPoint,
+                    ndcX(itemClip), ndcY(itemClip), worldView.x, worldView.y, worldView.z,
+                    output.x, output.y, output.z, ndcX(checkClip), ndcY(checkClip), screenError,
+                    itemProjMat.m00(), itemProjMat.m11(), itemProjMat.m20(), itemProjMat.m21(),
+                    worldProjection.m00(), worldProjection.m11(), worldProjection.m20(), worldProjection.m21());
+        }
 
-        return JOMLConversion.toMojang(focusPoint);
+        return new Vec3(output.x, output.y, output.z);
+    }
+
+    private static double ndcX(final Vector4fc value) {
+        return Math.abs(value.w()) > 1.0e-6f ? value.x() / value.w() : Double.NaN;
+    }
+
+    private static double ndcY(final Vector4fc value) {
+        return Math.abs(value.w()) > 1.0e-6f ? value.y() / value.w() : Double.NaN;
+    }
+
+    private static double ndcDistance(final Vector4fc first, final Vector4fc second) {
+        return Math.hypot(ndcX(first) - ndcX(second), ndcY(first) - ndcY(second));
     }
 
     @Override
@@ -99,8 +149,8 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
                 final PhysicsStaffClientHandler.ClientDragSession dragSession = clientHandler.getDragSession();
 
                 final Quaternionf rotation = minecraft.gameRenderer.getMainCamera().rotation();
-                final Vector3d globalAnchor = ((ClientSubLevel) dragSession.dragSubLevel()).renderPose().transformPosition(new Vector3d(dragSession.dragLocalAnchor()));
-                final Vector3d dirToAnchor = globalAnchor.sub(JOMLConversion.toJOML(player.getEyePosition(partialTicks))).normalize();
+                final Vector3d globalAnchor = ((ClientSubLevel) dragSession.dragSubLevel()).renderPose(partialTicks).transformPosition(new Vector3d(dragSession.dragLocalAnchor()));
+                final Vector3d dirToAnchor = globalAnchor.sub(JOMLConversion.toJOML(minecraft.gameRenderer.getMainCamera().getPosition())).normalize();
                 rotation.transformInverse(dirToAnchor);
 
                 final Quaternionf quat = SimMathUtils.getQuaternionfFromVectorRotation(new Vector3d(0.0, 0.0, -1.0), dirToAnchor);

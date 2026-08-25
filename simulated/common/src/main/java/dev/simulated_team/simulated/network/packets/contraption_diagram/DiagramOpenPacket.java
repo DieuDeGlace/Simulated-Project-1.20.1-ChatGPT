@@ -29,9 +29,14 @@ public record DiagramOpenPacket(int entityID, DiagramConfig config) implements S
         assert level != null;
 
         final Entity entity = level.getEntity(this.entityID());
+        final SubLevel subLevel = entity instanceof final DiagramEntity diagram
+                ? Sable.HELPER.getContaining(diagram)
+                : null;
+        Simulated.LOGGER.info("SIMULATED-DIAGRAM-OPEN: entityId={}, lookup={}, dimension={}, subLevel={}",
+                this.entityID(), entity == null ? null : entity.getType(), level.dimension().location(),
+                subLevel == null ? null : subLevel.getUniqueId());
 
         if (entity instanceof final DiagramEntity diagram) {
-            final SubLevel subLevel = Sable.HELPER.getContaining(diagram);
             if (subLevel == null) return;
 
             DiagramScreen.open(diagram, this.config, subLevel);

@@ -8,9 +8,12 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringRenderer;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
 import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
+import dev.simulated_team.simulated.Simulated;
 import dev.ryanhcode.offroad.index.OffroadPartialModels;
 import dev.simulated_team.simulated.util.SimColors;
 import net.createmod.catnip.math.AngleHelper;
@@ -30,13 +33,26 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class WheelMountRenderer extends KineticBlockEntityRenderer<WheelMountBlockEntity> {
+    private static final AtomicInteger RENDER_TRACES = new AtomicInteger();
+
     public WheelMountRenderer(final BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
     protected void renderSafe(final WheelMountBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay) {
+        if (RENDER_TRACES.getAndIncrement() < 16) {
+            final ClientSubLevel subLevel = Sable.HELPER.getContainingClient(be);
+            Simulated.LOGGER.info("SIMULATED-WHEEL-MOUNT-RENDER: localPos={}, subLevel={}, partialTick={}, "
+                            + "heldItem={}, poseTranslation=[{},{},{}], poseDet={}, poseFinite={}, bufferClass={}",
+                    be.getBlockPos(), subLevel == null ? "none" : subLevel.getUniqueId(), partialTicks,
+                    be.getHeldItem(), ms.last().pose().m30(), ms.last().pose().m31(),
+                    ms.last().pose().m32(), ms.last().pose().determinant(), ms.last().pose().isFinite(),
+                    buffer.getClass().getName());
+        }
         final BlockState state = this.getRenderedBlockState(be);
         final RenderType type = this.getRenderType(be, state);
         renderRotatingBuffer(be, this.getRotatedModel(be, state), ms, buffer.getBuffer(type), light);
