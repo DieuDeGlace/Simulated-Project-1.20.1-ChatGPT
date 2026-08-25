@@ -16,6 +16,11 @@ $distributionDirectory = Join-Path $repositoryPath 'dist'
 $jdkVersion = '17.0.20.1'
 $jdkSha256 = '3D9006956FC8AF5601CD24FFC4F468BEF48279C7EBD8171B9BDF90D0AABFBF1F'
 
+$versionProperties = Get-Content -LiteralPath (Join-Path $repositoryPath 'gradle.properties') -Raw
+if ($versionProperties -notmatch '(?m)^jei_version\s*=\s*15\.49\.0\.191\s*$') {
+    throw 'The build must target the PJ JEI baseline 15.49.0.191'
+}
+
 function Get-Sha256 {
     param([Parameter(Mandatory)][string]$Path)
     $stream = [System.IO.File]::OpenRead($Path)
@@ -178,18 +183,30 @@ function Assert-ProductionJar {
                         Target = 'Lnet/minecraft/world/level/storage/PrimaryLevelData;m_78545_('
                     }
                 )
+                ClassMarkerChecks = @(
+                    @{
+                        Class = 'dev/simulated_team/simulated/mixin/silence_jei/ItemStackListFactoryMixin.class'
+                        Markers = @(
+                            'addFromTab',
+                            'simulated$errorEmptyStack',
+                            '(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V'
+                        )
+                    }
+                )
             },
             @{
                 Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar'
                 Refmap = 'aeronautics.refmap.json'
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
                 MappingChecks = @()
+                ClassMarkerChecks = @()
             },
             @{
                 Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar'
                 Refmap = 'offroad.refmap.json'
                 Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
                 MappingChecks = @()
+                ClassMarkerChecks = @()
             }
         )
 
@@ -215,6 +232,22 @@ function Assert-ProductionJar {
                 }
                 if ($nestedPackMetadata.pack.pack_format -ne 15 -or [string]::IsNullOrWhiteSpace([string]$nestedPackMetadata.pack.description)) {
                     throw "$($module.Jar) pack.mcmeta must declare pack format 15 and a non-empty description"
+                }
+
+                foreach ($check in $module.ClassMarkerChecks) {
+                    $classEntry = $nested.GetEntry($check.Class)
+                    if ($null -eq $classEntry) {
+                        throw "$($module.Jar) is missing $($check.Class)"
+                    }
+                    $classMemory = [System.IO.MemoryStream]::new()
+                    $classStream = $classEntry.Open()
+                    try { $classStream.CopyTo($classMemory) } finally { $classStream.Dispose() }
+                    $classText = [System.Text.Encoding]::GetEncoding(28591).GetString($classMemory.ToArray())
+                    foreach ($marker in $check.Markers) {
+                        if (-not $classText.Contains($marker)) {
+                            throw "$($module.Jar) class $($check.Class) is missing marker $marker"
+                        }
+                    }
                 }
 
                 $refmapEntry = $nested.GetEntry($module.Refmap)
