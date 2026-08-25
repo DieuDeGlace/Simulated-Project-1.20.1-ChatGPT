@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BlockBreakingKineticBlockEntity.class)
+@Mixin(value = BlockBreakingKineticBlockEntity.class, remap = false)
 public abstract class BlockBreakingTileEntityMixin extends SmartBlockEntity implements BlockHarvester {
 
     public BlockBreakingTileEntityMixin(final BlockEntityType<?> type, final BlockPos pos, final BlockState state) {

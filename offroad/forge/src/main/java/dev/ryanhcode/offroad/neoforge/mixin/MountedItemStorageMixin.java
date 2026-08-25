@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import java.lang.ref.WeakReference;
 
-@Mixin(MountedItemStorage.class)
+@Mixin(value = MountedItemStorage.class, remap = false)
 public class MountedItemStorageMixin {
 
     @WrapMethod(method = "getHandlerForMenu")

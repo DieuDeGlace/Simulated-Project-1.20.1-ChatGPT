@@ -72,6 +72,13 @@ configurations {
 }
 
 dependencies {
+    // ModDevGradle's legacy Forge Mixin integration needs the processor on
+    // every source set that contains Mixins. Loader projects compile their
+    // own Mixins together with the shared common sources, so this cannot be
+    // limited to the common projects.
+    compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
+    annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
+
     veilSlim("foundry.veil:Veil-forge-${minecraft_version}:${veil_version}:slim") {
         transitive = false
     }
@@ -101,9 +108,6 @@ def patchSableForNamedDev = tasks.register('patchSableForNamedDev', PatchVeilFor
 
 if (project.path.endsWith(":common")) {
     dependencies {
-        compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
-        annotationProcessor group: 'org.spongepowered', name: 'mixin', version: '0.8.5', classifier: 'processor'
-
         // Development-only named view of the exact external production JAR.
         // It remains external and is not nested into any published artifact.
         implementation files(patchSableForNamedDev)
@@ -126,40 +130,6 @@ if (project.path.endsWith(":common")) {
         // optional at runtime and is never redistributed by this project.
         compileOnly("maven.modrinth:embeddium:$embeddium_version")
     }
-
-    // ModDevGradle produces the authoritative named -> SRG mapping used by the
-    // target Forge runtime, but it does not wire that file into Mixin 0.8's
-    // annotation processor. Without these inputs every valid @Inject/@Shadow is
-    // reported as unmapped and no production refmap can be generated.
-    def mixinOutputDirectory = layout.buildDirectory.dir('generated/mixin')
-    def mixinRefmapFile = layout.buildDirectory.file("generated/mixin/${mod_id}.refmap.json")
-    tasks.withType(JavaCompile).configureEach { compileTask ->
-        if (compileTask.name == 'compileJava') {
-            compileTask.dependsOn tasks.matching { it.name == 'createMinecraftArtifacts' }
-            compileTask.doFirst {
-                def namedToIntermediate = layout.buildDirectory
-                        .file('moddev/artifacts/namedToIntermediate.tsrg').get().asFile
-                if (!namedToIntermediate.isFile()) {
-                    throw new GradleException("Missing ModDevGradle named-to-SRG mappings: ${namedToIntermediate}")
-                }
-
-                def outputDirectory = mixinOutputDirectory.get().asFile
-                outputDirectory.mkdirs()
-                compileTask.options.compilerArgs.addAll([
-                        '-AmappingTypes=tsrg',
-                        "-AreobfTsrgFile=${namedToIntermediate.absolutePath}",
-                        "-AoutTsrgFile=${new File(outputDirectory, "${mod_id}-mixin.srg").absolutePath}",
-                        "-AoutRefMapFile=${mixinRefmapFile.get().asFile.absolutePath}",
-                        '-AdefaultObfuscationEnv=searge'
-                ])
-            }
-        }
-    }
-
-    tasks.named('processResources') {
-        dependsOn tasks.named('compileJava')
-        from(mixinRefmapFile)
-    }
 }
 
 // These artifacts contain references to obfuscated Minecraft methods. Supplying
@@ -167,6 +137,18 @@ if (project.path.endsWith(":common")) {
 // (for example IBE's EntityBlock methods) on the named development classpath.
 // Let ModDevGradle remap them before compiling common sources.
 plugins.withId('net.neoforged.moddev.legacyforge') {
+    // Use ModDevGradle's authoritative Mixin integration. Besides generating
+    // and packaging the refmap, it feeds the annotation processor's extra
+    // Shadow/Accessor mappings into reobfJar and tracks both generated files
+    // as build outputs, including cache restores after a clean build.
+    mixin {
+        add sourceSets.main, "${mod_id}.refmap.json"
+        config "${mod_id}.mixins.json"
+        if (project.path.endsWith(':forge')) {
+            config "${mod_id}-forge.mixins.json"
+        }
+    }
+
     dependencies {
         modImplementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
         modImplementation("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")

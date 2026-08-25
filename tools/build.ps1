@@ -149,6 +149,70 @@ function Assert-ProductionJar {
                 throw "Production JAR is missing $required"
             }
         }
+
+        $moduleRefmaps = @(
+            @{
+                Jar = 'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.1-port.1.jar'
+                Refmap = 'simulated.refmap.json'
+                Configs = @('simulated.mixins.json', 'simulated-forge.mixins.json')
+            },
+            @{
+                Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar'
+                Refmap = 'aeronautics.refmap.json'
+                Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
+            },
+            @{
+                Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar'
+                Refmap = 'offroad.refmap.json'
+                Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
+            }
+        )
+
+        foreach ($module in $moduleRefmaps) {
+            $moduleEntry = $archive.GetEntry($module.Jar)
+            $memory = [System.IO.MemoryStream]::new()
+            $moduleStream = $moduleEntry.Open()
+            try { $moduleStream.CopyTo($memory) } finally { $moduleStream.Dispose() }
+            $memory.Position = 0
+            $nested = [System.IO.Compression.ZipArchive]::new(
+                $memory,
+                [System.IO.Compression.ZipArchiveMode]::Read,
+                $false)
+            try {
+                $refmapEntry = $nested.GetEntry($module.Refmap)
+                if ($null -eq $refmapEntry -or $refmapEntry.Length -lt 32) {
+                    throw "$($module.Jar) is missing a non-empty $($module.Refmap)"
+                }
+
+                $refmapReader = [System.IO.StreamReader]::new($refmapEntry.Open())
+                try { $refmapText = $refmapReader.ReadToEnd() } finally { $refmapReader.Dispose() }
+                try { $refmap = $refmapText | ConvertFrom-Json -ErrorAction Stop } catch {
+                    throw "$($module.Jar) contains an invalid $($module.Refmap): $($_.Exception.Message)"
+                }
+                if ($null -eq $refmap.mappings -or @($refmap.mappings.PSObject.Properties).Count -eq 0) {
+                    throw "$($module.Jar) contains an empty $($module.Refmap) mapping set"
+                }
+
+                foreach ($configName in $module.Configs) {
+                    $configEntry = $nested.GetEntry($configName)
+                    if ($null -eq $configEntry) {
+                        throw "$($module.Jar) is missing $configName"
+                    }
+                    $configReader = [System.IO.StreamReader]::new($configEntry.Open())
+                    try { $configText = $configReader.ReadToEnd() } finally { $configReader.Dispose() }
+                    try { $config = $configText | ConvertFrom-Json -ErrorAction Stop } catch {
+                        throw "$($module.Jar) contains an invalid ${configName}: $($_.Exception.Message)"
+                    }
+                    if ($config.refmap -ne $module.Refmap) {
+                        throw "$($module.Jar) config $configName does not reference $($module.Refmap)"
+                    }
+                }
+            }
+            finally {
+                $nested.Dispose()
+            }
+        }
+
         $forbidden = @($entries | Where-Object {
             $_ -match '(^|/)(validation|gametest|evidence|construction|logs?)(/|$)' -or
             $_ -match '(^|/)DedicatedServerLifecycleValidation\.class$'

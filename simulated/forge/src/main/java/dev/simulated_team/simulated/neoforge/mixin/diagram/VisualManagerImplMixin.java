@@ -9,7 +9,7 @@ import dev.simulated_team.simulated.mixin_interface.diagram.VisualManagerExtensi
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(VisualManagerImpl.class)
+@Mixin(value = VisualManagerImpl.class, remap = false)
 public abstract class VisualManagerImplMixin<T, S extends Storage<T>> implements VisualManagerExtension {
 
     @Shadow public abstract S getStorage();

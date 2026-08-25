@@ -27,8 +27,6 @@ legacyForge {
             systemProperty('forge.enabledGameTestNamespaces', mod_id)
             programArgument('-mixin.config=simulated.mixins.json')
             programArgument('-mixin.config=simulated-forge.mixins.json')
-            programArgument('-mixin.config=aeronautics.mixins.json')
-            programArgument('-mixin.config=aeronautics-forge.mixins.json')
             ideName = "Aero Forge ${it.name.capitalize()} (${project.path})"
         }
 

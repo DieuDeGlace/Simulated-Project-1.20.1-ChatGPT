@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(HarvesterTicker.class)
+@Mixin(value = HarvesterTicker.class, remap = false)
 public class SableHarvesterTickerMixin {
 
     @WrapMethod(method = "dropItem")
