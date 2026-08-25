@@ -186,7 +186,7 @@ public class DiagramScreen extends AbstractSimiScreen {
         this.note = new DiagramStickyNote(this, diagramX, diagramY, Component.empty(), () -> {
         });
         this.note.create(this.config.getNoteConfigs());
-        Simulated.LOGGER.info("SIMULATED-DIAGRAM-SCREEN-INIT: entity={}, mainFbo={}, outlineFbo={}, finalFbo={}, noteActive={}",
+        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-SCREEN-INIT: entity={}, mainFbo={}, outlineFbo={}, finalFbo={}, noteActive={}",
                 this.diagram.getId(), this.fbo.getId(), this.outlineFbo.getId(), this.finalFbo.getId(),
                 this.config.getNoteConfigs().isActive());
 

@@ -36,7 +36,7 @@ public class DiagramItem extends Item {
 
         final boolean survives = diagram.survives();
         final SubLevel subLevel = Sable.HELPER.getContaining(world, pos);
-        Simulated.LOGGER.info("SIMULATED-DIAGRAM-PLACE: side={}, dimension={}, pos={}, face={}, entityPos={}, subLevel={}, survives={}",
+        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-PLACE: side={}, dimension={}, pos={}, face={}, entityPos={}, subLevel={}, survives={}",
                 world.isClientSide ? "client" : "server", world.dimension().location(), pos, face,
                 diagram.position(), subLevel == null ? null : subLevel.getUniqueId(), survives);
 

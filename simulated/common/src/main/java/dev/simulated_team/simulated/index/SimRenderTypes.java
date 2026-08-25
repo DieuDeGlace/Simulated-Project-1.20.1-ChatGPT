@@ -5,7 +5,9 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.google.common.collect.ImmutableMap;
 import com.simibubi.create.foundation.render.RenderTypes;
 import dev.simulated_team.simulated.Simulated;
+import foundry.veil.Veil;
 import foundry.veil.api.client.render.VeilRenderBridge;
+import net.irisshaders.iris.Iris;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.function.Function;
 
 public final class SimRenderTypes extends RenderType {
+
+    private static final ResourceLocation WHITE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/white.png");
+    private static final boolean IRIS_COMPATIBLE_MOD_LOADED = Veil.platform().isModLoaded("iris")
+            || Veil.platform().isModLoaded("oculus");
 
     private static final RenderType STAFF_OVERLAY = create(
             Simulated.MOD_ID + ":staff_overlay/staff_overlay",
@@ -43,6 +49,7 @@ public final class SimRenderTypes extends RenderType {
                     .setCullState(NO_CULL)
                     .createCompositeState(false)
     );
+    private static final RenderType SHADER_PACK_LASER = RenderType.entityTranslucentEmissive(WHITE_TEXTURE);
     private static final RenderType LENS = create(
             Simulated.MOD_ID + ":laser_pointer_lens",
             DefaultVertexFormat.BLOCK,
@@ -118,6 +125,15 @@ public final class SimRenderTypes extends RenderType {
         return LASER;
     }
 
+    /**
+     * Iris/Oculus replaces custom core shaders while a shader pack is active.
+     * Use a standard entity render type in that mode so the shader pack receives
+     * the vertex layout it expects instead of interpreting Veil-specific fields.
+     */
+    public static RenderType laser(final boolean shadersActive) {
+        return shadersActive ? SHADER_PACK_LASER : LASER;
+    }
+
     public static RenderType lens() {
         return LENS;
     }
@@ -140,5 +156,13 @@ public final class SimRenderTypes extends RenderType {
 
     public static RenderType spring(final ResourceLocation texture) {
         return SPRING.apply(texture);
+    }
+
+    public static RenderType spring(final ResourceLocation texture, final boolean shadersActive) {
+        return shadersActive ? RenderType.entityCutout(texture) : SPRING.apply(texture);
+    }
+
+    public static boolean shadersActive() {
+        return IRIS_COMPATIBLE_MOD_LOADED && Iris.isPackInUseQuick();
     }
 }

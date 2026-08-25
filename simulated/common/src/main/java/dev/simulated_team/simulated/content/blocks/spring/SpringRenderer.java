@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -80,7 +81,9 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
         final BlockState state = be.getBlockState();
         final SpringBlock.Size size = state.getValue(SpringBlock.SIZE);
         final String name = (size == SpringBlock.Size.MEDIUM ? "" : (size.getSerializedName() + "_")) + "spring";
-        final VertexConsumer buffer = bufferSource.getBuffer(SimRenderTypes.spring(Simulated.path("textures/block/spring/" + name + ".png")));
+        final boolean shadersActive = SimRenderTypes.shadersActive();
+        final VertexConsumer buffer = bufferSource.getBuffer(SimRenderTypes.spring(
+                Simulated.path("textures/block/spring/" + name + ".png"), shadersActive));
 
         ps.pushPose();
 
@@ -119,7 +122,8 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
             renderPose.transformPositionInverse(otherCenter);
         }
 
-        final int color = getStressColor(be, partialTicks, otherCenter, center, minecraft);
+        final int stressColor = getStressColor(be, partialTicks, otherCenter, center, minecraft);
+        final int color = shadersActive ? shaderPackStressColor(stressColor) : stressColor;
 
         final List<SplinePoint> splinePoints = this.generateSpline(
                 JOMLConversion.ZERO,
@@ -230,7 +234,8 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
                     color,
                     buffer,
                     width,
-                    textureWidth);
+                    textureWidth,
+                    shadersActive);
 
             // render inside
             this.renderSegment(ps,
@@ -247,7 +252,8 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
                     color,
                     buffer,
                     width,
-                    textureWidth);
+                    textureWidth,
+                    shadersActive);
             runningSpringLength += length;
         }
 
@@ -321,7 +327,8 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
                                final int color,
                                final VertexConsumer a,
                                final float width,
-                               final float textureWidth) {
+                               final float textureWidth,
+                               final boolean shadersActive) {
         inputStartUp.cross(startDirection, this.startLeft).normalize();
         inputEndUp.cross(endDirection, this.endLeft).normalize();
 
@@ -340,35 +347,50 @@ public class SpringRenderer extends SmartBlockEntityRenderer<SpringBlockEntity> 
 
         final float uvScale = 16.0f / textureWidth;
         final float uvXOffset = second ? width / textureWidth : 0.0f;
-        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).sub(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, startDown, light);
-        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).sub(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, endDown, light);
-        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).sub(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, endDown, light);
-        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).sub(this.startUp), color, texW + uvXOffset, uvStart * uvScale, startDown, light);
+        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).sub(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, startDown, light, shadersActive);
+        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).sub(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, endDown, light, shadersActive);
+        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).sub(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, endDown, light, shadersActive);
+        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).sub(this.startUp), color, texW + uvXOffset, uvStart * uvScale, startDown, light, shadersActive);
 
-        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).add(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, this.startUp, light);
-        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).add(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, this.endUp, light);
-        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).add(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, this.endUp, light);
-        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).add(this.startUp), color, texW + uvXOffset, uvStart * uvScale, this.startUp, light);
+        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).add(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, this.startUp, light, shadersActive);
+        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).add(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, this.endUp, light, shadersActive);
+        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).add(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, this.endUp, light, shadersActive);
+        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).add(this.startUp), color, texW + uvXOffset, uvStart * uvScale, this.startUp, light, shadersActive);
 
-        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).sub(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, startRight, light);
-        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).sub(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, endRight, light);
-        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).add(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, endRight, light);
-        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).add(this.startUp), color, texW + uvXOffset, uvStart * uvScale, startRight, light);
+        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).sub(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, startRight, light, shadersActive);
+        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).sub(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, endRight, light, shadersActive);
+        this.vert(ms, a, endPos.sub(this.endLeft, this.vertex).add(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, endRight, light, shadersActive);
+        this.vert(ms, a, startPos.sub(this.startLeft, this.vertex).add(this.startUp), color, texW + uvXOffset, uvStart * uvScale, startRight, light, shadersActive);
 
-        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).add(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, this.startLeft, light);
-        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).add(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, this.endLeft, light);
-        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).sub(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, this.endLeft, light);
-        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).sub(this.startUp), color, texW + uvXOffset, uvStart * uvScale, this.startLeft, light);
+        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).add(this.startUp), color, 0.0f + uvXOffset, uvStart * uvScale, this.startLeft, light, shadersActive);
+        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).add(this.endUp), color, 0.0f + uvXOffset, uvEnd * uvScale, this.endLeft, light, shadersActive);
+        this.vert(ms, a, endPos.add(this.endLeft, this.vertex).sub(this.endUp), color, texW + uvXOffset, uvEnd * uvScale, this.endLeft, light, shadersActive);
+        this.vert(ms, a, startPos.add(this.startLeft, this.vertex).sub(this.startUp), color, texW + uvXOffset, uvStart * uvScale, this.startLeft, light, shadersActive);
     }
 
-    private void vert(final PoseStack ms, final VertexConsumer a, final Vector3dc pos, final int color, final float u1, final float v1, final Vector3dc normal, final int light) {
+    private void vert(final PoseStack ms, final VertexConsumer a, final Vector3dc pos, final int color, final float u1, final float v1, final Vector3dc normal, final int light, final boolean shadersActive) {
         normal.normalize(this.normalizedNormal);
-        a.vertex(ms.last().pose(), (float) pos.x(), (float) pos.y(), (float) pos.z())
+        final VertexConsumer vertex = a.vertex(ms.last().pose(), (float) pos.x(), (float) pos.y(), (float) pos.z())
                 .color(color)
-                .uv(u1, v1)
+                .uv(u1, v1);
+        if (shadersActive) {
+            vertex.overlayCoords(OverlayTexture.NO_OVERLAY);
+        }
+        vertex
                 .uv2(light)
                 .normal(ms.last().normal(), (float) this.normalizedNormal.x(), (float) this.normalizedNormal.y(), (float) this.normalizedNormal.z())
                 .endVertex();
+    }
+
+    private static int shaderPackStressColor(final int stressColor) {
+        final int alpha = stressColor >>> 24;
+        final int red = stressColor >>> 16 & 0xFF;
+        final int green = stressColor >>> 8 & 0xFF;
+        final int blue = stressColor & 0xFF;
+        final int outRed = 255 + (red - 255) * alpha / 255;
+        final int outGreen = 255 + (green - 255) * alpha / 255;
+        final int outBlue = 255 + (blue - 255) * alpha / 255;
+        return 0xFF000000 | outRed << 16 | outGreen << 8 | outBlue;
     }
 
     @Override

@@ -32,7 +32,7 @@ public record DiagramOpenPacket(int entityID, DiagramConfig config) implements S
         final SubLevel subLevel = entity instanceof final DiagramEntity diagram
                 ? Sable.HELPER.getContaining(diagram)
                 : null;
-        Simulated.LOGGER.info("SIMULATED-DIAGRAM-OPEN: entityId={}, lookup={}, dimension={}, subLevel={}",
+        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-OPEN: entityId={}, lookup={}, dimension={}, subLevel={}",
                 this.entityID(), entity == null ? null : entity.getType(), level.dimension().location(),
                 subLevel == null ? null : subLevel.getUniqueId());
 

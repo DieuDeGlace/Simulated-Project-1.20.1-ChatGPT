@@ -240,7 +240,7 @@ public final class NetworkCodecGameTest {
         checked += verify(packetIds, ClientboundRopeStoppedPacket.CODEC, new ClientboundRopeStoppedPacket(secondPos));
         checked += verify(packetIds, ClientboundEndSeaPacket.CODEC, new ClientboundEndSeaPacket(List.of(new EndSeaPhysics(ResourceLocation.fromNamespaceAndPath("minecraft", "overworld"), Optional.of(4), -40.0, 1.5, 0.75))));
         checked += verify(packetIds, RequestDiagramDataPacket.CODEC, new RequestDiagramDataPacket(FIRST_UUID));
-        checked += verify(packetIds, DiagramDataPacket.CODEC, new DiagramDataPacket(Map.of(ForceGroups.GRAVITY.get(), List.of(new QueuedForceGroup.PointForce(new Vector3d(1, 2, 3), new Vector3d(4, 5, 6)))), 123.5));
+        checked += verify(packetIds, DiagramDataPacket.CODEC, new DiagramDataPacket(Map.of(ForceGroups.GRAVITY.getId(), List.of(new QueuedForceGroup.PointForce(new Vector3d(1, 2, 3), new Vector3d(4, 5, 6)))), 123.5));
         checked += verify(packetIds, DiagramSaveConfigPacket.CODEC, new DiagramSaveConfigPacket(47, diagramConfig));
         checked += verify(packetIds, DiagramOpenPacket.CODEC, new DiagramOpenPacket(48, diagramConfig));
         checked += verify(packetIds, UpdateClientLodestonePositionPacket.STREAM_CODEC, new UpdateClientLodestonePositionPacket(SECOND_UUID, new Vector3d(-7.5, 8.25, 9.75)));

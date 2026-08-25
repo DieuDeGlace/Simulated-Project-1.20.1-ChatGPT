@@ -81,7 +81,7 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
             }
             final Vector4f checkClip = worldProjection.transform(checkView, new Vector4f());
             final double screenError = ndcDistance(itemClip, checkClip);
-            Simulated.LOGGER.info("SIMULATED-STAFF-FOCUS: partialTick={}, exactPose={}, itemView={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-STAFF-FOCUS: partialTick={}, exactPose={}, itemView={}, "
                             + "itemNdc=[{},{}], worldView=[{},{},{}], outputRelative=[{},{},{}], "
                             + "checkNdc=[{},{}], screenError={}, itemProjection=[{},{},{},{}], "
                             + "worldProjection=[{},{},{},{}]",

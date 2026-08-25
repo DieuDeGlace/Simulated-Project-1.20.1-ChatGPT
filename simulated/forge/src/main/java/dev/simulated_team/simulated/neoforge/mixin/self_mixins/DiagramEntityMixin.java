@@ -39,7 +39,7 @@ public abstract class DiagramEntityMixin extends HangingEntity implements IEntit
 
         if (SIMULATED$SPAWN_TRACES.getAndIncrement() < 16) {
             final Entity entity = (Entity) (Object) this;
-            Simulated.LOGGER.info("SIMULATED-DIAGRAM-SPAWN-WRITE: entity={}, side={}, data={}, box={}",
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-SPAWN-WRITE: entity={}, side={}, data={}, box={}",
                     entity.getId(), entity.level().isClientSide ? "client" : "server", compound,
                     entity.getBoundingBox());
         }
@@ -52,7 +52,7 @@ public abstract class DiagramEntityMixin extends HangingEntity implements IEntit
 
         if (SIMULATED$SPAWN_TRACES.getAndIncrement() < 16) {
             final Entity entity = (Entity) (Object) this;
-            Simulated.LOGGER.info("SIMULATED-DIAGRAM-SPAWN-READ: entity={}, side={}, data={}, position={}, box={}",
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-SPAWN-READ: entity={}, side={}, data={}, position={}, box={}",
                     entity.getId(), entity.level().isClientSide ? "client" : "server", compound,
                     entity.position(), entity.getBoundingBox());
         }

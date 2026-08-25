@@ -196,6 +196,64 @@ function Assert-ProductionJar {
                         )
                     }
                 )
+                JavapChecks = @(
+                    @{
+                        Class = 'dev.simulated_team.simulated.index.SimRenderTypes'
+                        Patterns = @(
+                            'SHADER_PACK_LASER',
+                            'Iris\.isPackInUseQuick:',
+                            'public static net\.minecraft\.client\.renderer\.RenderType spring\(net\.minecraft\.resources\.ResourceLocation, boolean\);'
+                        )
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.blocks.lasers.AbstractLaserRenderer'
+                        Patterns = @(
+                            'SimRenderTypes\.laser:\(Z\)Lnet/minecraft/client/renderer/RenderType;',
+                            'shaderPackLaserVertex:',
+                            'OverlayTexture\.'
+                        )
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.blocks.spring.SpringRenderer'
+                        Patterns = @(
+                            'SimRenderTypes\.spring:\(Lnet/minecraft/resources/ResourceLocation;Z\)Lnet/minecraft/client/renderer/RenderType;',
+                            'shaderPackStressColor:',
+                            'OverlayTexture\.'
+                        )
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramEntity'
+                        Patterns = @('DiagnosticLogLimiter\.info:', 'DiagnosticLogLimiter\.error:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramItem'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.entities.diagram.screen.DiagramScreen'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.entities.launched_plunger.LaunchedPlungerEntityRenderer'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.content.physics_staff.PhysicsStaffItemRenderer'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramOpenPacket'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.neoforge.mixin.self_mixins.DiagramEntityMixin'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    },
+                    @{
+                        Class = 'dev.simulated_team.simulated.neoforge.mixin.veil_compat.VeilResourceManagerImplMixin'
+                        Patterns = @('DiagnosticLogLimiter\.info:', 'DiagnosticLogLimiter\.warn:')
+                    }
+                )
             },
             @{
                 Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar'
@@ -221,7 +279,12 @@ function Assert-ProductionJar {
                 Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
                 MappingChecks = @()
                 ClassMarkerChecks = @()
-                JavapChecks = @()
+                JavapChecks = @(
+                    @{
+                        Class = 'dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountRenderer'
+                        Patterns = @('DiagnosticLogLimiter\.info:')
+                    }
+                )
             }
         )
 

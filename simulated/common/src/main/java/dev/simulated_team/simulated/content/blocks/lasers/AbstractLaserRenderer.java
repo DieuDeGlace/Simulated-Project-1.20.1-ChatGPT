@@ -12,6 +12,8 @@ import dev.simulated_team.simulated.index.SimRenderTypes;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.HitResult;
@@ -93,11 +95,12 @@ public abstract class AbstractLaserRenderer<T extends AbstractLaserBlockEntity> 
     }
 
     protected void createLaser(final Vector4f color, final PoseStack pose, final MultiBufferSource buffer, final float maxLength, final float length) {
+        final boolean shadersActive = SimRenderTypes.shadersActive();
         final VertexConsumer builder;
         if (buffer instanceof final SuperRenderTypeBuffer superRenderTypeBuffer) {
-            builder = superRenderTypeBuffer.getLateBuffer(SimRenderTypes.laser());
+            builder = superRenderTypeBuffer.getLateBuffer(SimRenderTypes.laser(shadersActive));
         } else {
-            builder = buffer.getBuffer(SimRenderTypes.laser());
+            builder = buffer.getBuffer(SimRenderTypes.laser(shadersActive));
         }
 
         final float lengthFrac = length / maxLength;
@@ -115,17 +118,52 @@ public abstract class AbstractLaserRenderer<T extends AbstractLaserBlockEntity> 
         for (int i = 0; i < 4; i++) {
             final Matrix4f matrix = pose.last().pose();
 
-            builder.vertex(matrix, 0, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
-            builder.vertex(matrix, 1, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
-            // offset makes the end of the laser spread out, helping reduce z-fighting
-            builder.vertex(matrix, 1 + offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
-            builder.vertex(matrix, -offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
+            if (shadersActive) {
+                // Iris cannot combine a shader pack with Simulated's custom core shader.
+                // Reproduce the custom shader's final-block taper in geometry while using
+                // the standard NEW_ENTITY vertex layout expected by shader packs.
+                final float endZ = length + 0.5f;
+                final float taperZ = Math.max(0.0f, length);
+                final float taperFraction = endZ > 0.0f ? taperZ / endZ : 0.0f;
+                final float taperLeft = -offset * taperFraction;
+                final float taperRight = 1.0f + offset * taperFraction;
+                final float taperY = -offset * taperFraction;
+                final float taperAlpha = alpha + taperFraction * (endAlpha - alpha);
+
+                this.shaderPackLaserVertex(builder, pose, matrix, 0.0f, 0.0f, 0.0f, red, green, blue, alpha);
+                this.shaderPackLaserVertex(builder, pose, matrix, 1.0f, 0.0f, 0.0f, red, green, blue, alpha);
+                this.shaderPackLaserVertex(builder, pose, matrix, taperRight, taperY, taperZ, red, green, blue, taperAlpha);
+                this.shaderPackLaserVertex(builder, pose, matrix, taperLeft, taperY, taperZ, red, green, blue, taperAlpha);
+
+                this.shaderPackLaserVertex(builder, pose, matrix, taperLeft, taperY, taperZ, red, green, blue, taperAlpha);
+                this.shaderPackLaserVertex(builder, pose, matrix, taperRight, taperY, taperZ, red, green, blue, taperAlpha);
+                this.shaderPackLaserVertex(builder, pose, matrix, 1.0f + offset, -offset, endZ, red, green, blue, 0.0f);
+                this.shaderPackLaserVertex(builder, pose, matrix, -offset, -offset, endZ, red, green, blue, 0.0f);
+            } else {
+                builder.vertex(matrix, 0, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
+                builder.vertex(matrix, 1, 0f, 0).uv(0, endU).color(red, green, blue, alpha).endVertex();
+                // offset makes the end of the laser spread out, helping reduce z-fighting
+                builder.vertex(matrix, 1 + offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
+                builder.vertex(matrix, -offset, -offset, length + 0.5f).uv(endU, endU).color(red, green, blue, endAlpha).endVertex();
+            }
 
             pose.translate(0.5, 0.5, 0.5);
             pose.mulPose(rotationQuat);
             pose.translate(-0.5, -0.5, -0.5);
         }
         pose.popPose();
+    }
+
+    private void shaderPackLaserVertex(final VertexConsumer builder, final PoseStack pose, final Matrix4f matrix,
+                                       final float x, final float y, final float z,
+                                       final float red, final float green, final float blue, final float alpha) {
+        builder.vertex(matrix, x, y, z)
+                .color(red, green, blue, alpha)
+                .uv(0.5f, 0.5f)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(LightTexture.FULL_BRIGHT)
+                .normal(pose.last().normal(), 0.0f, 1.0f, 0.0f)
+                .endVertex();
     }
 
     @Override

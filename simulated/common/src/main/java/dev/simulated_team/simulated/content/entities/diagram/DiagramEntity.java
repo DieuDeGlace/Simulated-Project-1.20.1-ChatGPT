@@ -167,7 +167,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
                 final QueuedForceGroup value = entry.getValue();
                 final ResourceLocation groupId = getRegisteredForceGroupId(key);
                 if (groupId == null) {
-                    Simulated.LOGGER.error("SIMULATED-DIAGRAM-UNREGISTERED-FORCE-GROUP: name={}, color={}, defaultDisplayed={}",
+                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.error(Simulated.LOGGER, "SIMULATED-DIAGRAM-UNREGISTERED-FORCE-GROUP: name={}, color={}, defaultDisplayed={}",
                             key == null ? null : key.name(), key == null ? null : key.color(),
                             key == null ? null : key.defaultDisplayed());
                     continue;
@@ -224,7 +224,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
         // a low fixed rate while keeping the per-tick cost negligible.
         if (!this.level().isClientSide && !this.isRemoved() && this.tickCount % 5 == 0 && !this.survives()) {
             final SubLevel subLevel = Sable.HELPER.getContaining(this);
-            Simulated.LOGGER.info("SIMULATED-DIAGRAM-SUPPORT: entity={}, tick={}, pos={}, subLevel={}, action=drop",
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-SUPPORT: entity={}, tick={}, pos={}, subLevel={}, action=drop",
                     this.getId(), this.tickCount, this.position(), subLevel == null ? null : subLevel.getUniqueId());
             this.discard();
             this.dropItem(null);
@@ -457,7 +457,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
     @Override
     public InteractionResult interactAt(final Player player, final Vec3 vec, final InteractionHand hand) {
         final SubLevel subLevel = Sable.HELPER.getContaining(this);
-        Simulated.LOGGER.info("SIMULATED-DIAGRAM-INTERACT: side={}, entity={}, dimension={}, pos={}, click={}, hand={}, player={}, subLevel={}",
+        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-INTERACT: side={}, entity={}, dimension={}, pos={}, click={}, hand={}, player={}, subLevel={}",
                 this.level().isClientSide ? "client" : "server", this.getId(), this.level().dimension().location(),
                 this.position(), vec, hand, player.getGameProfile().getName(),
                 subLevel == null ? null : subLevel.getUniqueId());

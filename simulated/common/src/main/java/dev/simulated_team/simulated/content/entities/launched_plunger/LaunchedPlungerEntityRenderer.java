@@ -136,7 +136,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             }
             final Vector4f checkClip = worldProjection.transform(checkView, new Vector4f());
             final double screenError = ndcDistance(itemClip, checkClip);
-            Simulated.LOGGER.info("SIMULATED-PLUNGER-FOCUS: partialTick={}, exactPose={}, itemView={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-FOCUS: partialTick={}, exactPose={}, itemView={}, "
                             + "itemNdc=[{},{}], worldView=[{},{},{}], output=[{},{},{}], "
                             + "checkNdc=[{},{}], screenError={}, itemProjection=[{},{},{},{}], "
                             + "worldProjection=[{},{},{},{}]",
@@ -204,7 +204,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
         }
 
         if (RENDER_TRACES.getAndIncrement() < 16) {
-            Simulated.LOGGER.info("SIMULATED-PLUNGER-RENDER: entity={}, tick={}, partialTick={}, localOld={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-RENDER: entity={}, tick={}, partialTick={}, localOld={}, "
                             + "localNew={}, projectedNew={}, subLevel={}, other={}, poseTranslation=[{},{},{}], "
                             + "poseDet={}, finite={}",
                     entity.getId(), entity.tickCount, pt, oldPos, entity.position(), newPos,
@@ -257,7 +257,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             target = targetOldPos.lerp(targetNewPos, pt).add(otherNormal.scale(scalingFactor));
 
             if (PAIRED_TRACES.get() < 16 && PAIRED_TRACES.getAndIncrement() < 16) {
-                Simulated.LOGGER.info("SIMULATED-PLUNGER-PAIR: entity={}, other={}, tick={}, partialTick={}, "
+                dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-PAIR: entity={}, other={}, tick={}, partialTick={}, "
                                 + "selfLocalOld={}, selfLocalNew={}, selfProjectedOld={}, selfProjectedNew={}, "
                                 + "targetLocalOld={}, targetLocalNew={}, targetProjectedOld={}, targetProjectedNew={}, "
                                 + "selfSubLevel={}, targetOldSubLevel={}, targetNewSubLevel={}, start={}, end={}, finite={}",
@@ -401,7 +401,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             final ShaderInstance shader = RenderSystem.getShader();
             final ShaderProgram ropeProgram = VeilRenderSystem.renderer().getShaderManager()
                     .getShader(Simulated.path("rope/rope"));
-            Simulated.LOGGER.info("SIMULATED-PLUNGER-ROPE: points={}, start={}, end={}, camera={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-ROPE: points={}, start={}, end={}, camera={}, "
                             + "maxCameraRelative={}, renderType={}, queuedShader={}, queuedGlProgram={}, "
                             + "veilProgramPresent={}, veilProgram={}, poseTranslation=[{},{},{}], "
                             + "poseDet={}, finite={}",
@@ -474,7 +474,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             final Vec3 expectedEnd = lineEnd.subtract(cameraPosition);
             final double poseStartError = expectedStart.distanceTo(new Vec3(poseStart.x, poseStart.y, poseStart.z));
             final double poseEndError = expectedEnd.distanceTo(new Vec3(poseEnd.x, poseEnd.y, poseEnd.z));
-            Simulated.LOGGER.info("SIMULATED-PLUNGER-GEOMETRY: entity={}, tick={}, paired={}, animationScale={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-GEOMETRY: entity={}, tick={}, paired={}, animationScale={}, "
                             + "controlPoints={}, splinePoints={}, lineStart={}, lineEnd={}, firstSpline={}, lastSpline={}, "
                             + "maxControlDeviation={}, maxSplineDeviation={}, minSegmentLength={}, maxSegmentLength={}, "
                             + "minTangentAlignment={}, poseStart=[{},{},{}], poseEnd=[{},{},{}], "

@@ -63,7 +63,7 @@ public abstract class VeilResourceManagerImplMixin {
                 final int namespaceEnd = entryName.indexOf('/', root.length());
                 if (namespaceEnd < 0 || namespaceEnd == root.length() || namespaceEnd + 1 >= entryName.length()) {
                     invalidResources++;
-                    Simulated.LOGGER.warn("[SIMULATED-VEIL-JARJAR] Ignoring malformed resource entry {}", entryName);
+                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.warn(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Ignoring malformed resource entry {}", entryName);
                     continue;
                 }
 
@@ -72,7 +72,7 @@ public abstract class VeilResourceManagerImplMixin {
                 final ResourceLocation location = ResourceLocation.tryBuild(namespace, path);
                 if (location == null) {
                     invalidResources++;
-                    Simulated.LOGGER.warn("[SIMULATED-VEIL-JARJAR] Ignoring invalid resource entry {}", entryName);
+                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.warn(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Ignoring invalid resource entry {}", entryName);
                     continue;
                 }
 
@@ -83,6 +83,6 @@ public abstract class VeilResourceManagerImplMixin {
             throw new UncheckedIOException("Failed to enumerate a Forge JarJar resource pack", exception);
         }
 
-        Simulated.LOGGER.info("[SIMULATED-VEIL-JARJAR] Loaded {} static resources from the nested archive ({} invalid)", resources, invalidResources);
+        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Loaded {} static resources from the nested archive ({} invalid)", resources, invalidResources);
     }
 }

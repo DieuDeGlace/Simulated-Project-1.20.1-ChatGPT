@@ -46,7 +46,7 @@ public class WheelMountRenderer extends KineticBlockEntityRenderer<WheelMountBlo
     protected void renderSafe(final WheelMountBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay) {
         if (RENDER_TRACES.getAndIncrement() < 16) {
             final ClientSubLevel subLevel = Sable.HELPER.getContainingClient(be);
-            Simulated.LOGGER.info("SIMULATED-WHEEL-MOUNT-RENDER: localPos={}, subLevel={}, partialTick={}, "
+            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-WHEEL-MOUNT-RENDER: localPos={}, subLevel={}, partialTick={}, "
                             + "heldItem={}, poseTranslation=[{},{},{}], poseDet={}, poseFinite={}, bufferClass={}",
                     be.getBlockPos(), subLevel == null ? "none" : subLevel.getUniqueId(), partialTicks,
                     be.getHeldItem(), ms.last().pose().m30(), ms.last().pose().m31(),
