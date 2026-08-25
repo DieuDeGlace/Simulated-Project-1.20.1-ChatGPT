@@ -16,6 +16,16 @@
       "type": "single",
       "resource": "simulated:gui/sprites/banner",
       "sprite": "simulated:banner"
+    },
+    {
+      "type": "single",
+      "resource": "aeronautics:gui/sprites/banner",
+      "sprite": "aeronautics:banner"
+    },
+    {
+      "type": "single",
+      "resource": "offroad:gui/sprites/banner",
+      "sprite": "offroad:banner"
     }
   ]
 }

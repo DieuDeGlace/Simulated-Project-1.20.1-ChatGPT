@@ -234,6 +234,24 @@ function Assert-ProductionJar {
                     throw "$($module.Jar) pack.mcmeta must declare pack format 15 and a non-empty description"
                 }
 
+                if ($module.Jar -like '*dev.simulated_team.simulated.*') {
+                    $atlasEntry = $nested.GetEntry('assets/minecraft/atlases/blocks.json')
+                    if ($null -eq $atlasEntry) {
+                        throw "$($module.Jar) is missing the Minecraft block atlas definition"
+                    }
+                    $atlasReader = [System.IO.StreamReader]::new($atlasEntry.Open())
+                    try { $atlasText = $atlasReader.ReadToEnd() } finally { $atlasReader.Dispose() }
+                    try { $atlas = $atlasText | ConvertFrom-Json -ErrorAction Stop } catch {
+                        throw "$($module.Jar) contains an invalid block atlas definition: $($_.Exception.Message)"
+                    }
+                    $sprites = @($atlas.sources | ForEach-Object { $_.sprite })
+                    foreach ($requiredSprite in @('simulated:banner', 'aeronautics:banner', 'offroad:banner')) {
+                        if ($requiredSprite -notin $sprites) {
+                            throw "$($module.Jar) block atlas is missing $requiredSprite"
+                        }
+                    }
+                }
+
                 foreach ($check in $module.ClassMarkerChecks) {
                     $classEntry = $nested.GetEntry($check.Class)
                     if ($null -eq $classEntry) {
