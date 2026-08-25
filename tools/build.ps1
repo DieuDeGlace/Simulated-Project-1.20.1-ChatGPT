@@ -166,16 +166,30 @@ function Assert-ProductionJar {
                 Jar = 'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.1-port.1.jar'
                 Refmap = 'simulated.refmap.json'
                 Configs = @('simulated.mixins.json', 'simulated-forge.mixins.json')
+                MappingChecks = @(
+                    @{
+                        Mixin = 'dev/simulated_team/simulated/mixin/world_presets/PrimaryLevelDataMixin'
+                        Member = 'parse'
+                        Target = 'Lnet/minecraft/world/level/storage/PrimaryLevelData;m_78530_('
+                    },
+                    @{
+                        Mixin = 'dev/simulated_team/simulated/mixin/world_presets/PrimaryLevelDataMixin'
+                        Member = 'setTagData'
+                        Target = 'Lnet/minecraft/world/level/storage/PrimaryLevelData;m_78545_('
+                    }
+                )
             },
             @{
                 Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar'
                 Refmap = 'aeronautics.refmap.json'
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
+                MappingChecks = @()
             },
             @{
                 Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar'
                 Refmap = 'offroad.refmap.json'
                 Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
+                MappingChecks = @()
             }
         )
 
@@ -215,6 +229,18 @@ function Assert-ProductionJar {
                 }
                 if ($null -eq $refmap.mappings -or @($refmap.mappings.PSObject.Properties).Count -eq 0) {
                     throw "$($module.Jar) contains an empty $($module.Refmap) mapping set"
+                }
+
+                foreach ($check in $module.MappingChecks) {
+                    $mixinMappings = $refmap.data.searge.PSObject.Properties[$check.Mixin].Value
+                    $mappedTarget = if ($null -eq $mixinMappings) {
+                        $null
+                    } else {
+                        $mixinMappings.PSObject.Properties[$check.Member].Value
+                    }
+                    if ([string]::IsNullOrWhiteSpace([string]$mappedTarget) -or -not $mappedTarget.Contains($check.Target)) {
+                        throw "$($module.Jar) does not map $($check.Mixin)::$($check.Member) to $($check.Target)"
+                    }
                 }
 
                 foreach ($configName in $module.Configs) {

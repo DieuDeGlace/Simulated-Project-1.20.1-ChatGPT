@@ -33,7 +33,7 @@ public class PrimaryLevelDataMixin implements PrimaryLevelDataExtension {
 	@Shadow private EndDragonFight.Data endDragonFightData;
 	private ResourceLocation simulated$worldPresetKey = WorldPresets.NORMAL.location();
 
-	@Inject(method = "parse", at = @At("RETURN"), remap = false)
+	@Inject(method = "parse", at = @At("RETURN"))
 	private static <T> void simulated$parse(final Dynamic<T> dynamic, final DataFixer dataFixer, final int dataVersion,
 			final CompoundTag playerData, final LevelSettings levelSettings, final LevelVersion levelVersion,
 			final PrimaryLevelData.SpecialWorldProperty specialWorldProperty, final WorldOptions worldOptions,
@@ -45,7 +45,7 @@ public class PrimaryLevelDataMixin implements PrimaryLevelDataExtension {
 		}
 	}
 
-	@Inject(method = "setTagData", at = @At("TAIL"), remap = false)
+	@Inject(method = "setTagData", at = @At("TAIL"))
 	private void simulated$setTagData(final RegistryAccess registryAccess, final CompoundTag compoundTag, final CompoundTag compoundTag2, final CallbackInfo ci) {
 		compoundTag.putString(simulated$WORLD_PRESET_KEY, this.getPreset().toString());
 	}
