@@ -35,7 +35,7 @@ public class SimNeoForgeClientEvents {
 	}
 
 	@SubscribeEvent
-	public static void postRenderGui(final RenderGuiOverlayEvent.Post event) {
+	public static void postRenderGui(final RenderGuiEvent.Post event) {
 		SimulatedCommonClientEvents.renderOverlays(event.getGuiGraphics(), event.getPartialTick());
 	}
 

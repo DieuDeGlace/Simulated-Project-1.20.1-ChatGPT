@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -63,6 +64,8 @@ public final class SubLevelRenderClientValidation {
             Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
     private static final AtomicInteger PROPELLER_FRAMES = new AtomicInteger();
     private static final AtomicInteger WHEEL_RENDER_CALLS = new AtomicInteger();
+    private static final AtomicInteger GUI_POST_EVENTS = new AtomicInteger();
+    private static final AtomicInteger OVERLAY_RENDER_CALLS = new AtomicInteger();
 
     private static Phase phase = Phase.WAITING_FOR_WORLD;
     private static int phaseTicks;
@@ -99,6 +102,19 @@ public final class SubLevelRenderClientValidation {
         if (ENABLED && blockEntity != null) {
             RENDERED_WHEELS.add(blockEntity);
             WHEEL_RENDER_CALLS.incrementAndGet();
+        }
+    }
+
+    public static void recordOverlayRender() {
+        if (ENABLED) {
+            OVERLAY_RENDER_CALLS.incrementAndGet();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGuiPost(final RenderGuiEvent.Post event) {
+        if (ENABLED) {
+            GUI_POST_EVENTS.incrementAndGet();
         }
     }
 
@@ -198,11 +214,18 @@ public final class SubLevelRenderClientValidation {
             }
 
             if (visibleTicks >= REQUIRED_VISIBLE_TICKS) {
+                final int guiPostEvents = GUI_POST_EVENTS.get();
+                final int overlayRenderCalls = OVERLAY_RENDER_CALLS.get();
+                if (guiPostEvents == 0 || overlayRenderCalls != guiPostEvents) {
+                    fail("Simulated overlay render dispatch did not match one call per completed GUI frame: guiPostEvents="
+                            + guiPostEvents + ", overlayRenderCalls=" + overlayRenderCalls);
+                }
                 LOGGER.info("SIMULATED-SUBLEVEL-RENDER-PASS: id={}, physicalTarget={}, cameraDot={}, "
                                 + "flywheelVisualCount={}, embedded=true, propellerCreated=true, "
-                                + "propellerFramed=true, propellerFrames={}, wheelRendererEntered=true, wheelRenders={}",
+                                + "propellerFramed=true, propellerFrames={}, wheelRendererEntered=true, wheelRenders={}, "
+                                + "guiPostEvents={}, overlayRenderCalls={}",
                         fixtureId, physicalTarget, cameraDot, visualizationManager.blockEntities().visualCount(),
-                        PROPELLER_FRAMES.get(), WHEEL_RENDER_CALLS.get());
+                        PROPELLER_FRAMES.get(), WHEEL_RENDER_CALLS.get(), guiPostEvents, overlayRenderCalls);
                 fixtureReady = false;
                 server.execute(() -> movePlayerOutOfTrackingRange(server, localPlayerId));
                 phase = Phase.WAITING_FOR_UNTRACK;
