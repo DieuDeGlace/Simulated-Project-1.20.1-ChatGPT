@@ -143,11 +143,22 @@ function Assert-ProductionJar {
             'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.1-port.1.jar',
             'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar',
             'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar',
+            'pack.mcmeta',
             'LICENSE.md'
         )) {
             if ($required -notin $entries) {
                 throw "Production JAR is missing $required"
             }
+        }
+
+        $packEntry = $archive.GetEntry('pack.mcmeta')
+        $packReader = [System.IO.StreamReader]::new($packEntry.Open())
+        try { $packText = $packReader.ReadToEnd() } finally { $packReader.Dispose() }
+        try { $packMetadata = $packText | ConvertFrom-Json -ErrorAction Stop } catch {
+            throw "Production JAR contains an invalid pack.mcmeta: $($_.Exception.Message)"
+        }
+        if ($packMetadata.pack.pack_format -ne 15 -or [string]::IsNullOrWhiteSpace([string]$packMetadata.pack.description)) {
+            throw 'Production JAR pack.mcmeta must declare pack format 15 and a non-empty description'
         }
 
         $moduleRefmaps = @(
@@ -179,6 +190,19 @@ function Assert-ProductionJar {
                 [System.IO.Compression.ZipArchiveMode]::Read,
                 $false)
             try {
+                $nestedPackEntry = $nested.GetEntry('pack.mcmeta')
+                if ($null -eq $nestedPackEntry) {
+                    throw "$($module.Jar) is missing pack.mcmeta"
+                }
+                $nestedPackReader = [System.IO.StreamReader]::new($nestedPackEntry.Open())
+                try { $nestedPackText = $nestedPackReader.ReadToEnd() } finally { $nestedPackReader.Dispose() }
+                try { $nestedPackMetadata = $nestedPackText | ConvertFrom-Json -ErrorAction Stop } catch {
+                    throw "$($module.Jar) contains an invalid pack.mcmeta: $($_.Exception.Message)"
+                }
+                if ($nestedPackMetadata.pack.pack_format -ne 15 -or [string]::IsNullOrWhiteSpace([string]$nestedPackMetadata.pack.description)) {
+                    throw "$($module.Jar) pack.mcmeta must declare pack format 15 and a non-empty description"
+                }
+
                 $refmapEntry = $nested.GetEntry($module.Refmap)
                 if ($null -eq $refmapEntry -or $refmapEntry.Length -lt 32) {
                     throw "$($module.Jar) is missing a non-empty $($module.Refmap)"
