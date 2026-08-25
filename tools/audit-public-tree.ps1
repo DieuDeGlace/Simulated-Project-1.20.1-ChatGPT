@@ -72,7 +72,7 @@ if ($PrivatePatternFile) {
     }
 }
 
-$textExtensions = @('.java', '.groovy', '.gradle', '.kts', '.properties', '.json', '.toml', '.xml', '.md', '.txt', '.ps1', '.cmd', '.yml', '.yaml', '.rs', '.cs', '.glsl', '.patch', '.diff')
+$textExtensions = @('.java', '.groovy', '.gradle', '.kts', '.properties', '.json', '.toml', '.xml', '.md', '.txt', '.ps1', '.cmd', '.yml', '.yaml', '.rs', '.cs', '.glsl', '.bbmodel', '.patch', '.diff')
 foreach ($relative in $relativeFiles) {
     $path = Join-Path $repositoryPath $relative
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
