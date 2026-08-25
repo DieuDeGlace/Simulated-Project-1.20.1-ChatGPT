@@ -4,6 +4,17 @@ This repository contains an unofficial Forge 1.20.1 adaptation of
 [The Simulated Project](https://github.com/Creators-of-Aeronautics/Simulated-Project),
 a suite of mods that extends Create with physics-based contraptions.
 
+## ⚠️ Important Notice
+
+All port-specific code in this repository was produced by AI and reviewed by a
+human. This port may not cover every feature. The game may crash at any time or
+corrupt saved worlds, so use it with caution and back up your worlds.
+
+If you encounter a bug while using this port, please report it **only on this
+repository's [Issues](https://github.com/NotAsher999/Simulated-Project-1.20.1/issues)
+page**. **Do not report port-specific issues to the upstream repository or
+disrupt its normal development.**
+
 The target runtime is fixed to:
 
 - Minecraft 1.20.1
