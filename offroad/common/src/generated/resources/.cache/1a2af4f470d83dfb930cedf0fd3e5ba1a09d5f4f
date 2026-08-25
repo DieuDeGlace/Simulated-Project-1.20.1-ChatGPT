@@ -1,4 +1,4 @@
-// 1.20.1	2026-08-25T02:27:23.1935354	Registrate Provider for offroad [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
+// 1.20.1	2026-08-25T08:26:00.1161076	Registrate Provider for offroad [Recipes, Advancements, Loot Tables, Tags (blocks), Tags (items), Tags (fluids), Tags (entity_types), Blockstates, Item models, Lang (en_us/en_ud)]
 391999b98b747618f6d0747ff37dba343f55f808 assets/offroad/blockstates/borehead_bearing.json
 fdd42023819a798396a345b899de18fb46e8c75d assets/offroad/blockstates/rockcutting_wheel.json
 ed2affc71ca4425cd5bc760b760917bcdc836e0c assets/offroad/blockstates/wheel_mount.json
@@ -31,3 +31,5 @@ e4e50923bdab98abfe951705d87cf8964b416109 data/offroad/recipes/rockcutting_wheel.
 2230f2869137aeef0edeae0d45ea258a887bb615 data/offroad/recipes/small_tire.json
 5623c2e5ffa6fbe8ea7f2ae97bd0581cdbfb3771 data/offroad/recipes/tire.json
 f5afc9e67a7207abeefa9dbf1afae8c08cc1c252 data/offroad/recipes/wheel_mount.json
+cb28339548a9f5c43f81c4715df14c62d24020ad data/offroad/tags/blocks/borehead_effective.json
+19b073a7559571c409a9e82de27bfabac67ee6ac data/offroad/tags/blocks/borehead_super_effective.json

@@ -20,6 +20,7 @@ public class OffroadDatagen {
 
     public static void gatherDataHighPriority(final GatherDataEvent event) {
         OffroadTags.addGenerators();
+        dev.ryanhcode.offroad.data.OffroadTags.addGenerators();
     }
 
     public static void gatherData(final GatherDataEvent event) {

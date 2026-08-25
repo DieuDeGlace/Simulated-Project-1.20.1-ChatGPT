@@ -6,6 +6,7 @@ import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlock;
 import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlockEntity;
 import dev.ryanhcode.offroad.content.components.TireLike;
+import dev.ryanhcode.offroad.data.OffroadTags;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
 import dev.ryanhcode.offroad.index.OffroadBlocks;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
@@ -80,6 +81,21 @@ public final class NetworkCodecGameTest {
     private static final UUID SECOND_UUID = UUID.fromString("fedcba98-7654-3210-fedc-ba9876543210");
 
     private NetworkCodecGameTest() {
+    }
+
+    @GameTest(template = "extrakineticstest.analogtransmission")
+    public static void offroadBoreheadEffectivenessTagsLoad(final GameTestHelper helper) {
+        if (!Blocks.IRON_ORE.defaultBlockState().is(OffroadTags.Blocks.BOREHEAD_EFFECTIVE)) {
+            throw new GameTestAssertException("Forge ore tag was not admitted to offroad:borehead_effective");
+        }
+        if (!Blocks.ANCIENT_DEBRIS.defaultBlockState().is(OffroadTags.Blocks.BOREHEAD_SUPER_EFFECTIVE)) {
+            throw new GameTestAssertException("Ancient debris was not admitted to offroad:borehead_super_effective");
+        }
+        if (Blocks.STONE.defaultBlockState().is(OffroadTags.Blocks.BOREHEAD_EFFECTIVE)
+                || Blocks.STONE.defaultBlockState().is(OffroadTags.Blocks.BOREHEAD_SUPER_EFFECTIVE)) {
+            throw new GameTestAssertException("Ordinary stone was unexpectedly admitted to an Offroad borehead effectiveness tag");
+        }
+        helper.succeed();
     }
 
     @GameTest(template = "extrakineticstest.analogtransmission")
