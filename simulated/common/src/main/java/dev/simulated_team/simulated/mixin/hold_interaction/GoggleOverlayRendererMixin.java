@@ -18,14 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GoggleOverlayRendererMixin {
     @Shadow(remap = false) public static int hoverTicks;
 
-    @Inject(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F", shift = At.Shift.BEFORE), remap = false)
+    @Inject(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F", shift = At.Shift.BEFORE, remap = true), remap = false)
     private static void decrementRenderTicks(final CallbackInfo ci) {
         if (SimClickInteractions.STEERING_WHEEL_MANAGER.isActive()) {
             hoverTicks = Mth.clamp(hoverTicks - 2, 0, 24);
         }
     }
 
-    @WrapOperation(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F"), remap = false)
+    @WrapOperation(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F", remap = true), remap = false)
     private static float fixPartialTicks(final float value, final float min, final float max, final Operation<Float> original, @Local(argsOnly = true, ordinal = 0) final float partialTicks) {
         if (SimClickInteractions.STEERING_WHEEL_MANAGER.isActive()) {
             return Mth.clamp(hoverTicks - partialTicks, 0, 24) / 24;
@@ -33,7 +33,7 @@ public class GoggleOverlayRendererMixin {
         return original.call(value, min, max);
     }
 
-    @Inject(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F"), remap = false, cancellable = true)
+    @Inject(method = "renderOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;clamp(FFF)F", remap = true), remap = false, cancellable = true)
     private static void dontRenderTheText(final ForgeGui forgeGui, final GuiGraphics guiGraphics, final float partialTicks, final int width, final int height, final CallbackInfo ci) {
         if (hoverTicks - partialTicks <= 0) {
             ci.cancel();
