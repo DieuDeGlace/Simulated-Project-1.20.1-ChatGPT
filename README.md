@@ -1,3 +1,60 @@
+# The Simulated Project for Forge 1.20.1
+
+This repository contains an unofficial Forge 1.20.1 adaptation of
+[The Simulated Project](https://github.com/Creators-of-Aeronautics/Simulated-Project),
+a suite of mods that extends Create with physics-based contraptions.
+
+The target runtime is fixed to:
+
+- Minecraft 1.20.1
+- Forge 47.4.0
+- Create 6.0.8
+- Flywheel 1.0.5
+- Veil 1.0.0.296
+- [Sable-1.20.1](https://github.com/NotAsher999/sable-1.20.1) 2.0.5
+- Java 17
+
+This port is experimental and should be tested carefully in large mod packs.
+Back up worlds before changing mod versions.
+
+## Build for testing
+
+Build the Forge 1.20.1 Sable port first, then pass its production JAR to the
+repository build entry point. SHA-256 verification is optional for local
+builds:
+
+```powershell
+.\build.cmd release -SableJar ..\sable\dist\sable-forge-1.20.1-2.0.5-port.1.jar
+```
+
+The build still validates the Sable version and required JAR contents when no
+checksum is supplied. To reuse the same dependency path for later builds:
+
+```powershell
+$env:SIMULATED_SABLE_JAR = '..\sable\dist\sable-forge-1.20.1-2.0.5-port.1.jar'
+.\build.cmd
+```
+
+Release and CI workflows can additionally pin the exact dependency artifact:
+
+```powershell
+.\build.cmd release -SableJar ..\sable\dist\sable-forge-1.20.1-2.0.5-port.1.jar -SableSha256 YOUR_EXPECTED_SHA256
+```
+
+The completed bundle is written to `dist` after the public-tree audit,
+compilation, tests, and production JAR checks pass. Java 17 is downloaded and
+checksum-verified automatically when it is not already available.
+
+This port is provided for testing only. No guarantee is made regarding
+stability or compatibility.
+
+---
+
+## Upstream README
+
+The following preserves the original upstream README from commit
+`4406c68ba0cdb5585a55edee69de2812f47416a1`.
+
 ![banner](./images/banner.png)
 
 <div>

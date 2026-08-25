@@ -112,6 +112,9 @@ function Assert-SableJar {
             throw "Sable checksum mismatch. Expected $SableSha256, received $actualHash."
         }
     }
+    else {
+        Write-Host 'Sable SHA-256 verification skipped; version and required JAR contents will still be validated.'
+    }
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $Path).Path)
     try {
