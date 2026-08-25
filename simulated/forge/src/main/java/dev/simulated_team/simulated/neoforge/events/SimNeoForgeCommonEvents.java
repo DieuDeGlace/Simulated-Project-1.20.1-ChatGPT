@@ -64,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 @EventBusSubscriber(modid = Simulated.MOD_ID)
 public class SimNeoForgeCommonEvents {
@@ -151,9 +152,9 @@ public class SimNeoForgeCommonEvents {
 
 	private static final class StorageCapabilityProvider implements ICapabilityProvider {
 		private final BlockEntity blockEntity;
-		private final Map<Direction, LazyOptional<IItemHandler>> itemHandlers = new HashMap<>();
-		private final Map<Direction, LazyOptional<IFluidHandler>> fluidHandlers = new HashMap<>();
-		private final Map<Direction, LazyOptional<IEnergyStorage>> energyHandlers = new HashMap<>();
+		private final Map<Direction, CapabilityEntry<AbstractContainer, IItemHandler>> itemHandlers = new HashMap<>();
+		private final Map<Direction, CapabilityEntry<SingleTank, IFluidHandler>> fluidHandlers = new HashMap<>();
+		private final Map<Direction, CapabilityEntry<SingleBattery, IEnergyStorage>> energyHandlers = new HashMap<>();
 
 		private StorageCapabilityProvider(final BlockEntity blockEntity) {
 			this.blockEntity = blockEntity;
@@ -161,15 +162,15 @@ public class SimNeoForgeCommonEvents {
 
 		@Override
 		public <T> @NotNull LazyOptional<T> getCapability(final @NotNull Capability<T> capability,
-															 final @Nullable Direction side) {
+														 final @Nullable Direction side) {
 			if (capability == ForgeCapabilities.ITEM_HANDLER) {
-				return this.itemHandlers.computeIfAbsent(side, this::createItemHandler).cast();
+				return this.createItemHandler(side).cast();
 			}
 			if (capability == ForgeCapabilities.FLUID_HANDLER) {
-				return this.fluidHandlers.computeIfAbsent(side, this::createFluidHandler).cast();
+				return this.createFluidHandler(side).cast();
 			}
 			if (capability == ForgeCapabilities.ENERGY) {
-				return this.energyHandlers.computeIfAbsent(side, this::createEnergyHandler).cast();
+				return this.createEnergyHandler(side).cast();
 			}
 			return LazyOptional.empty();
 		}
@@ -178,36 +179,62 @@ public class SimNeoForgeCommonEvents {
 			for (final NeoForgeSimInventoryService.InventoryGetterHolder<? extends BlockEntity> holder : NeoForgeSimInventoryService.inventoryGetters) {
 				if (holder.type() == this.blockEntity.getType()) {
 					final AbstractContainer container = holder.castBlockEntityAndGetInv(this.blockEntity, side);
-					return container == null ? LazyOptional.empty() : LazyOptional.of(() -> new ContainerWrapper<>(container));
+					return update(this.itemHandlers, side, container, ContainerWrapper::new);
 				}
 			}
-			return LazyOptional.empty();
+			return update(this.itemHandlers, side, null, ContainerWrapper::new);
 		}
 
 		private LazyOptional<IFluidHandler> createFluidHandler(final Direction side) {
 			for (final NeoForgeSimInventoryService.TankGetterHolder<? extends BlockEntity> holder : NeoForgeSimInventoryService.fluidTankGetters) {
 				if (holder.type() == this.blockEntity.getType()) {
 					final SingleTank tank = holder.castBlockEntityAndGetInv(this.blockEntity, side);
-					return tank == null ? LazyOptional.empty() : LazyOptional.of(() -> new SingleTankWrapper(tank));
+					return update(this.fluidHandlers, side, tank, SingleTankWrapper::new);
 				}
 			}
-			return LazyOptional.empty();
+			return update(this.fluidHandlers, side, null, SingleTankWrapper::new);
 		}
 
 		private LazyOptional<IEnergyStorage> createEnergyHandler(final Direction side) {
 			for (final NeoForgeSimInventoryService.EnergyGetterHolder<? extends BlockEntity> holder : NeoForgeSimInventoryService.energyGetters) {
 				if (holder.type() == this.blockEntity.getType()) {
 					final SingleBattery battery = holder.castBlockEntityAndGetInv(this.blockEntity, side);
-					return battery == null ? LazyOptional.empty() : LazyOptional.of(() -> new SingleBatteryWrapper(battery));
+					return update(this.energyHandlers, side, battery, SingleBatteryWrapper::new);
 				}
 			}
-			return LazyOptional.empty();
+			return update(this.energyHandlers, side, null, SingleBatteryWrapper::new);
+		}
+
+		private static <S, T> LazyOptional<T> update(final Map<Direction, CapabilityEntry<S, T>> cache,
+				final Direction side, final @Nullable S source, final Function<S, T> wrapper) {
+			final CapabilityEntry<S, T> previous = cache.get(side);
+			if (previous != null && previous.source() == source) {
+				return previous.capability();
+			}
+			if (previous != null) {
+				previous.capability().invalidate();
+				cache.remove(side);
+			}
+			if (source == null) {
+				return LazyOptional.empty();
+			}
+			final LazyOptional<T> capability = LazyOptional.of(() -> wrapper.apply(source));
+			cache.put(side, new CapabilityEntry<>(source, capability));
+			return capability;
 		}
 
 		private void invalidate() {
-			this.itemHandlers.values().forEach(LazyOptional::invalidate);
-			this.fluidHandlers.values().forEach(LazyOptional::invalidate);
-			this.energyHandlers.values().forEach(LazyOptional::invalidate);
+			invalidate(this.itemHandlers);
+			invalidate(this.fluidHandlers);
+			invalidate(this.energyHandlers);
+		}
+
+		private static void invalidate(final Map<?, ? extends CapabilityEntry<?, ?>> cache) {
+			cache.values().forEach(entry -> entry.capability().invalidate());
+			cache.clear();
+		}
+
+		private record CapabilityEntry<S, T>(S source, LazyOptional<T> capability) {
 		}
 	}
 

@@ -2,6 +2,7 @@ package dev.simulated_team.simulated.gametest;
 
 import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationPacket;
 import dev.eriksonn.aeronautics.content.blocks.propeller.small.andesite.AndesitePropellerBlockEntity;
+import dev.eriksonn.aeronautics.index.AeroBlockEntityTypes;
 import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlock;
 import dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountBlockEntity;
@@ -9,6 +10,7 @@ import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.data.OffroadTags;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager.BlockBreakingData;
 import dev.ryanhcode.offroad.index.OffroadBlocks;
+import dev.ryanhcode.offroad.index.OffroadBlockEntityTypes;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
 import dev.ryanhcode.sable.Sable;
@@ -23,6 +25,7 @@ import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.altitude_sensor.AltitudeSensorBlockEntity;
+import dev.simulated_team.simulated.content.blocks.docking_connector.DockingConnectorBlockEntity;
 import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.LinkedTypewriterEntries.KeyboardEntry;
 import dev.simulated_team.simulated.content.blocks.redstone.modulating_receiver.ModulatingLinkedReceiverBlockEntity;
 import dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity;
@@ -30,6 +33,7 @@ import dev.simulated_team.simulated.content.end_sea.EndSeaPhysics;
 import dev.simulated_team.simulated.content.entities.diagram.DiagramConfig;
 import dev.simulated_team.simulated.content.physics_staff.PhysicsStaffAction;
 import dev.simulated_team.simulated.index.SimBlocks;
+import dev.simulated_team.simulated.index.SimBlockEntityTypes;
 import dev.simulated_team.simulated.compat.components.ItemComponentCompat;
 import dev.simulated_team.simulated.network.SimNetwork;
 import dev.simulated_team.simulated.network.codec.StreamCodec;
@@ -46,6 +50,7 @@ import dev.simulated_team.simulated.network.packets.name_plate.NameplateChangeNa
 import dev.simulated_team.simulated.network.packets.physics_assembler.*;
 import dev.simulated_team.simulated.network.packets.physics_staff.*;
 import dev.simulated_team.simulated.network.packets.rope.*;
+import dev.simulated_team.simulated.neoforge.service.NeoForgeSimInventoryService;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import net.createmod.catnip.data.Pair;
@@ -63,16 +68,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.items.IItemHandler;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @GameTestHolder(Simulated.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -96,6 +108,87 @@ public final class NetworkCodecGameTest {
             throw new GameTestAssertException("Ordinary stone was unexpectedly admitted to an Offroad borehead effectiveness tag");
         }
         helper.succeed();
+    }
+
+    @GameTest(template = "extrakineticstest.analogtransmission")
+    public static void forgeStorageCapabilitiesFollowDynamicGetters(final GameTestHelper helper) {
+        assertStorageRegistrations();
+
+        final ServerLevel level = helper.getLevel();
+        final BlockPos dockingPos = helper.absolutePos(new BlockPos(2, 20, 2));
+        level.setBlockAndUpdate(dockingPos, SimBlocks.DOCKING_CONNECTOR.getDefaultState());
+        final BlockEntity docking = Objects.requireNonNull(level.getBlockEntity(dockingPos),
+                "Docking connector block entity was not created");
+
+        final IItemHandler itemHandler = docking.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.NORTH)
+                .orElseThrow(() -> new GameTestAssertException("Docking connector item capability is absent"));
+        final IFluidHandler fluidHandler = docking.getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.NORTH)
+                .orElseThrow(() -> new GameTestAssertException("Docking connector fluid capability is absent"));
+        final IEnergyStorage energyHandler = docking.getCapability(ForgeCapabilities.ENERGY, Direction.NORTH)
+                .orElseThrow(() -> new GameTestAssertException("Docking connector energy capability is absent"));
+        if (itemHandler.getSlots() <= 0 || fluidHandler.getTanks() <= 0 || energyHandler.getMaxEnergyStored() <= 0) {
+            throw new GameTestAssertException("Docking connector exposed an unusable storage capability");
+        }
+
+        final DockingConnectorBlockEntity dockingConnector = requireBlockEntity(
+                level, dockingPos, DockingConnectorBlockEntity.class);
+        final AtomicReference<dev.simulated_team.simulated.multiloader.inventory.AbstractContainer> dynamicInventory =
+                new AtomicReference<>();
+        final NeoForgeSimInventoryService.InventoryGetterHolder<AltitudeSensorBlockEntity> dynamicRegistration =
+                new NeoForgeSimInventoryService.InventoryGetterHolder<>((be, side) -> dynamicInventory.get(),
+                        SimBlockEntityTypes.ALTITUDE_SENSOR.get());
+        final BlockPos dynamicPos = helper.absolutePos(new BlockPos(4, 20, 2));
+        NeoForgeSimInventoryService.inventoryGetters.add(dynamicRegistration);
+        try {
+            level.setBlockAndUpdate(dynamicPos, SimBlocks.ALTITUDE_SENSOR.getDefaultState());
+            final BlockEntity dynamicBlockEntity = Objects.requireNonNull(level.getBlockEntity(dynamicPos),
+                    "Dynamic capability block entity was not created");
+            if (dynamicBlockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.NORTH).isPresent()) {
+                throw new GameTestAssertException("Dynamic item capability was present while its upstream getter returned null");
+            }
+
+            dynamicInventory.set(dockingConnector.getInventory());
+            final LazyOptional<IItemHandler> presentCapability =
+                    dynamicBlockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.NORTH);
+            if (!presentCapability.isPresent()) {
+                throw new GameTestAssertException("Dynamic item capability stayed empty after its upstream getter became available");
+            }
+
+            dynamicInventory.set(null);
+            if (dynamicBlockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.NORTH).isPresent()) {
+                throw new GameTestAssertException("Dynamic item capability retained a stale wrapper after its upstream getter became unavailable");
+            }
+            if (presentCapability.isPresent()) {
+                throw new GameTestAssertException("Replaced dynamic item capability was not invalidated");
+            }
+        } finally {
+            NeoForgeSimInventoryService.inventoryGetters.remove(dynamicRegistration);
+            level.removeBlock(dynamicPos, false);
+        }
+
+        helper.succeed();
+    }
+
+    private static void assertStorageRegistrations() {
+        final Set<?> inventoryTypes = NeoForgeSimInventoryService.inventoryGetters.stream()
+                .map(NeoForgeSimInventoryService.InventoryGetterHolder::type).collect(java.util.stream.Collectors.toSet());
+        for (final Object type : List.of(
+                SimBlockEntityTypes.DOCKING_CONNECTOR.get(), SimBlockEntityTypes.PORTABLE_ENGINE.get(),
+                SimBlockEntityTypes.NAVIGATION_TABLE.get(), SimBlockEntityTypes.AUGER_SHAFT.get(),
+                AeroBlockEntityTypes.MOUNTED_POTATO_CANNON.get(), OffroadBlockEntityTypes.WHEEL_MOUNT.get(),
+                OffroadBlockEntityTypes.BOREHEAD_BEARING.get())) {
+            if (!inventoryTypes.contains(type)) {
+                throw new GameTestAssertException("Missing item capability registration for " + type);
+            }
+        }
+        if (NeoForgeSimInventoryService.fluidTankGetters.stream()
+                .noneMatch(holder -> holder.type() == SimBlockEntityTypes.DOCKING_CONNECTOR.get())) {
+            throw new GameTestAssertException("Missing docking connector fluid capability registration");
+        }
+        if (NeoForgeSimInventoryService.energyGetters.stream()
+                .noneMatch(holder -> holder.type() == SimBlockEntityTypes.DOCKING_CONNECTOR.get())) {
+            throw new GameTestAssertException("Missing docking connector energy capability registration");
+        }
     }
 
     @GameTest(template = "extrakineticstest.analogtransmission")
