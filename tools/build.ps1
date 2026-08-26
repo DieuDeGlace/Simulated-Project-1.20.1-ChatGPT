@@ -260,8 +260,28 @@ function Assert-ProductionJar {
                 Refmap = 'aeronautics.refmap.json'
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
                 MappingChecks = @()
-                ClassMarkerChecks = @()
+                ClassMarkerChecks = @(
+                    @{
+                        Class = 'dev/eriksonn/aeronautics/mixin/levitite/ItemBlockRenderTypesMixin.class'
+                        Markers = @(
+                            'f_109275_',
+                            'BLOCK_RENDER_TYPES',
+                            'containsKey',
+                            'getChunkRenderType',
+                            'getMovingBlockRenderType',
+                            'aeronautics$getLiveFirstLayer'
+                        )
+                    }
+                )
                 JavapChecks = @(
+                    @{
+                        Class = 'dev.eriksonn.aeronautics.mixin.levitite.ItemBlockRenderTypesMixin'
+                        Patterns = @(
+                            'ChunkRenderTypeSet\.iterator:',
+                            'RenderTypeHelper\.getMovingBlockRenderType:',
+                            'ForgeRegistries\.BLOCKS:'
+                        )
+                    },
                     @{
                         Class = 'dev.eriksonn.aeronautics.content.blocks.hot_air.BlockEntityLiftingGasProvider'
                         Patterns = @(
