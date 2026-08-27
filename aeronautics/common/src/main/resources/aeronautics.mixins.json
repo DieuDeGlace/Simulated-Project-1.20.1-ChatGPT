@@ -26,7 +26,6 @@
     "steam_vent.BoilerDataMixin"
   ],
   "client": [
-    "compatibility.embeddium.ChunkRenderTypeSetMixin",
     "levitite.ChunkRenderTypeSetAccessor",
     "levitite.ItemBlockRenderTypesMixin",
     "levitite.RenderTypeChunkLayerIdAccessor",
