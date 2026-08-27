@@ -37,12 +37,12 @@ behavior originally restored missing Create/Flywheel gears, but later testing
 proved that it could make grass, leaves, lasers, and other cutout or translucent
 geometry use incorrect depth semantics in an Embeddium/Veil runtime.
 
-The live-id reinterpretation is therefore disabled by default. Each render-layer
-set instead keeps the layer meanings that were authoritative when the set was
-created. The former behavior remains available as a temporary diagnostic and
-regression fallback through `/aeronautics render_layer_compat on`; use `off` to
-restore the default and `status` to inspect it. Switching modes schedules visible
-chunks for rebuild. Startup table normalization is not dynamically reverted.
+The live-id reinterpretation remains enabled by default because the pinned
+runtime still requires it for Create/Flywheel moving models. Its creation-time
+alternative remains available as a temporary diagnostic through
+`/aeronautics render_layer_compat off`; use `on` to restore the default and
+`status` to inspect it. Switching modes schedules visible chunks for rebuild.
+Startup table normalization is not dynamically reverted.
 
 Any future redesign must test shader packs on/off, Flywheel instancing on/off,
 ordinary and physical-world terrain, Levitite, and at least one independent

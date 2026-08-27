@@ -11,7 +11,7 @@ package dev.eriksonn.aeronautics.compat;
  */
 public final class ChunkRenderLayerCompatibility {
 
-    private static volatile boolean liveLayerIdInterpretationEnabled = false;
+    private static volatile boolean liveLayerIdInterpretationEnabled = true;
 
     private ChunkRenderLayerCompatibility() {
     }
