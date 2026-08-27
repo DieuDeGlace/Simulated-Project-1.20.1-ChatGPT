@@ -51,5 +51,10 @@ public final class AeroChunkRenderTypeCompatibility {
         final var allBits = ((ChunkRenderTypeSetAccessor) (Object) ChunkRenderTypeSet.all()).getBits();
         allBits.clear();
         allBits.set(0, finalizedLayers.size());
+
+        final Object allSet = ChunkRenderTypeSet.all();
+        if (allSet instanceof final EmbeddiumChunkRenderTypeSetExtension extension) {
+            extension.aeronautics$rebuildUniverse();
+        }
     }
 }

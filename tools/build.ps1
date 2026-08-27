@@ -285,7 +285,16 @@ function Assert-ProductionJar {
                             'onVeilBlockLayersFinalized',
                             'setChunkLayerId',
                             'setChunkRenderTypesList',
-                            'setChunkRenderTypes'
+                            'setChunkRenderTypes',
+                            'EmbeddiumChunkRenderTypeSetExtension',
+                            'aeronautics$rebuildUniverse'
+                        )
+                    },
+                    @{
+                        Class = 'dev/eriksonn/aeronautics/plugin/AeroMixinPlugin.class'
+                        Markers = @(
+                            'embeddiumPresent',
+                            'compatibility.embeddium.ChunkRenderTypeSetMixin'
                         )
                     },
                     @{
@@ -294,6 +303,16 @@ function Assert-ProductionJar {
                             'setBlockLayers',
                             'aeronautics$finalizeChunkLayerAbi',
                             'onVeilBlockLayersFinalized'
+                        )
+                    },
+                    @{
+                        Class = 'dev/eriksonn/aeronautics/mixin/compatibility/embeddium/ChunkRenderTypeSetMixin.class'
+                        Markers = @(
+                            'aeronautics$rebuildUniverse',
+                            'POSSIBLE_RENDER_TYPE_COMBINATIONS',
+                            'MASK_ALL',
+                            'UNIVERSE',
+                            'aeronautics$construct'
                         )
                     }
                 )

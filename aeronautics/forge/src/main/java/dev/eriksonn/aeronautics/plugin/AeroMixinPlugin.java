@@ -11,12 +11,14 @@ import java.util.Set;
 public class AeroMixinPlugin implements IMixinConfigPlugin {
     private boolean sodiumPresent;
     private boolean irisPresent;
+    private boolean embeddiumPresent;
 
     @Override
     public void onLoad(final String mixinPackage) {
         this.sodiumPresent = Veil.platform().isSodiumLoaded();
         this.irisPresent = Veil.platform().isModLoaded("iris")
                 || Veil.platform().isModLoaded("oculus");
+        this.embeddiumPresent = Veil.platform().isModLoaded("embeddium");
     }
 
     @Override
@@ -36,6 +38,10 @@ public class AeroMixinPlugin implements IMixinConfigPlugin {
 
         if (mixinClassName.startsWith("dev.eriksonn.aeronautics.mixin.render.iris")) {
             return this.irisPresent;
+        }
+
+        if (mixinClassName.equals("dev.eriksonn.aeronautics.mixin.compatibility.embeddium.ChunkRenderTypeSetMixin")) {
+            return this.embeddiumPresent;
         }
 
         return true;
