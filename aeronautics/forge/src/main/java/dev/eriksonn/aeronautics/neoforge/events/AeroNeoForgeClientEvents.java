@@ -1,16 +1,23 @@
 package dev.eriksonn.aeronautics.neoforge.events;
 
+import com.mojang.brigadier.context.CommandContext;
 import dev.eriksonn.aeronautics.Aeronautics;
+import dev.eriksonn.aeronautics.compat.ChunkRenderLayerCompatibility;
 import dev.eriksonn.aeronautics.events.AeronauticsClientEvents;
 import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.eriksonn.aeronautics.index.client.AeroRenderTypes;
 import dev.eriksonn.aeronautics.mixin.levitite.ChunkRenderTypeSetAccessor;
 import dev.eriksonn.aeronautics.mixin.levitite.RenderTypeChunkLayerIdAccessor;
 import dev.eriksonn.aeronautics.neoforge.mixin.ForgeRenderTypeStageHandlerAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -21,6 +28,44 @@ import java.util.LinkedHashSet;
 
 @EventBusSubscriber(modid = Aeronautics.MOD_ID, value = Dist.CLIENT)
 public class AeroNeoForgeClientEvents {
+
+    @SubscribeEvent
+    public static void registerClientCommands(final RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal("aeronautics")
+                .then(Commands.literal("render_layer_compat")
+                        .executes(AeroNeoForgeClientEvents::reportRenderLayerCompatibility)
+                        .then(Commands.literal("status")
+                                .executes(AeroNeoForgeClientEvents::reportRenderLayerCompatibility))
+                        .then(Commands.literal("on")
+                                .executes(context -> setRenderLayerCompatibility(context, true)))
+                        .then(Commands.literal("off")
+                                .executes(context -> setRenderLayerCompatibility(context, false)))));
+    }
+
+    private static int reportRenderLayerCompatibility(final CommandContext<CommandSourceStack> context) {
+        final boolean enabled = ChunkRenderLayerCompatibility.isLiveLayerIdInterpretationEnabled();
+        context.getSource().sendSuccess(() -> Component.literal(renderLayerCompatibilityMessage(enabled)), false);
+        return enabled ? 1 : 0;
+    }
+
+    private static int setRenderLayerCompatibility(final CommandContext<CommandSourceStack> context, final boolean enabled) {
+        final boolean changed = ChunkRenderLayerCompatibility.setLiveLayerIdInterpretationEnabled(enabled);
+        final Minecraft minecraft = Minecraft.getInstance();
+        if (changed && minecraft.level != null) {
+            minecraft.levelRenderer.allChanged();
+        }
+
+        context.getSource().sendSuccess(() -> Component.literal(renderLayerCompatibilityMessage(enabled)
+                + (changed ? " Visible chunks were scheduled for rebuild." : " Mode was already selected.")), false);
+        return changed ? 1 : 0;
+    }
+
+    private static String renderLayerCompatibilityMessage(final boolean enabled) {
+        if (enabled) {
+            return "Aeronautics render-layer compatibility: ON (existing sets use current live layer ids).";
+        }
+        return "Aeronautics render-layer compatibility: OFF (existing sets use their creation-time layer meanings; startup table normalization remains until restart).";
+    }
 
     @SubscribeEvent
     public static void clientTick(final TickEvent.ClientTickEvent event) {

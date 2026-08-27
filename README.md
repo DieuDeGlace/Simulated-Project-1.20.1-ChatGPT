@@ -30,22 +30,23 @@ Back up worlds before changing mod versions.
 
 ## Known compatibility constraint: dynamic block render layers
 
-The Aeronautics port currently retains a global Forge
-`ChunkRenderTypeSet#iterator()` compatibility bridge and render-layer table
-normalization. Veil can publish custom chunk layers after Forge has already
-cached layer positions; without the bridge, a cached `solid` bit can be
-interpreted as a Levitite layer, leaving Create/Flywheel gears and other moving
-models without renderable meshes.
+The Aeronautics port retains render-layer table normalization for its Levitite
+layers. An earlier compatibility bridge also reinterpreted every existing
+Forge `ChunkRenderTypeSet` against the latest live layer ids. That global
+behavior originally restored missing Create/Flywheel gears, but later testing
+proved that it could make grass, leaves, lasers, and other cutout or translucent
+geometry use incorrect depth semantics in an Embeddium/Veil runtime.
 
-The current bridge has passed the relevant visual tests and is required for
-the pinned runtime, but it affects Forge render-layer iteration globally and
-can conflict with Embeddium or other mods that add, cache, or replace chunk
-layers. Attempts to replace it with narrower late-initialization fixes caused
-startup crashes in the real mod combination and were reverted. Its primary
-risk is cross-mod compatibility rather than demonstrated performance cost. Do
-not remove or redesign it without testing shader packs on/off, Flywheel
-instancing on/off, ordinary and physical-world terrain, Levitite, and at least
-one independent custom render layer in the complete runtime.
+The live-id reinterpretation is therefore disabled by default. Each render-layer
+set instead keeps the layer meanings that were authoritative when the set was
+created. The former behavior remains available as a temporary diagnostic and
+regression fallback through `/aeronautics render_layer_compat on`; use `off` to
+restore the default and `status` to inspect it. Switching modes schedules visible
+chunks for rebuild. Startup table normalization is not dynamically reverted.
+
+Any future redesign must test shader packs on/off, Flywheel instancing on/off,
+ordinary and physical-world terrain, Levitite, and at least one independent
+custom render layer in the complete runtime.
 
 ## Build for testing
 

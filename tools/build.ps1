@@ -266,6 +266,14 @@ function Assert-ProductionJar {
                             'getMovingBlockRenderType',
                             'aeronautics$getLiveFirstLayer'
                         )
+                    },
+                    @{
+                        Class = 'dev/eriksonn/aeronautics/compat/ChunkRenderLayerCompatibility.class'
+                        Markers = @(
+                            'liveLayerIdInterpretationEnabled',
+                            'isLiveLayerIdInterpretationEnabled',
+                            'setLiveLayerIdInterpretationEnabled'
+                        )
                     }
                 )
                 JavapChecks = @(
@@ -275,6 +283,22 @@ function Assert-ProductionJar {
                             'ChunkRenderTypeSet\.iterator:',
                             'RenderTypeHelper\.getMovingBlockRenderType:',
                             'ForgeRegistries\.BLOCKS:'
+                        )
+                    },
+                    @{
+                        Class = 'dev.eriksonn.aeronautics.mixin.levitite.ChunkRenderTypeSetMixin'
+                        Patterns = @(
+                            'aeronautics\$captureCreationLayers',
+                            'ChunkRenderLayerCompatibility\.isLiveLayerIdInterpretationEnabled:',
+                            'aeronautics\$creationLayers'
+                        )
+                    },
+                    @{
+                        Class = 'dev.eriksonn.aeronautics.neoforge.events.AeroNeoForgeClientEvents'
+                        Patterns = @(
+                            'registerClientCommands',
+                            'render_layer_compat',
+                            'LevelRenderer\.m_109818_:'
                         )
                     },
                     @{
