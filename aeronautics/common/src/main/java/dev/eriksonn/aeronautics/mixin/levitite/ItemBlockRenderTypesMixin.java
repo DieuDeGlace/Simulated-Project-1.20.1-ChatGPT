@@ -23,11 +23,10 @@ import java.util.Map;
  * Keeps the legacy single-layer API aligned with the live Forge layer set.
  *
  * <p>Connector's Fabric block-render-layer bridge obtains the first layer by
- * indexing Forge's startup-time render-type array directly. Aeronautics must
- * reindex the live layer table when its Veil layers are installed late, so
- * that frozen lookup can disagree with the live {@link ChunkRenderTypeSet}.
- * The set iterator is already the authoritative compatibility boundary; use
- * the same result for the two legacy single-layer methods.</p>
+ * indexing Forge's startup-time render-type array directly. Aeronautics
+ * finalizes that table when Veil finalizes its custom layers, but these two
+ * legacy methods still need to derive their answer from the registered Forge
+ * set rather than a separate frozen lookup.</p>
  */
 @Mixin(ItemBlockRenderTypes.class)
 public abstract class ItemBlockRenderTypesMixin {
@@ -73,9 +72,8 @@ public abstract class ItemBlockRenderTypesMixin {
         }
 
         final Holder.Reference<Block> holder = ForgeRegistries.BLOCKS.getDelegateOrThrow(block);
-        // Forge's map has SOLID as its default return value. That shared set may
-        // have been created before Aeronautics reindexed Veil's layer table, so
-        // iterating it is not valid evidence of an explicit registration.
+        // Forge's map has SOLID as its default return value, so a missing entry
+        // is not evidence of an explicit multi-layer registration.
         if (!BLOCK_RENDER_TYPES.containsKey(holder)) {
             return RenderType.solid();
         }
