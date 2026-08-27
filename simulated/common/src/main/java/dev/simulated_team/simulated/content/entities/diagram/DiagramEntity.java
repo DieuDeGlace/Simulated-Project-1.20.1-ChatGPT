@@ -216,22 +216,6 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
     }
 
     @Override
-    public void tick() {
-        super.tick();
-
-        // Vanilla hanging entities only validate their support every 100 ticks. On a moving
-        // sub-level that leaves the diagram visibly floating for several seconds, so check at
-        // a low fixed rate while keeping the per-tick cost negligible.
-        if (!this.level().isClientSide && !this.isRemoved() && this.tickCount % 5 == 0 && !this.survives()) {
-            final SubLevel subLevel = Sable.HELPER.getContaining(this);
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-SUPPORT: entity={}, tick={}, pos={}, subLevel={}, action=drop",
-                    this.getId(), this.tickCount, this.position(), subLevel == null ? null : subLevel.getUniqueId());
-            this.discard();
-            this.dropItem(null);
-        }
-    }
-
-    @Override
     public void addAdditionalSaveData(final CompoundTag tag) {
         tag.putByte("Facing", (byte) this.direction.get3DDataValue());
         tag.putByte("Orientation", (byte) this.verticalOrientation.get3DDataValue());

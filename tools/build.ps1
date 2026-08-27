@@ -224,6 +224,10 @@ function Assert-ProductionJar {
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramEntity'
                         Patterns = @('DiagnosticLogLimiter\.info:', 'DiagnosticLogLimiter\.error:')
+                        ForbiddenPatterns = @(
+                            'public void tick\(\);',
+                            'SIMULATED-DIAGRAM-SUPPORT'
+                        )
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramItem'
@@ -340,6 +344,14 @@ function Assert-ProductionJar {
                             foreach ($pattern in $check.Patterns) {
                                 if ($javapText -notmatch $pattern) {
                                     throw "$($module.Jar) class $($check.Class) failed production bytecode check: $pattern"
+                                }
+                            }
+                            foreach ($pattern in @($check.ForbiddenPatterns)) {
+                                if ([string]::IsNullOrWhiteSpace([string]$pattern)) {
+                                    continue
+                                }
+                                if ($javapText -match $pattern) {
+                                    throw "$($module.Jar) class $($check.Class) contains forbidden production bytecode: $pattern"
                                 }
                             }
                         }
