@@ -88,7 +88,6 @@
     "ponder.TextWindowElementMixin",
     "sable_hooks.SableCommonEventsMixin",
     "schematicannon_fix.SchematicPrinterMixin",
-    "silence_jei.ItemStackListFactoryMixin",
     "spring_item_bounce.EntityMixin",
     "torsion_spring.ComparatorBlockMixin",
     "torsion_spring.MechanicalBearingBlockEntityMixin",

@@ -186,16 +186,7 @@ function Assert-ProductionJar {
                         Target = 'Lnet/minecraft/world/level/storage/PrimaryLevelData;m_78545_('
                     }
                 )
-                ClassMarkerChecks = @(
-                    @{
-                        Class = 'dev/simulated_team/simulated/mixin/silence_jei/ItemStackListFactoryMixin.class'
-                        Markers = @(
-                            'addFromTab',
-                            'simulated$errorEmptyStack',
-                            '(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V'
-                        )
-                    }
-                )
+                ClassMarkerChecks = @()
                 JavapChecks = @(
                     @{
                         Class = 'dev.simulated_team.simulated.index.SimRenderTypes'

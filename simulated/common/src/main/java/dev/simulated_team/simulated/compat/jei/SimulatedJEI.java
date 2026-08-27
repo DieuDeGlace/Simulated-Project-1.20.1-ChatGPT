@@ -7,10 +7,9 @@ import dev.simulated_team.simulated.content.blocks.redstone.linked_typewriter.sc
 import dev.simulated_team.simulated.index.SimResourceManagers;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.ingredients.ITypedIngredient;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IIngredientAliasRegistration;
-import mezz.jei.library.ingredients.itemStacks.TypedItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -40,8 +39,8 @@ public class SimulatedJEI implements IModPlugin {
     @Override
     public void registerIngredientAliases(final IIngredientAliasRegistration registration) {
         for (final SearchAlias searchAlias : SimResourceManagers.SEARCH_ALIAS.entries()) {
-            final List<ITypedIngredient<ItemStack>> ingredients = searchAlias.getItems().stream().map(TypedItemStack::create).toList();
-            registration.addAliases(ingredients, searchAlias.terms());
+            final List<ItemStack> ingredients = searchAlias.getItems();
+            registration.addAliases(VanillaTypes.ITEM_STACK, ingredients, searchAlias.terms());
         }
     }
 }
