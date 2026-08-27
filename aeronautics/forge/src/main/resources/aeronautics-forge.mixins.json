@@ -8,8 +8,7 @@
   ],
   "client": [
     "BlockRenderDispatcherMixin",
-    "ForgeRenderTypeStageHandlerAccessor",
-    "ForgeRenderTypeStageHandlerMixin"
+    "ForgeRenderTypeStageHandlerAccessor"
   ],
   "server": [],
   "injectors": {

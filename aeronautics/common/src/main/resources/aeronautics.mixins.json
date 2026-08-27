@@ -27,6 +27,7 @@
   ],
   "client": [
     "levitite.ChunkRenderTypeSetAccessor",
+    "levitite.ChunkRenderTypeSetMixin",
     "levitite.ItemBlockRenderTypesMixin",
     "levitite.RenderTypeChunkLayerIdAccessor",
     "balloon.LevelChunkMixin",

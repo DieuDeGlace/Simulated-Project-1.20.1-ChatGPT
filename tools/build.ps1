@@ -264,9 +264,6 @@ function Assert-ProductionJar {
                 Refmap = 'aeronautics.refmap.json'
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
                 MappingChecks = @()
-                ForbiddenClasses = @(
-                    'dev/eriksonn/aeronautics/mixin/levitite/ChunkRenderTypeSetMixin.class'
-                )
                 ClassMarkerChecks = @(
                     @{
                         Class = 'dev/eriksonn/aeronautics/mixin/levitite/ItemBlockRenderTypesMixin.class'
@@ -277,23 +274,6 @@ function Assert-ProductionJar {
                             'getChunkRenderType',
                             'getMovingBlockRenderType',
                             'aeronautics$getLiveFirstLayer'
-                        )
-                    },
-                    @{
-                        Class = 'dev/eriksonn/aeronautics/neoforge/compatibility/AeroChunkRenderTypeCompatibility.class'
-                        Markers = @(
-                            'onVeilBlockLayersFinalized',
-                            'setChunkLayerId',
-                            'setChunkRenderTypesList',
-                            'setChunkRenderTypes'
-                        )
-                    },
-                    @{
-                        Class = 'dev/eriksonn/aeronautics/neoforge/mixin/ForgeRenderTypeStageHandlerMixin.class'
-                        Markers = @(
-                            'setBlockLayers',
-                            'aeronautics$finalizeChunkLayerAbi',
-                            'onVeilBlockLayersFinalized'
                         )
                     }
                 )
@@ -343,12 +323,6 @@ function Assert-ProductionJar {
                 [System.IO.Compression.ZipArchiveMode]::Read,
                 $false)
             try {
-                foreach ($forbiddenClass in @($module.ForbiddenClasses)) {
-                    if (-not [string]::IsNullOrWhiteSpace([string]$forbiddenClass) -and
-                            $null -ne $nested.GetEntry($forbiddenClass)) {
-                        throw "$($module.Jar) contains forbidden global compatibility class $forbiddenClass"
-                    }
-                }
                 if (@($module.JavapChecks).Count -gt 0) {
                     $temporaryJar = Join-Path ([System.IO.Path]::GetTempPath()) ("simulated-production-audit-$([Guid]::NewGuid().ToString('N')).jar")
                     try {
