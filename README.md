@@ -28,6 +28,10 @@ The target runtime is fixed to:
 This port is experimental and should be tested carefully in large mod packs.
 Back up worlds before changing mod versions.
 
+## Known incompatible mods
+
+- Immersive Optimization
+
 ## Known compatibility constraint: dynamic block render layers
 
 The Aeronautics port retains render-layer table normalization for its Levitite
