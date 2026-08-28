@@ -214,39 +214,84 @@ function Assert-ProductionJar {
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramEntity'
-                        Patterns = @('DiagnosticLogLimiter\.info:', 'DiagnosticLogLimiter\.error:')
+                        Patterns = @()
                         ForbiddenPatterns = @(
+                            'DiagnosticLogLimiter',
+                            'SIMULATED-DIAGRAM-INTERACT',
                             'public void tick\(\);',
                             'SIMULATED-DIAGRAM-SUPPORT'
                         )
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.diagram.DiagramItem'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @()
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'SIMULATED-DIAGRAM-PLACE')
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.diagram.screen.DiagramScreen'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @()
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'SIMULATED-DIAGRAM-SCREEN-INIT')
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.entities.launched_plunger.LaunchedPlungerEntityRenderer'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @(
+                            'ClientSubLevel\.renderPose:',
+                            'Pose3dc\.transformPosition:',
+                            'CatmulRomSpline\.generateSpline:',
+                            'SimRenderTypes\.rope:',
+                            'calculateOrientation:',
+                            'addRopeVertex:',
+                            'public static void renderRope\(java\.util\.List<net\.minecraft\.world\.phys\.Vec3>, net\.minecraft\.client\.renderer\.MultiBufferSource, net\.minecraft\.world\.level\.BlockAndTintGetter, com\.mojang\.blaze3d\.vertex\.PoseStack\);',
+                            'public static void renderRope\(java\.util\.List<net\.minecraft\.world\.phys\.Vec3>, net\.minecraft\.client\.renderer\.MultiBufferSource, net\.minecraft\.world\.level\.BlockAndTintGetter, com\.mojang\.blaze3d\.vertex\.PoseStack, int, int, boolean, float\);'
+                        )
+                        ForbiddenPatterns = @(
+                            'DiagnosticLogLimiter',
+                            'AtomicInteger',
+                            'GL11\.glGetInteger:',
+                            'SIMULATED-PLUNGER-'
+                        )
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.content.physics_staff.PhysicsStaffItemRenderer'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @(
+                            'public static net\.minecraft\.world\.phys\.Vec3 getFirstPersonFocusPos\(float, org\.joml\.Matrix4fc, org\.joml\.Matrix4fc\);',
+                            'itemProjMat:',
+                            'Matrix4f\.invert:',
+                            'ClientSubLevel\.renderPose:',
+                            'SimRenderTypes\.itemGlowingSolid:',
+                            'SimRenderTypes\.itemGlowingTranslucent:'
+                        )
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'AtomicInteger', 'SIMULATED-STAFF-FOCUS')
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.network.packets.contraption_diagram.DiagramOpenPacket'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @()
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'SIMULATED-DIAGRAM-OPEN')
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.neoforge.mixin.self_mixins.DiagramEntityMixin'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @(
+                            'writeSpawnData',
+                            'readSpawnData',
+                            'FriendlyByteBuf\.m_130079_:',
+                            'FriendlyByteBuf\.m_130260_:',
+                            'NetworkHooks\.getEntitySpawningPacket:'
+                        )
+                        ForbiddenPatterns = @(
+                            'DiagnosticLogLimiter',
+                            'AtomicInteger',
+                            'SIMULATED-DIAGRAM-SPAWN-'
+                        )
                     },
                     @{
                         Class = 'dev.simulated_team.simulated.neoforge.mixin.veil_compat.VeilResourceManagerImplMixin'
-                        Patterns = @('DiagnosticLogLimiter\.info:', 'DiagnosticLogLimiter\.warn:')
+                        Patterns = @(
+                            'PackResourcesExtension\.veil\$listResources:',
+                            'Files\.newInputStream:',
+                            'PackResourcesExtension\$PackResourceConsumer\.accept:',
+                            'UncheckedIOException'
+                        )
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'static resources from the nested archive')
                     }
                 )
             },
@@ -321,7 +366,15 @@ function Assert-ProductionJar {
                 JavapChecks = @(
                     @{
                         Class = 'dev.ryanhcode.offroad.content.blocks.wheel_mount.WheelMountRenderer'
-                        Patterns = @('DiagnosticLogLimiter\.info:')
+                        Patterns = @(
+                            'renderRotatingBuffer:',
+                            'FilteringRenderer\.renderOnBlockEntity:',
+                            'OffroadPartialModels\.SPRING_UPPER:',
+                            'OffroadPartialModels\.SPRING_LOWER:',
+                            'OffroadPartialModels\.SPRING_MIDDLE:',
+                            'ItemComponentCompat\.get:'
+                        )
+                        ForbiddenPatterns = @('DiagnosticLogLimiter', 'AtomicInteger', 'SIMULATED-WHEEL-MOUNT-RENDER')
                     }
                 )
             }
@@ -338,6 +391,26 @@ function Assert-ProductionJar {
                 [System.IO.Compression.ZipArchiveMode]::Read,
                 $false)
             try {
+                foreach ($classEntry in @($nested.Entries | Where-Object { $_.FullName -like '*.class' })) {
+                    $classStream = $classEntry.Open()
+                    try {
+                        $classMemory = [System.IO.MemoryStream]::new()
+                        try {
+                            $classStream.CopyTo($classMemory)
+                            $classText = [System.Text.Encoding]::GetEncoding(28591).GetString($classMemory.ToArray())
+                        }
+                        finally {
+                            $classMemory.Dispose()
+                        }
+                    }
+                    finally {
+                        $classStream.Dispose()
+                    }
+                    if ($classText.Contains('DiagnosticLogLimiter')) {
+                        throw "$($module.Jar) contains production diagnostics in $($classEntry.FullName)"
+                    }
+                }
+
                 if (@($module.JavapChecks).Count -gt 0) {
                     $temporaryJar = Join-Path ([System.IO.Path]::GetTempPath()) ("simulated-production-audit-$([Guid]::NewGuid().ToString('N')).jar")
                     try {

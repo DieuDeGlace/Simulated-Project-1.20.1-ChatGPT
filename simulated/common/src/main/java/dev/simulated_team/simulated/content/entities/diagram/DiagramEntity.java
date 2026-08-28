@@ -63,10 +63,14 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DiagramEntity extends HangingEntity implements ISyncPersistentData, IInteractionChecker, SpecialEntityItemRequirement {
     private static final Map<ResourceKey<Level>, Map<ServerSubLevel, DiagramRecordingTicket>> queuedDiagramRecordings = new WeakHashMap<>();
+    private static final int MAX_UNREGISTERED_FORCE_GROUP_REPORTS = 64;
+    private static final Set<String> REPORTED_UNREGISTERED_FORCE_GROUPS = ConcurrentHashMap.newKeySet();
 
     protected int size;
     protected Direction verticalOrientation;
@@ -167,9 +171,7 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
                 final QueuedForceGroup value = entry.getValue();
                 final ResourceLocation groupId = getRegisteredForceGroupId(key);
                 if (groupId == null) {
-                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.error(Simulated.LOGGER, "SIMULATED-DIAGRAM-UNREGISTERED-FORCE-GROUP: name={}, color={}, defaultDisplayed={}",
-                            key == null ? null : key.name(), key == null ? null : key.color(),
-                            key == null ? null : key.defaultDisplayed());
+                    reportUnregisteredForceGroup(key);
                     continue;
                 }
                 final List<QueuedForceGroup.PointForce> pointForces = new ObjectArrayList<>();
@@ -194,6 +196,19 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
         sentForces.put(ForceGroups.GRAVITY.getId(), List.of(new QueuedForceGroup.PointForce(new Vector3d(centerOfMass), localGravity)));
 
         return new DiagramDataPacket(sentForces, massTracker.getMass());
+    }
+
+    private static void reportUnregisteredForceGroup(@Nullable final ForceGroup forceGroup) {
+        final Object name = forceGroup == null ? null : forceGroup.name();
+        final Object color = forceGroup == null ? null : forceGroup.color();
+        final Object defaultDisplayed = forceGroup == null ? null : forceGroup.defaultDisplayed();
+        final String signature = String.valueOf(name) + '\u0000' + color + '\u0000' + defaultDisplayed;
+        if (REPORTED_UNREGISTERED_FORCE_GROUPS.size() >= MAX_UNREGISTERED_FORCE_GROUP_REPORTS
+                || !REPORTED_UNREGISTERED_FORCE_GROUPS.add(signature)) {
+            return;
+        }
+        Simulated.LOGGER.error("SIMULATED-DIAGRAM-UNREGISTERED-FORCE-GROUP: name={}, color={}, defaultDisplayed={}",
+                name, color, defaultDisplayed);
     }
 
     @Nullable
@@ -441,11 +456,6 @@ public class DiagramEntity extends HangingEntity implements ISyncPersistentData,
     @Override
     public InteractionResult interactAt(final Player player, final Vec3 vec, final InteractionHand hand) {
         final SubLevel subLevel = Sable.HELPER.getContaining(this);
-        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-DIAGRAM-INTERACT: side={}, entity={}, dimension={}, pos={}, click={}, hand={}, player={}, subLevel={}",
-                this.level().isClientSide ? "client" : "server", this.getId(), this.level().dimension().location(),
-                this.position(), vec, hand, player.getGameProfile().getName(),
-                subLevel == null ? null : subLevel.getUniqueId());
-
         if (this.level().isClientSide) {
             if (subLevel == null) {
                 player.displayClientMessage(SimLang.translate("contraption_diagram.cannot_use").color(SimColors.NUH_UH_RED).component(), true);

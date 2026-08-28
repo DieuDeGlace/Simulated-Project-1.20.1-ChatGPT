@@ -8,7 +8,6 @@ import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRendere
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
-import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.SimulatedClient;
 import dev.simulated_team.simulated.index.SimPartialModels;
 import dev.simulated_team.simulated.index.SimRenderTypes;
@@ -31,12 +30,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 import java.lang.Math;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
     private static final Vector3d focusPos = new Vector3d();
     private static final Matrix4f itemProjMat = new Matrix4f();
-    private static final AtomicInteger FOCUS_TRACES = new AtomicInteger();
 
     public static Vec3 getFirstPersonFocusPos(final float pt) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
@@ -72,39 +69,7 @@ public class PhysicsStaffItemRenderer extends CustomRenderedItemModelRenderer {
             output.set((float) focusPoint.x, (float) focusPoint.y, (float) focusPoint.z, 1.0f);
         }
 
-        if (FOCUS_TRACES.getAndIncrement() < 12) {
-            final Vector4f checkView = new Vector4f(output);
-            if (worldViewPose != null) {
-                worldViewPose.transform(checkView);
-            } else {
-                camera.rotation().transformInverse(checkView);
-            }
-            final Vector4f checkClip = worldProjection.transform(checkView, new Vector4f());
-            final double screenError = ndcDistance(itemClip, checkClip);
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-STAFF-FOCUS: partialTick={}, exactPose={}, itemView={}, "
-                            + "itemNdc=[{},{}], worldView=[{},{},{}], outputRelative=[{},{},{}], "
-                            + "checkNdc=[{},{}], screenError={}, itemProjection=[{},{},{},{}], "
-                            + "worldProjection=[{},{},{},{}]",
-                    pt, worldViewPose != null, focusPoint,
-                    ndcX(itemClip), ndcY(itemClip), worldView.x, worldView.y, worldView.z,
-                    output.x, output.y, output.z, ndcX(checkClip), ndcY(checkClip), screenError,
-                    itemProjMat.m00(), itemProjMat.m11(), itemProjMat.m20(), itemProjMat.m21(),
-                    worldProjection.m00(), worldProjection.m11(), worldProjection.m20(), worldProjection.m21());
-        }
-
         return new Vec3(output.x, output.y, output.z);
-    }
-
-    private static double ndcX(final Vector4fc value) {
-        return Math.abs(value.w()) > 1.0e-6f ? value.x() / value.w() : Double.NaN;
-    }
-
-    private static double ndcY(final Vector4fc value) {
-        return Math.abs(value.w()) > 1.0e-6f ? value.y() / value.w() : Double.NaN;
-    }
-
-    private static double ndcDistance(final Vector4fc first, final Vector4fc second) {
-        return Math.hypot(ndcX(first) - ndcX(second), ndcY(first) - ndcY(second));
     }
 
     @Override

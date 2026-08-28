@@ -38,8 +38,10 @@ public abstract class VeilResourceManagerImplMixin {
             return;
         }
 
-        int resources = 0;
-        int invalidResources = 0;
+        int malformedEntries = 0;
+        int invalidEntries = 0;
+        String firstMalformedEntry = null;
+        String firstInvalidEntry = null;
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(packResources.getSource()))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
@@ -62,8 +64,10 @@ public abstract class VeilResourceManagerImplMixin {
 
                 final int namespaceEnd = entryName.indexOf('/', root.length());
                 if (namespaceEnd < 0 || namespaceEnd == root.length() || namespaceEnd + 1 >= entryName.length()) {
-                    invalidResources++;
-                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.warn(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Ignoring malformed resource entry {}", entryName);
+                    malformedEntries++;
+                    if (firstMalformedEntry == null) {
+                        firstMalformedEntry = entryName;
+                    }
                     continue;
                 }
 
@@ -71,18 +75,22 @@ public abstract class VeilResourceManagerImplMixin {
                 final String path = entryName.substring(namespaceEnd + 1);
                 final ResourceLocation location = ResourceLocation.tryBuild(namespace, path);
                 if (location == null) {
-                    invalidResources++;
-                    dev.ryanhcode.sable.util.DiagnosticLogLimiter.warn(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Ignoring invalid resource entry {}", entryName);
+                    invalidEntries++;
+                    if (firstInvalidEntry == null) {
+                        firstInvalidEntry = entryName;
+                    }
                     continue;
                 }
 
                 consumer.accept(type, location, null, null, null);
-                resources++;
             }
         } catch (final IOException exception) {
             throw new UncheckedIOException("Failed to enumerate a Forge JarJar resource pack", exception);
         }
-
-        dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "[SIMULATED-VEIL-JARJAR] Loaded {} static resources from the nested archive ({} invalid)", resources, invalidResources);
+        if (malformedEntries > 0 || invalidEntries > 0) {
+            Simulated.LOGGER.warn("[SIMULATED-VEIL-JARJAR] Ignored {} malformed and {} invalid resource entries "
+                            + "(first malformed={}, first invalid={})",
+                    malformedEntries, invalidEntries, firstMalformedEntry, firstInvalidEntry);
+        }
     }
 }

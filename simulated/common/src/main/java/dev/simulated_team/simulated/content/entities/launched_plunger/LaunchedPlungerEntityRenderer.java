@@ -12,13 +12,10 @@ import dev.ryanhcode.sable.companion.math.Pose3dc;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
-import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.items.plunger_launcher.PlungerLauncherItemRenderer;
 import dev.simulated_team.simulated.index.SimPartialModels;
 import dev.simulated_team.simulated.index.SimRenderTypes;
 import dev.simulated_team.simulated.util.CatmulRomSpline;
-import foundry.veil.api.client.render.VeilRenderSystem;
-import foundry.veil.api.client.render.shader.program.ShaderProgram;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.SuperByteBuffer;
@@ -29,7 +26,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -43,13 +39,10 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlungerEntity> {
 
@@ -71,12 +64,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
     private static final List<Vec3> PREV_CABLE_POINTS = new ArrayList<>();
 
     private static final BlockPos.MutableBlockPos LIGHT_POS = new BlockPos.MutableBlockPos();
-    private static final AtomicInteger RENDER_TRACES = new AtomicInteger();
-    private static final AtomicInteger ROPE_TRACES = new AtomicInteger();
-    private static final AtomicInteger PAIRED_TRACES = new AtomicInteger();
-    private static final AtomicInteger PAIRED_GEOMETRY_TRACES = new AtomicInteger();
-    private static final AtomicInteger SETTLED_GEOMETRY_TRACES = new AtomicInteger();
-    private static final AtomicInteger FOCUS_TRACES = new AtomicInteger();
 
     public LaunchedPlungerEntityRenderer(final EntityRendererProvider.Context context) {
         super(context);
@@ -124,43 +111,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
                     (float) (cameraRelative.z + cameraPosition.z), 1.0f);
         }
 
-        if (FOCUS_TRACES.getAndIncrement() < 12) {
-            final Vector4f checkView = new Vector4f(output);
-            if (worldViewPose != null) {
-                worldViewPose.transform(checkView);
-            } else {
-                final Vec3 cameraPosition = camera.getPosition();
-                checkView.sub((float) cameraPosition.x, (float) cameraPosition.y,
-                        (float) cameraPosition.z, 0.0f);
-                camera.rotation().transformInverse(checkView);
-            }
-            final Vector4f checkClip = worldProjection.transform(checkView, new Vector4f());
-            final double screenError = ndcDistance(itemClip, checkClip);
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-FOCUS: partialTick={}, exactPose={}, itemView={}, "
-                            + "itemNdc=[{},{}], worldView=[{},{},{}], output=[{},{},{}], "
-                            + "checkNdc=[{},{}], screenError={}, itemProjection=[{},{},{},{}], "
-                            + "worldProjection=[{},{},{},{}]",
-                    pt, worldViewPose != null, focusPoint,
-                    ndcX(itemClip), ndcY(itemClip), worldView.x, worldView.y, worldView.z,
-                    output.x, output.y, output.z, ndcX(checkClip), ndcY(checkClip), screenError,
-                    PlungerLauncherItemRenderer.itemProjMat.m00(), PlungerLauncherItemRenderer.itemProjMat.m11(),
-                    PlungerLauncherItemRenderer.itemProjMat.m20(), PlungerLauncherItemRenderer.itemProjMat.m21(),
-                    worldProjection.m00(), worldProjection.m11(), worldProjection.m20(), worldProjection.m21());
-        }
-
         return new Vec3(output.x, output.y, output.z);
-    }
-
-    private static double ndcX(final Vector4fc value) {
-        return Math.abs(value.w()) > 1.0e-6f ? value.x() / value.w() : Double.NaN;
-    }
-
-    private static double ndcY(final Vector4fc value) {
-        return Math.abs(value.w()) > 1.0e-6f ? value.y() / value.w() : Double.NaN;
-    }
-
-    private static double ndcDistance(final Vector4fc first, final Vector4fc second) {
-        return Math.hypot(ndcX(first) - ndcX(second), ndcY(first) - ndcY(second));
     }
 
     @Override
@@ -188,8 +139,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
         poseStack.pushPose();
         Vec3 oldPos = new Vec3(entity.xo, entity.yo, entity.zo);
         Vec3 newPos = entity.position();
-        final Vec3 localOldPos = oldPos;
-        final Vec3 localNewPos = newPos;
         final float scalingFactor = 0.6f;
         final SubLevel subLevel = Sable.HELPER.getContainingClient(newPos);
         if (subLevel != null) {
@@ -201,16 +150,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
 
             final Quaterniondc quaterniondc = clientPos.orientation();
             poseStack.mulPose(new Quaternionf(quaterniondc.x(), quaterniondc.y(), quaterniondc.z(), quaterniondc.w()).conjugate());
-        }
-
-        if (RENDER_TRACES.getAndIncrement() < 16) {
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-RENDER: entity={}, tick={}, partialTick={}, localOld={}, "
-                            + "localNew={}, projectedNew={}, subLevel={}, other={}, poseTranslation=[{},{},{}], "
-                            + "poseDet={}, finite={}",
-                    entity.getId(), entity.tickCount, pt, oldPos, entity.position(), newPos,
-                    subLevel == null ? "none" : subLevel.getUniqueId(), other == null ? "none" : other.getId(),
-                    poseStack.last().pose().m30(), poseStack.last().pose().m31(), poseStack.last().pose().m32(),
-                    poseStack.last().pose().determinant(), poseStack.last().pose().isFinite());
         }
 
         final SubLevel oldSubLevel = Sable.HELPER.getContainingClient(oldPos);
@@ -240,8 +179,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
                 targetOldPos = entity.getEntityData().get(LaunchedPlungerEntity.TARGET_POS);
                 targetNewPos = targetOldPos;
             }
-            final Vec3 targetLocalOldPos = targetOldPos;
-            final Vec3 targetLocalNewPos = targetNewPos;
             final SubLevel targetSublevel = Sable.HELPER.getContainingClient(targetNewPos);
             if (targetSublevel != null) {
                 targetNewPos = ((ClientSubLevel) targetSublevel).renderPose(pt).transformPosition(targetNewPos);
@@ -256,19 +193,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             }
             target = targetOldPos.lerp(targetNewPos, pt).add(otherNormal.scale(scalingFactor));
 
-            if (PAIRED_TRACES.get() < 16 && PAIRED_TRACES.getAndIncrement() < 16) {
-                dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-PAIR: entity={}, other={}, tick={}, partialTick={}, "
-                                + "selfLocalOld={}, selfLocalNew={}, selfProjectedOld={}, selfProjectedNew={}, "
-                                + "targetLocalOld={}, targetLocalNew={}, targetProjectedOld={}, targetProjectedNew={}, "
-                                + "selfSubLevel={}, targetOldSubLevel={}, targetNewSubLevel={}, start={}, end={}, finite={}",
-                        entity.getId(), other.getId(), entity.tickCount, pt,
-                        localOldPos, localNewPos, oldPos, newPos,
-                        targetLocalOldPos, targetLocalNewPos, targetOldPos, targetNewPos,
-                        subLevel == null ? "none" : subLevel.getUniqueId(),
-                        targetOldSublevel == null ? "none" : targetOldSublevel.getUniqueId(),
-                        targetSublevel == null ? "none" : targetSublevel.getUniqueId(),
-                        pos, target, isFinite(pos) && isFinite(target));
-            }
         } else {
             final Entity owner = entity.getOwner();
             if (entity.getData(LaunchedPlungerEntity.OTHER_PLUNGER).isEmpty() && owner == Minecraft.getInstance().player && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
@@ -326,8 +250,7 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             points.add(start.add(toTarget));
             points.add(start.add(toTarget));
 
-            renderRope(points, multiBufferSource, Minecraft.getInstance().level, poseStack,
-                    entity.getId(), entity.tickCount, other != null, animationScale);
+            renderRope(points, multiBufferSource, Minecraft.getInstance().level, poseStack);
         }
 
         // Restore the entity-local pose after the rope has consumed the world-to-view
@@ -385,33 +308,9 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
     }
 
     public static void renderRope(final List<Vec3> positions, final MultiBufferSource multiBufferSource,
-                                  final BlockAndTintGetter level, final PoseStack poseStack,
-                                  final int entityId, final int tickCount, final boolean paired,
-                                  final float animationScale) {
-        final Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-
+                                  final BlockAndTintGetter level, final PoseStack poseStack) {
         final RenderType renderType = SimRenderTypes.rope();
         final VertexConsumer builder = multiBufferSource.getBuffer(renderType);
-
-        if (ROPE_TRACES.getAndIncrement() < 16) {
-            double maxCameraRelative = 0.0;
-            for (final Vec3 position : positions) {
-                maxCameraRelative = Math.max(maxCameraRelative, position.distanceTo(cameraPosition));
-            }
-            final ShaderInstance shader = RenderSystem.getShader();
-            final ShaderProgram ropeProgram = VeilRenderSystem.renderer().getShaderManager()
-                    .getShader(Simulated.path("rope/rope"));
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-ROPE: points={}, start={}, end={}, camera={}, "
-                            + "maxCameraRelative={}, renderType={}, queuedShader={}, queuedGlProgram={}, "
-                            + "veilProgramPresent={}, veilProgram={}, poseTranslation=[{},{},{}], "
-                            + "poseDet={}, finite={}",
-                    positions.size(), positions.get(0), positions.get(positions.size() - 1), cameraPosition,
-                    maxCameraRelative, renderType, shader == null ? "null" : shader.getName(),
-                    GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM), ropeProgram != null,
-                    ropeProgram == null ? -1 : ropeProgram.getProgram(), poseStack.last().pose().m30(),
-                    poseStack.last().pose().m31(), poseStack.last().pose().m32(),
-                    poseStack.last().pose().determinant(), poseStack.last().pose().isFinite());
-        }
 
         CABLE_POINTS.clear();
         for (final Vec3 position : positions) {
@@ -427,65 +326,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
             return;
         }
 
-        final boolean tracePairedGeometry = paired && PAIRED_GEOMETRY_TRACES.get() < 16
-                && PAIRED_GEOMETRY_TRACES.getAndIncrement() < 16;
-        final boolean traceSettledGeometry = tickCount >= 40 && SETTLED_GEOMETRY_TRACES.get() < 8
-                && SETTLED_GEOMETRY_TRACES.getAndIncrement() < 8;
-        if (tracePairedGeometry || traceSettledGeometry) {
-            final Vec3 lineStart = positions.get(0);
-            final Vec3 lineEnd = positions.get(positions.size() - 1);
-            double maxControlDeviation = 0.0;
-            for (final Vec3 point : CABLE_POINTS) {
-                maxControlDeviation = Math.max(maxControlDeviation,
-                        distanceToSegment(point, lineStart, lineEnd));
-            }
-
-            double maxSplineDeviation = 0.0;
-            double minSegmentLength = Double.POSITIVE_INFINITY;
-            double maxSegmentLength = 0.0;
-            double minTangentAlignment = 1.0;
-            final Quaternionf diagnosticOrientation = new Quaternionf();
-            final Vector3f diagnosticAxis = new Vector3f();
-            for (int i = 0; i < splinePoints.size() - 1; i++) {
-                final Vec3 point = splinePoints.get(i);
-                final Vec3 nextPoint = splinePoints.get(i + 1);
-                final Vec3 tangent = nextPoint.subtract(point);
-                final double segmentLength = tangent.length();
-                maxSplineDeviation = Math.max(maxSplineDeviation,
-                        distanceToSegment(point, lineStart, lineEnd));
-                minSegmentLength = Math.min(minSegmentLength, segmentLength);
-                maxSegmentLength = Math.max(maxSegmentLength, segmentLength);
-                if (segmentLength >= 1.0E-8 && Double.isFinite(segmentLength)) {
-                    calculateOrientation(diagnosticOrientation, point.x, point.y, point.z, nextPoint);
-                    diagnosticOrientation.transform(diagnosticAxis.set(0, 0, 1));
-                    minTangentAlignment = Math.min(minTangentAlignment,
-                            diagnosticAxis.x * tangent.x / segmentLength
-                                    + diagnosticAxis.y * tangent.y / segmentLength
-                                    + diagnosticAxis.z * tangent.z / segmentLength);
-                }
-            }
-            maxSplineDeviation = Math.max(maxSplineDeviation,
-                    distanceToSegment(splinePoints.get(splinePoints.size() - 1), lineStart, lineEnd));
-            final Vector3f poseStart = poseStack.last().pose().transformPosition(
-                    new Vector3f((float) lineStart.x, (float) lineStart.y, (float) lineStart.z));
-            final Vector3f poseEnd = poseStack.last().pose().transformPosition(
-                    new Vector3f((float) lineEnd.x, (float) lineEnd.y, (float) lineEnd.z));
-            final Vec3 expectedStart = lineStart.subtract(cameraPosition);
-            final Vec3 expectedEnd = lineEnd.subtract(cameraPosition);
-            final double poseStartError = expectedStart.distanceTo(new Vec3(poseStart.x, poseStart.y, poseStart.z));
-            final double poseEndError = expectedEnd.distanceTo(new Vec3(poseEnd.x, poseEnd.y, poseEnd.z));
-            dev.ryanhcode.sable.util.DiagnosticLogLimiter.info(Simulated.LOGGER, "SIMULATED-PLUNGER-GEOMETRY: entity={}, tick={}, paired={}, animationScale={}, "
-                            + "controlPoints={}, splinePoints={}, lineStart={}, lineEnd={}, firstSpline={}, lastSpline={}, "
-                            + "maxControlDeviation={}, maxSplineDeviation={}, minSegmentLength={}, maxSegmentLength={}, "
-                            + "minTangentAlignment={}, poseStart=[{},{},{}], poseEnd=[{},{},{}], "
-                            + "poseStartError={}, poseEndError={}, finite={}",
-                    entityId, tickCount, paired, animationScale, positions.size(), splinePoints.size(),
-                    lineStart, lineEnd, splinePoints.get(0), splinePoints.get(splinePoints.size() - 1),
-                    maxControlDeviation, maxSplineDeviation, minSegmentLength, maxSegmentLength,
-                    minTangentAlignment, poseStart.x, poseStart.y, poseStart.z, poseEnd.x, poseEnd.y, poseEnd.z,
-                    poseStartError, poseEndError, isFinite(lineStart) && isFinite(lineEnd)
-                            && isFinite(splinePoints.get(0)) && isFinite(splinePoints.get(splinePoints.size() - 1)));
-        }
 
         // ORIENTATION is shared scratch storage. Recompute the first frame explicitly so
         // the first rope segment cannot inherit the final segment orientation from the
@@ -598,6 +438,15 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
         }
     }
 
+    /** Compatibility overload for consumers compiled against earlier 1.20.1 port builds. */
+    @Deprecated(forRemoval = false)
+    public static void renderRope(final List<Vec3> positions, final MultiBufferSource multiBufferSource,
+                                  final BlockAndTintGetter level, final PoseStack poseStack,
+                                  final int entityId, final int tickCount, final boolean paired,
+                                  final float animationScale) {
+        renderRope(positions, multiBufferSource, level, poseStack);
+    }
+
     private static void addRopeVertex(final VertexConsumer builder, final PoseStack.Pose pose,
                                       final double x, final double y, final double z,
                                       final int color, final float u, final float v, final int light,
@@ -628,20 +477,6 @@ public class LaunchedPlungerEntityRenderer extends EntityRenderer<LaunchedPlunge
                 .rotateAxis((float) Math.atan2(dx, dz), 0, 1, 0)
                 .rotateAxis((float) (Math.acos(vertical) - Math.PI / 2.0), 1, 0, 0)
                 .slerp(dy < 0 ? POSITIVE_Y : NEGATIVE_Y, factor);
-    }
-
-    private static double distanceToSegment(final Vec3 point, final Vec3 start, final Vec3 end) {
-        final Vec3 delta = end.subtract(start);
-        final double lengthSquared = delta.lengthSqr();
-        if (!Double.isFinite(lengthSquared) || lengthSquared < 1.0E-12) {
-            return point.distanceTo(start);
-        }
-        final double t = Mth.clamp(point.subtract(start).dot(delta) / lengthSquared, 0.0, 1.0);
-        return point.distanceTo(start.add(delta.scale(t)));
-    }
-
-    private static boolean isFinite(final Vec3 value) {
-        return Double.isFinite(value.x) && Double.isFinite(value.y) && Double.isFinite(value.z);
     }
 
     @Override
