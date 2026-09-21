@@ -148,9 +148,9 @@ function Assert-ProductionJar {
         foreach ($required in @(
             'META-INF/mods.toml',
             'META-INF/jarjar/metadata.json',
-            'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.1-port.1.jar',
-            'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar',
-            'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar',
+            'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.2-port.1.jar',
+            'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.2-port.1.jar',
+            'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.2-port.1.jar',
             'pack.mcmeta',
             'LICENSE.md'
         )) {
@@ -171,7 +171,7 @@ function Assert-ProductionJar {
 
         $moduleRefmaps = @(
             @{
-                Jar = 'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.1-port.1.jar'
+                Jar = 'META-INF/jarjar/dev.simulated_team.simulated.simulated-forge-1.20.1-1.3.2-port.1.jar'
                 Refmap = 'simulated.refmap.json'
                 Configs = @('simulated.mixins.json', 'simulated-forge.mixins.json')
                 MappingChecks = @(
@@ -296,7 +296,7 @@ function Assert-ProductionJar {
                 )
             },
             @{
-                Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.1-port.1.jar'
+                Jar = 'META-INF/jarjar/dev.eriksonn.aeronautics.aeronautics-forge-1.20.1-1.3.2-port.1.jar'
                 Refmap = 'aeronautics.refmap.json'
                 Configs = @('aeronautics.mixins.json', 'aeronautics-forge.mixins.json')
                 MappingChecks = @()
@@ -358,7 +358,7 @@ function Assert-ProductionJar {
                 )
             },
             @{
-                Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.1-port.1.jar'
+                Jar = 'META-INF/jarjar/dev.ryanhcode.offroad.offroad-forge-1.20.1-1.3.2-port.1.jar'
                 Refmap = 'offroad.refmap.json'
                 Configs = @('offroad.mixins.json', 'offroad-forge.mixins.json')
                 MappingChecks = @()

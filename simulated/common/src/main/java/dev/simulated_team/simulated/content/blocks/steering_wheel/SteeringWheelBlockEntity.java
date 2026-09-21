@@ -235,10 +235,6 @@ public class SteeringWheelBlockEntity extends GeneratingKineticBlockEntity {
             compound.putBoolean("Held", this.held);
         }
 
-        compound.putInt("InUse", this.inUse);
-        compound.putDouble("SequencedAngleLimit", this.sequencedAngleLimit);
-        compound.putFloat("GeneratedSpeed", this.generatedSpeed);
-
         compound.put("Material", NbtUtils.writeBlockState(this.material));
     }
 
@@ -251,24 +247,21 @@ public class SteeringWheelBlockEntity extends GeneratingKineticBlockEntity {
     @Override
     protected void read(final CompoundTag compound, final boolean clientPacket) {
         super.read(compound, clientPacket);
+        this.angleInput.value = Mth.clamp(this.angleInput.value, 1, 360);
 
-        this.angle = compound.getFloat("Angle");
+        this.angle = Mth.clamp(compound.getFloat("Angle"), -360, 360);
         if (clientPacket) {
             this.held = compound.getBoolean("Held");
         }
 
         if (!clientPacket || !SimClickInteractions.STEERING_WHEEL_MANAGER.isBlockActive(this.getBlockPos())) {
-            this.targetAngle = compound.getFloat("TargetAngle");
+            this.updateTargetAngle(Mth.clamp(compound.getFloat("TargetAngle"), -360, 360));
             if (compound.contains("TargetAngleToUpdate")) {
-                this.targetAngleToUpdate = compound.getFloat("TargetAngleToUpdate");
+                this.targetAngleToUpdate = Mth.clamp(compound.getFloat("TargetAngleToUpdate"), -360, 360);
             } else {
                 this.targetAngleToUpdate = this.targetAngle;
             }
         }
-
-        this.inUse = compound.getInt("InUse");
-        this.sequencedAngleLimit = compound.getDouble("SequencedAngleLimit");
-        this.generatedSpeed = compound.getFloat("GeneratedSpeed");
 
         final BlockState prevMaterial = this.material;
         if (!compound.contains("Material"))

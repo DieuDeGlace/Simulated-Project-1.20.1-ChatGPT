@@ -151,7 +151,7 @@ public class SimBlocks {
                     .properties(properties -> properties
                             .destroyTime(5f))
                     .loot((p, b) -> p.dropOther(b, SWIVEL_BEARING.get()))
-                    .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                    .tag(BlockTags.MINEABLE_WITH_PICKAXE, SimTags.Blocks.SUPER_LIGHT)
                     .register();
 
     public static final BlockEntry<MergingGlueBlock> MERGING_GLUE =
@@ -611,7 +611,6 @@ public class SimBlocks {
                     .transform(SimStress.setCapacity(16.0))
                     .onRegister(BlockStressValues.setGeneratorSpeed(SteeringWheelBlockEntity.RPM))
                     .tag(SimTags.Blocks.LIGHT)
-                    .tag(AllTags.AllBlockTags.SAFE_NBT.tag)
                     .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                             .pattern("C")
                             .pattern("A")

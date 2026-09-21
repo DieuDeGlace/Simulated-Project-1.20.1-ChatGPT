@@ -18,7 +18,7 @@ disrupt its normal development.**
 The target runtime is fixed to:
 
 - Minecraft 1.20.1
-- Forge 47.4.0
+- Forge 47.4.10
 - Create 6.0.8
 - Flywheel 1.0.5
 - Veil 1.0.0.296
