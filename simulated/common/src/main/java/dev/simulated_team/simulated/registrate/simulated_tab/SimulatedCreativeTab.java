@@ -33,6 +33,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SimulatedCreativeTab {
+	private static final int ITEMS_PER_ROW = 9;
+	private static final List<Integer> SECTION_ITEM_COUNTS = new java.util.ArrayList<>();
 	public static int CURRENT_ROW = 0;
 	public static final Object2IntOpenHashMap<ResourceLocation> SECTION_Y_VALUES = new Object2IntOpenHashMap<>();
 
@@ -140,9 +142,8 @@ public class SimulatedCreativeTab {
 			sectionMap.computeIfAbsent(section, (s) -> new LinkedList<>()).add(stack);
 		}
 
-		for (int i = 0; i < 9; i++) {
-			displayItems.accept(ItemStack.EMPTY);
-		}
+		SECTION_Y_VALUES.clear();
+		SECTION_ITEM_COUNTS.clear();
 
 		int y = 0;
 		final List<SimulatedSection> sectionKeys = sectionMap.keySet().stream().sorted().toList();
@@ -164,21 +165,33 @@ public class SimulatedCreativeTab {
 
 			ResourceLocation id = SimResourceManagers.SIMULATED_SECTION.getId(key);
 			SECTION_Y_VALUES.put(id, y);
-			final int rowCount = (int) Math.ceil(itemCount / 9.0f);
+			SECTION_ITEM_COUNTS.add(itemCount);
+			final int rowCount = (itemCount + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
 			y += rowCount + 1;
+		}
+	}
 
-			if(key != null && key.equals(sectionKeys.get(sectionKeys.size() - 1))) {
-				break;
-			}
-
-			int padding = 9 - itemCount % 9;
-			if(padding < 9) {
-				padding += 9;
-			}
-			for (int i = 0; i < padding; i++) {
-				displayItems.accept(ItemStack.EMPTY);
+	public static void padMenuItems(final List<ItemStack> items) {
+		if (SECTION_ITEM_COUNTS.isEmpty()) return;
+		int expected = SECTION_ITEM_COUNTS.stream().mapToInt(Integer::intValue).sum();
+		if (items.size() != expected) return;
+		final List<ItemStack> padded = new java.util.ArrayList<>();
+		addEmptySlots(padded, ITEMS_PER_ROW);
+		int itemIndex = 0;
+		for (int sectionIndex = 0; sectionIndex < SECTION_ITEM_COUNTS.size(); sectionIndex++) {
+			int count = SECTION_ITEM_COUNTS.get(sectionIndex);
+			padded.addAll(items.subList(itemIndex, itemIndex + count));
+			itemIndex += count;
+			if (sectionIndex < SECTION_ITEM_COUNTS.size() - 1) {
+				addEmptySlots(padded, (ITEMS_PER_ROW - count % ITEMS_PER_ROW) % ITEMS_PER_ROW + ITEMS_PER_ROW);
 			}
 		}
+		items.clear();
+		items.addAll(padded);
+	}
+
+	private static void addEmptySlots(final List<ItemStack> items, final int count) {
+		for (int i = 0; i < count; i++) items.add(ItemStack.EMPTY);
 	}
 
 	public static void setPlaying(ResourceLocation resourceLocation, boolean playing) {

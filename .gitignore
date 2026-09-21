@@ -25,6 +25,7 @@ atlassian-ide-plugin.xml
 
 # Package Files #
 *.jar
+propulsion-work/
 *.war
 *.nar
 *.ear

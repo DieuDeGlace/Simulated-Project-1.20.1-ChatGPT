@@ -26,6 +26,10 @@ The target runtime is fixed to:
 - [Sable-1.20.1](https://github.com/NotAsher999/sable-1.20.1) 2.0.5
 - Java 17
 
+The updated bundle was also smoke tested with Create Propulsion: Simulated
+1.1.5-port.2. The client and an existing singleplayer world loaded; individual
+machines and flight behavior still need gameplay testing.
+
 This port is experimental and should be tested carefully in large mod packs.
 Back up worlds before changing mod versions.
 
